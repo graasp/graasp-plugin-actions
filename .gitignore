@@ -19,5 +19,6 @@ node_modules
 .DS_Store
 Thumbs.db
 
-# ignore yarn.lock
-yarn.lock
+# ignore yarn
+.yarn/cache
+.yarn/install-state.gz

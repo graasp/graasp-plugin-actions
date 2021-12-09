@@ -18,6 +18,7 @@ export class ActionService {
       ['item_type', 'itemType'],
       ['action_type', 'actionType'],
       'view',
+      'geolocation',
       'extra',
       ['created_at', 'createdAt'],
     ].map((c) =>
@@ -47,6 +48,7 @@ export class ActionService {
             "item_type",
             "action_type",
             "view",
+            "geolocation",
             "extra"
         )
         VALUES (
@@ -56,6 +58,7 @@ export class ActionService {
             ${action.itemType},
             ${action.actionType},
             ${action.view},
+            ${sql.json(action.geolocation)},
             ${sql.json(action.extra)}
         )
         RETURNING ${ActionService.allColumns}
@@ -93,6 +96,48 @@ export class ActionService {
         SELECT ${ActionService.allColumns} 
         FROM action
         WHERE "item_id" = ${itemId}
+      `,
+      )
+      .then(({ rows }) => rows);
+  }
+
+  async getActionsByItemWithView(itemId: string, view: string, transactionHandler: TrxHandler): Promise<readonly Action[]> {
+    return transactionHandler
+      .query<Action>(
+        sql`
+        SELECT ${ActionService.allColumns} 
+        FROM action
+        WHERE "item_id" = ${itemId}
+        AND "view" = ${view}
+      `,
+      )
+      .then(({ rows }) => rows);
+  }
+
+  async getActionsByItemWithSample(itemId: string, requestedSampleSize: string, transactionHandler: TrxHandler): Promise<readonly Action[]> {
+    return transactionHandler
+      .query<Action>(
+        sql`
+        SELECT ${ActionService.allColumns} 
+        FROM action
+        WHERE "item_id" = ${itemId}
+        ORDER BY RANDOM()
+        LIMIT ${requestedSampleSize}
+      `,
+      )
+      .then(({ rows }) => rows);
+  }
+
+  async getActionsByItemWithSampleAndView(itemId: string, requestedSampleSize: string, view: string, transactionHandler: TrxHandler): Promise<readonly Action[]> {
+    return transactionHandler
+      .query<Action>(
+        sql`
+        SELECT ${ActionService.allColumns} 
+        FROM action
+        WHERE "item_id" = ${itemId}
+        AND "view" = ${view}
+        ORDER BY RANDOM()
+        LIMIT ${requestedSampleSize}
       `,
       )
       .then(({ rows }) => rows);

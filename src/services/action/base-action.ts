@@ -13,6 +13,7 @@ export class BaseAction<E extends UnknownExtra> implements Action<E> {
   itemType: string;
   actionType: string;
   view: string;
+  geolocation: E;
   extra: E;
   readonly createdAt: string;
 
@@ -23,6 +24,7 @@ export class BaseAction<E extends UnknownExtra> implements Action<E> {
     itemType: string,
     actionType: string,
     view: string,
+    geolocation: E,
     extra: E
   ) {
     this.id = uuidv4();
@@ -32,6 +34,7 @@ export class BaseAction<E extends UnknownExtra> implements Action<E> {
     this.itemType = itemType;
     this.actionType = actionType;
     this.view = view;
+    this.geolocation = geolocation;
     this.extra = extra;
   }
 

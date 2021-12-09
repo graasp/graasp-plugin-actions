@@ -10,6 +10,7 @@ CREATE TABLE "action" (
     "item_type" character varying(100),
     "action_type" character varying(100),
     "view" character varying(100),
+    "geolocation" jsonb DEFAULT '{}'::jsonb,
     "extra" jsonb NOT NULL DEFAULT '{}'::jsonb,
     "created_at" timestamp NOT NULL DEFAULT (NOW() AT TIME ZONE 'utc')
 );

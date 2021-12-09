@@ -8,6 +8,7 @@ export interface Action<T extends UnknownExtra = UnknownExtra> {
   itemType: string;
   actionType: string;
   view: string;
+  geolocation: T;
   extra: T;
   createdAt: string;
 }

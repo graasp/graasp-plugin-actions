@@ -15,10 +15,11 @@ import { paths } from './constants/constants';
 import { correctStatusCodes, VIEWS, ACTION_TYPES, METHODS } from './constants/constants';
 
 import {
-  getOne
+  getOne,
+  getOneDeleteActions
 } from './schemas/schemas';
 import { BaseAnalytics } from "./services/action/base-analytics";
-import { Analytics, AnalyticsQueryParams, ItemIdParam } from "./interfaces/analytics";
+import { Analytics, AnalyticsQueryParams } from "./interfaces/analytics";
 
 
 export interface GraaspActionsOptions {
@@ -60,11 +61,11 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
   });
 
   // get all the actions matching the given `id`
-  fastify.get<{ Params: ItemIdParam, Querystring: AnalyticsQueryParams }>(
-    '/item/:itemId/analytics',
+  fastify.get<{ Params: IdParam, Querystring: AnalyticsQueryParams }>(
+    '/item/:id/analytics',
     { schema: getOne },
-    async ({ member, params: { itemId }, query: { requestedSampleSize, view }, log }, reply) => {
-
+    async ({ member, params: { id }, query: { requestedSampleSize, view }, log }, reply) => {
+      const itemId = id;
       // get actions aplying the parameters (view and requestedSampleSize)
       const t1 = new GetActionsTask(member, itemId, requestedSampleSize, view, actionService);
       await runner.runSingle(t1);
@@ -106,7 +107,7 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
   // delete all the actions matching the given `memberId`
   fastify.delete<{ Params: IdParam }>(
     '/members/:id/delete-actions',
-    { schema: getOne },
+    { schema: getOneDeleteActions },
     async ({ member, params: { id }, log,  }, reply) => {
       const task = new DeleteActionsTask(member, id, actionService);
       await runner.runSingle(task);

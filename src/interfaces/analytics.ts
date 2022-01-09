@@ -11,8 +11,11 @@ export interface Analytics {
   }
 }
 
-export interface AnalyticsQueryParams {
+export interface ItemIdParam {
   itemId: string;
+}
+
+export interface AnalyticsQueryParams {
   requestedSampleSize: string;
   view: string;
 }

@@ -1,7 +1,6 @@
 const ID_FORMAT = '(?=.*[0-9])(?=.*[a-zA-Z])([a-z0-9-]+)';
 
 export const correctStatusCodes = [200, 201, 202, 203, 204, 205, 206, 207];
-export const views = ['builder', 'player', 'research', 'localhost'];
 
 export const paths = {
     base: /\/items/,
@@ -12,3 +11,9 @@ export const paths = {
     childrenItem: /^\/items\/(?=.*[0-9])(?=.*[a-zA-Z])([a-z0-9-]+)\/children/,
     multipleItems: /^\/items\?id=(?=.*[0-9])(?=.*[a-zA-Z])([a-z0-9-]+)/
   }
+
+// Constants to check the validity of the query parameters when obtaining actions
+export const views = ['builder', 'player', 'explorer', 'localhost'];
+export const DEFAULT_ACTIONS_SAMPLE_SIZE = '5000';
+export const MIN_ACTIONS_SAMPLE_SIZE = 0;
+export const MAX_ACTIONS_SAMPLE_SIZE = 10000;

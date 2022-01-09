@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prepare": "npm run build"
+    "prepare": "yarn build"
   },
   "repository": {
     "type": "git",
@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/graasp/graasp-plugin-actions#readme",
   "dependencies": {
+    "fluent-json-schema": "3.0.1",
     "geoip-lite": "^1.4.2"
   },
   "devDependencies": {

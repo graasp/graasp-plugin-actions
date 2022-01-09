@@ -87,33 +87,9 @@ export class ActionService {
   /**
    * Get actions matching the given `itemId` or `[]`, if none is found.
    * @param itemId ID of the item whose actions are retrieved
+   * @param requestedSampleSize Number of actions to retrieve in random way
    * @param transactionHandler Database transaction handler
    */
-  async getActionsByItem(itemId: string, transactionHandler: TrxHandler): Promise<readonly Action[]> {
-    return transactionHandler
-      .query<Action>(
-        sql`
-        SELECT ${ActionService.allColumns} 
-        FROM action
-        WHERE "item_id" = ${itemId}
-      `,
-      )
-      .then(({ rows }) => rows);
-  }
-
-  async getActionsByItemWithView(itemId: string, view: string, transactionHandler: TrxHandler): Promise<readonly Action[]> {
-    return transactionHandler
-      .query<Action>(
-        sql`
-        SELECT ${ActionService.allColumns} 
-        FROM action
-        WHERE "item_id" = ${itemId}
-        AND "view" = ${view}
-      `,
-      )
-      .then(({ rows }) => rows);
-  }
-
   async getActionsByItemWithSample(itemId: string, requestedSampleSize: string, transactionHandler: TrxHandler): Promise<readonly Action[]> {
     return transactionHandler
       .query<Action>(
@@ -128,6 +104,13 @@ export class ActionService {
       .then(({ rows }) => rows);
   }
 
+    /**
+   * Get actions matching the given `itemId` or `[]`, if none is found.
+   * @param itemId ID of the item whose actions are retrieved
+   * @param requestedSampleSize Number of actions to retrieve in random way
+   * @param view Obtain actions only from a certain Graasp view
+   * @param transactionHandler Database transaction handler
+   */
   async getActionsByItemWithSampleAndView(itemId: string, requestedSampleSize: string, view: string, transactionHandler: TrxHandler): Promise<readonly Action[]> {
     return transactionHandler
       .query<Action>(

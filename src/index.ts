@@ -2,14 +2,12 @@ import geoip from "geoip-lite";
 
 // global
 import { FastifyPluginAsync } from "fastify";
-import { Item, Member, IdParam, Actor } from "graasp";
+import { Item, Member, IdParam, Actor, ItemMembership } from "graasp";
 
 // local
 import { CreateActionTask } from './services/action/create-action-task';
 import { GetActionsTask } from './services/action/get-actions-task';
 import { DeleteActionsTask } from './services/action/delete-actions-task';
-import { GetMembershipTask } from './services/item-membership/get-membership-task';
-import { GetMembersTask } from './services/member/get-member-task';
 import { GetItemTask } from './services/item/get-item-task';
 import { BaseAction } from './services/action/base-action';
 import { ActionService } from './db-service';
@@ -21,7 +19,7 @@ import {
   getOne
 } from './schemas/schemas';
 import { BaseAnalytics } from "./services/action/base-analytics";
-import { Analytics, AnalyticsQueryParams } from "./interfaces/analytics";
+import { Analytics, AnalyticsQueryParams, ItemIdParam } from "./interfaces/analytics";
 
 
 export interface GraaspActionsOptions {
@@ -33,15 +31,15 @@ const actionService = new ActionService();
 const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options) => {
   const { graaspActor } = options;
   const {
-    items: { taskManager, dbService: iS },
-    members: {dbService: memberService},
-    itemMemberships: {dbService: itemMembershipsService},
+    items: { taskManager: itemTaskManager, dbService: iS },
+    members: { taskManager: memberTaskManager, dbService: memberService },
+    itemMemberships: { taskManager: itemMembershipsTaskManager, dbService: itemMembershipsService},
     taskRunner: runner,
     log: defaultLogger,
   } = fastify;
 
   // save action when a item is created
-  const createItemTaskName = taskManager.getCreateTaskName();
+  const createItemTaskName = itemTaskManager.getCreateTaskName();
   runner.setTaskPostHookHandler(createItemTaskName, async (item: Partial<Item>, actor, { log, handler }) => {
     const member = actor as Member;
     const extra = {memberId: actor.id, itemId: item.id};
@@ -50,28 +48,36 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
     const action: Action = new BaseAction(actor.id, item.id, member.type, item.type, "create", view, geo, extra);
     actionService.create(action, handler);
   });
- 
-  // get all the actions matching the given `id`
-  fastify.get<{ Querystring: AnalyticsQueryParams }>(
-    '/research/analytics',
-    { schema: getOne },
-    async ({ member, query: { itemId, requestedSampleSize, view }, log }, reply) => {
 
+  // get all the actions matching the given `id`
+  fastify.get<{ Params: ItemIdParam, Querystring: AnalyticsQueryParams }>(
+    '/item/:itemId/analytics',
+    { schema: getOne },
+    async ({ member, params: { itemId }, query: { requestedSampleSize, view }, log }, reply) => {
+
+      // get actions aplying the parameters (view and requestedSampleSize)
       const t1 = new GetActionsTask(member, itemId, requestedSampleSize, view, actionService);
       await runner.runSingle(t1);
       const actions = t1.result;
+      console.log(actions)
 
-      const t2 = new GetItemTask(member, itemId, iS);
-      await runner.runSingle(t2);
-      const item = t2.result;
+      // get item
+      const t2 = itemTaskManager.createGetTaskSequence(member, itemId);
+      const itemResponse = await runner.runSingleSequence(t2);
+      const item = itemResponse as Item;
+      console.log(item)
 
-      const t3 = new GetMembershipTask(member, item, itemMembershipsService);
-      await runner.runSingle(t3);
-      const memberships = t3.result;
+      // get memberships of the item
+      const t3 = itemMembershipsTaskManager.createGetOfItemTaskSequence(member, itemId);
+      const membershipsResponse = await runner.runSingleSequence(t3);
+      const memberships = membershipsResponse as ItemMembership[];
+      console.log(memberships)
 
-      const t4 = new GetMembersTask(member, memberships, memberService);
-      await runner.runSingle(t4);
-      const members = t4.result;
+      // get members of the item
+      const tasks = memberships.map((membership) => memberTaskManager.createGetTask(member, membership.memberId));
+      const membersResponse = await runner.runMultiple(tasks, log);
+      const members = membersResponse as Member[];
+      console.log(members)
 
       const numActionsRetrieved = actions.length;
       const metadata = {
@@ -79,11 +85,10 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
         requestedSampleSize: parseInt(requestedSampleSize)
       }
 
+      // generate responseData with actions, members, item, and metadata
       const responseData: Analytics = new BaseAnalytics(actions, members, item, metadata);
       
       reply
-      .code(200)
-      .header('Content-Type', 'application/json; charset=utf-8')
       .send( responseData )
     },
   );

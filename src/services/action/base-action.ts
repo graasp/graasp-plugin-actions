@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { UnknownExtra } from 'graasp';
 // local
 import { Action } from '../../interfaces/action';
+import { View } from '../../constants/constants';
 
 export class BaseAction<E extends UnknownExtra> implements Action<E> {
 
@@ -12,7 +13,7 @@ export class BaseAction<E extends UnknownExtra> implements Action<E> {
   memberType: string;
   itemType: string;
   actionType: string;
-  view: string;
+  view: View;
   geolocation: E;
   extra: E;
   readonly createdAt: string;
@@ -23,7 +24,7 @@ export class BaseAction<E extends UnknownExtra> implements Action<E> {
     memberType: string,
     itemType: string,
     actionType: string,
-    view: string,
+    view: View,
     geolocation: E,
     extra: E
   ) {

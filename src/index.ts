@@ -12,7 +12,7 @@ import { BaseAction } from './services/action/base-action';
 import { ActionService } from './db-service';
 import { Action } from "./interfaces/action";
 import { paths } from './constants/constants';
-import { correctStatusCodes, VIEWS, ACTION_TYPES, METHODS } from './constants/constants';
+import { correctStatusCodes, View, VIEW_HOSTNAMES, ACTION_TYPES, METHODS } from './constants/constants';
 
 import {
   getOne,
@@ -39,22 +39,26 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
   } = fastify;
 
   // save action when an item is created
+  // we cannot use the onResponse hook in this case because in the creation of an item 
+  // the response object does not provide the item id (it is created later), therefore we do not have information about the item
   const createItemTaskName = itemTaskManager.getCreateTaskName();
   runner.setTaskPostHookHandler(createItemTaskName, async (item: Partial<Item>, actor, { log, handler }) => {
     const member = actor as Member;
     const extra = {memberId: actor.id, itemId: item.id};
-    const view = VIEWS.BUILDER.name;
+    const view = View.BUILDER_NAME;
     const geo = null;
     const action: Action = new BaseAction(actor.id, item.id, member.type, item.type, ACTION_TYPES.CREATE, view, geo, extra);
     actionService.create(action, handler);
   });
 
   // save action when an item is deleted
+  // we cannot use the onResponse hook in this case because when an item is deleted
+  // the onResponse hook is executed after the item is removed, therefore we do not have information about the item
   const deleteItemTaskName = itemTaskManager.getDeleteTaskName();
   runner.setTaskPostHookHandler(deleteItemTaskName, async (item: Partial<Item>, actor, { log, handler }) => {
     const member = actor as Member;
     const extra = {memberId: actor.id, itemId: item.id};
-    const view = VIEWS.BUILDER.name;
+    const view = View.BUILDER_NAME;
     const geo = null;
     const action: Action = new BaseAction(actor.id, null, member.type, item.type, ACTION_TYPES.DELETE, view, geo, extra);
     actionService.create(action, handler);
@@ -62,7 +66,7 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
 
   // get all the actions matching the given `id`
   fastify.get<{ Params: IdParam, Querystring: AnalyticsQueryParams }>(
-    '/item/:id/analytics',
+    '/items/:id/analytics',
     { schema: getOne },
     async ({ member, params: { id }, query: { requestedSampleSize, view }, log }, reply) => {
       const itemId = id;
@@ -70,30 +74,26 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
       const t1 = new GetActionsTask(member, itemId, requestedSampleSize, view, actionService);
       await runner.runSingle(t1);
       const actions = t1.result;
-      console.log(actions)
 
       // get item
       const t2 = itemTaskManager.createGetTaskSequence(member, itemId);
       const itemResponse = await runner.runSingleSequence(t2);
       const item = itemResponse as Item;
-      console.log(item)
 
       // get memberships of the item
       const t3 = itemMembershipsTaskManager.createGetOfItemTaskSequence(member, itemId);
       const membershipsResponse = await runner.runSingleSequence(t3);
       const memberships = membershipsResponse as ItemMembership[];
-      console.log(memberships)
 
       // get members of the item
       const tasks = memberships.map((membership) => memberTaskManager.createGetTask(member, membership.memberId));
       const membersResponse = await runner.runMultiple(tasks, log);
       const members = membersResponse as Member[];
-      console.log(members)
 
       const numActionsRetrieved = actions.length;
       const metadata = {
         numActionsRetrieved: numActionsRetrieved,
-        requestedSampleSize: parseInt(requestedSampleSize)
+        requestedSampleSize: requestedSampleSize
       }
 
       // generate responseData with actions, members, item, and metadata
@@ -121,7 +121,7 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
 
 
 // save action (except create and delete) for the itemId with its actionType and view
-const createActionTask = async function (member: Member, itemId: string, actionType: string, view: string, geo, runner, itemTaskManager) {
+const createActionTask = async function (member: Member, itemId: string, actionType: string, view: View, geo, runner, itemTaskManager) {
   // get item
   const t1 = itemTaskManager.createGetTaskSequence(member, itemId);
   const item = await runner.runSingleSequence(t1);
@@ -144,20 +144,20 @@ export const createAction = async function (request, reply, runner, itemTaskMana
     const queryItemsId: string[] = request.query.id;
     const geo = geoip.lookup(request.ip);
 
-    var view = null;
+    var view: View = null;
     const {hostname} = request;
     switch(hostname) {
-      case VIEWS.BUILDER.hostname:
-        view = VIEWS.BUILDER.name;
+      case VIEW_HOSTNAMES.BUILDER_HOSTNAME:
+        view = View.BUILDER_NAME;
         break;
-      case hostname == VIEWS.PLAYER.hostname:
-        view = VIEWS.PLAYER.name;
+      case hostname == VIEW_HOSTNAMES.PLAYER_HOSTNAME:
+        view = View.PLAYER_NAME;
         break;
-      case hostname == VIEWS.EXPLORER.hostname:
-        view = VIEWS.EXPLORER.name;
+      case hostname == VIEW_HOSTNAMES.EXPLORER_HOSTNAME:
+        view = View.EXPLORER_NAME;
         break;
       default:
-        view = VIEWS.UNKNOWN.name;
+        view = View.UNKNOWN_NAME;
         break;
     }
 

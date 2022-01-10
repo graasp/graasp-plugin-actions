@@ -8,21 +8,21 @@ import {
 import { ActionService } from '../../db-service';
 import { BaseActionTask } from './base-action-task';
 import { Action } from '../../interfaces/action';
-import { views, DEFAULT_ACTIONS_SAMPLE_SIZE, MIN_ACTIONS_SAMPLE_SIZE, MAX_ACTIONS_SAMPLE_SIZE } from '../../constants/constants';
+import { DEFAULT_ACTIONS_SAMPLE_SIZE, MIN_ACTIONS_SAMPLE_SIZE, MAX_ACTIONS_SAMPLE_SIZE, View } from '../../constants/constants';
 
 
 export class GetActionsTask<E extends UnknownExtra> extends BaseActionTask<Action[]> {
 
   readonly itemId: string;
-  readonly requestedSampleSize: string | undefined;
-  readonly view: string | undefined;
+  readonly requestedSampleSize: number | undefined;
+  readonly view: View | undefined;
 
 
   get name(): string {
     return GetActionsTask.name;
   }
 
-  constructor(actor: Actor, itemId: string, requestedSampleSize: string, view: string, actionService: ActionService) {
+  constructor(actor: Actor, itemId: string, requestedSampleSize: number, view: View, actionService: ActionService) {
     super(actor, actionService);
     this.itemId = itemId;
     this.requestedSampleSize = requestedSampleSize;
@@ -37,26 +37,17 @@ export class GetActionsTask<E extends UnknownExtra> extends BaseActionTask<Actio
     // Check validity of the requestSampleSize parameter (it is a number between min and max constants)
     var sampleSize = DEFAULT_ACTIONS_SAMPLE_SIZE;
     if (this.requestedSampleSize) {
-      const requestedSampleSizeInt = parseInt(this.requestedSampleSize, 10);
+      // If it is an integer, return the value bounded between min and max
+      if (Number.isInteger(this.requestedSampleSize)) {
+        sampleSize = Math.min(Math.max(this.requestedSampleSize, MIN_ACTIONS_SAMPLE_SIZE), MAX_ACTIONS_SAMPLE_SIZE);
       // If it is not valid, set the default value
-      if (requestedSampleSizeInt == NaN) {
-        sampleSize = DEFAULT_ACTIONS_SAMPLE_SIZE;
       } else {
-        // If the requested number is less than the min constant, set default value
-        if (requestedSampleSizeInt < MIN_ACTIONS_SAMPLE_SIZE) {
-          sampleSize = DEFAULT_ACTIONS_SAMPLE_SIZE;
-        // If the requested number is bigger than the max constant, set the max value
-        } else if (requestedSampleSizeInt > MAX_ACTIONS_SAMPLE_SIZE) {
-          sampleSize = MAX_ACTIONS_SAMPLE_SIZE.toString();
-        // If the number is not between min and max, set default value
-        } else {
-          sampleSize = requestedSampleSizeInt.toString();
-        }
+        sampleSize = DEFAULT_ACTIONS_SAMPLE_SIZE;
       }
     }
 
-    // Check if view parameter exits and check validity (it is one of the Graasp views)
-    if (this.view && views.includes(this.view)) {
+    // Check if view parameter exits. If it is provided an incorrect view, it would be undefined
+    if (this.view) {
       // Get actions with requestedSampleSize
       actionResult = await this.actionService.getActionsByItemWithSampleAndView(this.itemId, sampleSize, this.view, handler);
     } else {

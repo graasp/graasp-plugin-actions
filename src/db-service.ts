@@ -2,6 +2,9 @@
 import { sql, DatabaseTransactionConnectionType as TrxHandler } from 'slonik';
 import { Action } from './interfaces/action';
 
+// local
+import { View } from './constants/constants';
+
 
 /**
  * Database's first layer of abstraction for Actions
@@ -90,7 +93,7 @@ export class ActionService {
    * @param requestedSampleSize Number of actions to retrieve in random way
    * @param transactionHandler Database transaction handler
    */
-  async getActionsByItemWithSample(itemId: string, requestedSampleSize: string, transactionHandler: TrxHandler): Promise<readonly Action[]> {
+  async getActionsByItemWithSample(itemId: string, requestedSampleSize: number, transactionHandler: TrxHandler): Promise<readonly Action[]> {
     return transactionHandler
       .query<Action>(
         sql`
@@ -111,7 +114,7 @@ export class ActionService {
    * @param view Obtain actions only from a certain Graasp view
    * @param transactionHandler Database transaction handler
    */
-  async getActionsByItemWithSampleAndView(itemId: string, requestedSampleSize: string, view: string, transactionHandler: TrxHandler): Promise<readonly Action[]> {
+  async getActionsByItemWithSampleAndView(itemId: string, requestedSampleSize: number, view: View, transactionHandler: TrxHandler): Promise<readonly Action[]> {
     return transactionHandler
       .query<Action>(
         sql`

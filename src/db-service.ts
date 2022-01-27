@@ -2,9 +2,6 @@
 import { sql, DatabaseTransactionConnectionType as TrxHandler } from 'slonik';
 import { Action } from './interfaces/action';
 
-// local
-import { View } from './constants/constants';
-
 /**
  * Database's first layer of abstraction for Actions
  */
@@ -26,9 +23,9 @@ export class ActionService {
       !Array.isArray(c)
         ? sql.identifier([c])
         : sql.join(
-            c.map((cwa) => sql.identifier([cwa])),
-            sql` AS `,
-          ),
+          c.map((cwa) => sql.identifier([cwa])),
+          sql` AS `,
+        ),
     ),
     sql`, `,
   );
@@ -59,7 +56,7 @@ export class ActionService {
             ${action.itemType},
             ${action.actionType},
             ${action.view},
-            ${sql.json(action.geolocation)},
+            ${sql.json(action.geolocation ?? null)},
             ${sql.json(action.extra)}
         )
         RETURNING ${ActionService.allColumns}
@@ -122,7 +119,7 @@ export class ActionService {
   async getActionsByItemWithSampleAndView(
     itemId: string,
     requestedSampleSize: number,
-    view: View,
+    view: string,
     transactionHandler: TrxHandler,
   ): Promise<readonly Action[]> {
     return transactionHandler

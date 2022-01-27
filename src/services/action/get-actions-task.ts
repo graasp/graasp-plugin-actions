@@ -8,13 +8,12 @@ import {
   DEFAULT_ACTIONS_SAMPLE_SIZE,
   MIN_ACTIONS_SAMPLE_SIZE,
   MAX_ACTIONS_SAMPLE_SIZE,
-  View,
 } from '../../constants/constants';
 
 export class GetActionsTask extends BaseActionTask<Action[]> {
   readonly itemId: string;
   readonly requestedSampleSize: number | undefined;
-  readonly view: View | undefined;
+  readonly view: string | undefined;
 
   get name(): string {
     return GetActionsTask.name;
@@ -24,7 +23,7 @@ export class GetActionsTask extends BaseActionTask<Action[]> {
     actor: Actor,
     itemId: string,
     requestedSampleSize: number,
-    view: View,
+    view: string,
     actionService: ActionService,
   ) {
     super(actor, actionService);

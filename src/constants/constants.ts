@@ -1,21 +1,9 @@
-import { StatusCodes } from 'http-status-codes';
-
-export enum VIEW_HOSTNAMES {
-  BUILDER_HOSTNAME = 'builder.graasp.org',
-  PLAYER_HOSTNAME = 'player.graasp.org',
-  EXPLORER_HOSTNAME = 'explorer.graasp.org',
-}
-
-export enum View {
-  BUILDER_NAME = 'builder',
-  PLAYER_NAME = 'player',
-  EXPLORER_NAME = 'explorer',
-  UNKNOWN_NAME = 'unknown',
-}
+export const VIEW_UNKNOWN_NAME = 'unknown'
+export const VIEW_BUILDER_NAME = 'builder'
 
 export enum ACTION_TYPES {
   GET = 'get',
-  GET_CHILDREN = 'get-children',
+  GET_CHILDREN = 'get_children',
   UPDATE = 'update',
   CREATE = 'create',
   DELETE = 'delete',
@@ -30,24 +18,13 @@ export enum METHODS {
   PATCH = 'PATCH',
 }
 
-export const correctStatusCodes = [
-  StatusCodes.OK,
-  StatusCodes.CREATED,
-  StatusCodes.ACCEPTED,
-  StatusCodes.NON_AUTHORITATIVE_INFORMATION,
-  StatusCodes.NO_CONTENT,
-  StatusCodes.RESET_CONTENT,
-  StatusCodes.PARTIAL_CONTENT,
-  StatusCodes.MULTI_STATUS,
-];
-
+// todo: refactor from graasp utils? constants?
 export const paths = {
-  base: /\/items/,
-  baseItem: /^\/items\/(?=.*[0-9])(?=.*[a-zA-Z])([a-z0-9-]+)/,
-  copyItem: /^\/items\/(?=.*[0-9])(?=.*[a-zA-Z])([a-z0-9-]+)\/copy/,
-  moveItem: /^\/items\/(?=.*[0-9])(?=.*[a-zA-Z])([a-z0-9-]+)\/move/,
-  downloadItem: /^\/items\/(?=.*[0-9])(?=.*[a-zA-Z])([a-z0-9-]+)\/download/,
-  childrenItem: /^\/items\/(?=.*[0-9])(?=.*[a-zA-Z])([a-z0-9-]+)\/children/,
+  baseItem: /^\/items\/(?=.*[0-9])(?=.*[a-zA-Z])([a-z0-9-]+)$/,
+  copyItem: /^\/items\/(?=.*[0-9])(?=.*[a-zA-Z])([a-z0-9-]+)\/copy$/,
+  moveItem: /^\/items\/(?=.*[0-9])(?=.*[a-zA-Z])([a-z0-9-]+)\/move$/,
+  downloadItem: /^\/items\/(?=.*[0-9])(?=.*[a-zA-Z])([a-z0-9-]+)\/download$/,
+  childrenItem: /^\/items\/(?=.*[0-9])(?=.*[a-zA-Z])([a-z0-9-]+)\/children$/,
   multipleItems: /^\/items\?id=(?=.*[0-9])(?=.*[a-zA-Z])([a-z0-9-]+)/,
 };
 

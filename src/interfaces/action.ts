@@ -1,17 +1,15 @@
-import { UnknownExtra } from 'graasp';
-
 // local
-import { View } from '../constants/constants';
+import { Serializable } from 'graasp';
 
-export interface Action<T extends UnknownExtra = UnknownExtra> {
+export interface Action {
   id: string;
   memberId: string;
   itemId: string;
   memberType: string;
   itemType: string;
   actionType: string;
-  view: View;
-  geolocation: T;
-  extra: T;
+  view: string;
+  geolocation: Serializable;
+  extra: Serializable;
   createdAt: string;
 }

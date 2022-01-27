@@ -1,32 +1,32 @@
 // global
+import { Serializable } from 'graasp';
 import { v4 as uuidv4 } from 'uuid';
-import { UnknownExtra } from 'graasp';
 // local
 import { Action } from '../../interfaces/action';
-import { View } from '../../constants/constants';
 
-export class BaseAction<E extends UnknownExtra> implements Action<E> {
+export class BaseAction implements Action {
   readonly id: string;
   readonly memberId: string;
   readonly itemId: string;
   memberType: string;
   itemType: string;
   actionType: string;
-  view: View;
-  geolocation: E;
-  extra: E;
+  view: string;
+  geolocation: Serializable;
+  extra: Serializable;
   readonly createdAt: string;
 
-  constructor(
-    memberId: string,
-    itemId: string,
-    memberType: string,
-    itemType: string,
-    actionType: string,
-    view: View,
-    geolocation: E,
-    extra: E,
-  ) {
+  constructor(args: {
+    memberId: string;
+    itemId?: string;
+    memberType: string;
+    itemType: string;
+    actionType: string;
+    view: string;
+    geolocation: Serializable;
+    extra: Serializable;
+  }) {
+    const { memberId, itemId, memberType, itemType, actionType, view, geolocation, extra } = args;
     this.id = uuidv4();
     this.memberId = memberId;
     this.itemId = itemId;

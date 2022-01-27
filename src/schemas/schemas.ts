@@ -1,7 +1,7 @@
 import S from 'fluent-json-schema';
 
 // local
-import { View, MIN_ACTIONS_SAMPLE_SIZE, MAX_ACTIONS_SAMPLE_SIZE } from '../constants/constants';
+import { MIN_ACTIONS_SAMPLE_SIZE, MAX_ACTIONS_SAMPLE_SIZE } from '../constants/constants';
 
 export const uuid = S.string().pattern(
   '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
@@ -22,14 +22,13 @@ const getOne = {
     view: {
       type: 'string',
       required: ['view'],
-      enum: [View.BUILDER_NAME, View.PLAYER_NAME, View.EXPLORER_NAME, View.UNKNOWN_NAME],
     },
   },
 };
 
 // schema for removing all actions of a member
-const getOneDeleteActions = {
+const deleteAllById = {
   params: id,
 };
 
-export { getOne, getOneDeleteActions };
+export { getOne, deleteAllById };

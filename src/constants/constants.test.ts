@@ -15,7 +15,6 @@ describe('Constants', () => {
     expect(paths.copyItem.test(`/items/${id}/copy?id=moredata`)).toBeFalsy();
     expect(paths.downloadItem.test(`/items/${id}/download?id=moredata`)).toBeFalsy();
     expect(paths.childrenItem.test(`/items/${id}/children?id=moredata`)).toBeFalsy();
-    expect(paths.multipleItems.test(`/items?id=${id}?id=moredata`)).toBeFalsy();
     expect(paths.multipleItems.test(`recycled/items?id=${id}&id=${id}`)).toBeFalsy();
   });
 });

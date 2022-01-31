@@ -79,6 +79,7 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
         const action: Action = new BaseAction({
           memberId: actor.id,
           memberType: member.type,
+          itemId: null,
           itemType: item.type,
           actionType: ACTION_TYPES.DELETE,
           view,

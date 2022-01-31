@@ -180,6 +180,7 @@ export class CreateActionTask extends BaseActionTask<Action> {
         }),
       );
     } else {
+      this._result = null;
       log.debug('action not created for failed requests');
     }
     this.status = 'OK';

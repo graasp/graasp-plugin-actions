@@ -20,6 +20,5 @@ node_modules
 Thumbs.db
 
 # ignore yarn
-yarn.lock
 .yarn/cache
 .yarn/install-state.gz

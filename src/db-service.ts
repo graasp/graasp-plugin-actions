@@ -62,7 +62,7 @@ export class ActionService {
         RETURNING ${ActionService.allColumns}
       `,
       )
-      .then(({ rows }) => rows[0] || null);
+      .then(({ rows }) => rows[0]);
   }
 
   /**

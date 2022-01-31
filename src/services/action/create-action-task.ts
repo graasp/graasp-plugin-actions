@@ -44,14 +44,6 @@ export const buildActionsFromRequest = async (
   switch (method) {
     case METHODS.GET:
       switch (true) {
-        case paths.downloadItem.test(url):
-          actionsToSave.push({
-            ...actionBase,
-            itemId: paramItemId,
-            actionType: ACTION_TYPES.DOWNLOAD,
-            extra: { ...actionBase.extra, itemId: paramItemId },
-          });
-          break;
         case paths.childrenItem.test(url):
           actionsToSave.push({
             ...actionBase,
@@ -79,6 +71,16 @@ export const buildActionsFromRequest = async (
             actionType: ACTION_TYPES.COPY,
             extra: { ...actionBase.extra, itemId: paramItemId },
           });
+          break;
+        case paths.copyItems.test(url):
+          queryItemsId.forEach((id => {
+            actionsToSave.push({
+              ...actionBase,
+              itemId: id,
+              actionType: ACTION_TYPES.COPY,
+              extra: { ...actionBase.extra, itemId: id },
+            });
+          }));
           break;
 
         case paths.moveItem.test(url):

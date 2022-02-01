@@ -19,16 +19,16 @@ export const buildActionsFromRequest = async (
   // function called each time there is a request in the items in graasp (onResponse hook in graasp)
   // identify and check the correct endpoint of the request
   // check that the request is ok
-  const url: string = request.url;
-  const method: string = request.method;
-  const member: Member = request.member;
+  const { hostname, member, method, url, ip, query, params } = request;
   // warning: this is really dependent on the url -> how to be more safe and dynamic?
-  const paramItemId: string = (request.params as { id: string })?.id;
-  const queryItemsId: string[] = (request.query as { id: string[] })?.id;
-  const geolocation = geoip.lookup(request.ip);
+  const paramItemId: string = (params as { id: string })?.id;
+  let queryItemIds = (query as { id })?.id;
+  if (!Array.isArray(queryItemIds)) {
+    queryItemIds = [queryItemIds];
+  }
+  const geolocation = geoip.lookup(ip);
 
-  const { hostname } = request;
-  const view = hosts.find((({ hostname: thisHN }) => thisHN === hostname))?.name ?? VIEW_UNKNOWN_NAME;
+  const view = hosts.find(({ hostname: thisHN }) => thisHN === hostname)?.name ?? VIEW_UNKNOWN_NAME;
 
   const actionsToSave = [];
   const actionBase = {
@@ -65,30 +65,44 @@ export const buildActionsFromRequest = async (
     case METHODS.POST:
       switch (true) {
         case paths.copyItem.test(url):
+          const copyItemParentId = (request.body as { parentId: string })?.parentId;
           actionsToSave.push({
             ...actionBase,
             itemId: paramItemId,
             actionType: ACTION_TYPES.COPY,
-            extra: { ...actionBase.extra, itemId: paramItemId },
+            extra: { ...actionBase.extra, itemId: paramItemId, parentId: copyItemParentId },
           });
           break;
         case paths.copyItems.test(url):
-          queryItemsId.forEach((id => {
+          const copyItemsParentId = (request.body as { parentId: string })?.parentId;
+          queryItemIds.forEach((id) => {
             actionsToSave.push({
               ...actionBase,
               itemId: id,
               actionType: ACTION_TYPES.COPY,
-              extra: { ...actionBase.extra, itemId: id },
+              extra: { ...actionBase.extra, itemId: id, parentId: copyItemsParentId },
             });
-          }));
+          });
           break;
 
         case paths.moveItem.test(url):
+          const moveItemParentId = (request.body as { parentId: string })?.parentId;
           actionsToSave.push({
             ...actionBase,
             itemId: paramItemId,
             actionType: ACTION_TYPES.MOVE,
-            extra: { ...actionBase.extra, itemId: paramItemId },
+            extra: { ...actionBase.extra, itemId: paramItemId, parentId: moveItemParentId },
+          });
+          break;
+        case paths.moveItems.test(url):
+          const moveItemsParentId = (request.body as { parentId: string })?.parentId;
+          queryItemIds.forEach((id) => {
+            actionsToSave.push({
+              ...actionBase,
+              itemId: id,
+              actionType: ACTION_TYPES.MOVE,
+              extra: { ...actionBase.extra, itemId: id, parentId: moveItemsParentId },
+            });
           });
           break;
       }
@@ -104,9 +118,8 @@ export const buildActionsFromRequest = async (
           });
           break;
         case paths.multipleItems.test(url):
-          // in palce ???????
-          actionsToSave.concat(
-            queryItemsId.map((itemId) => ({
+          actionsToSave.push(
+            ...queryItemIds.map((itemId) => ({
               ...actionBase,
               itemId: itemId,
               actionType: ACTION_TYPES.UPDATE,
@@ -140,7 +153,7 @@ interface InputType {
 export class CreateActionTask extends BaseActionTask<Action> {
   readonly action: Action;
   itemService: ItemService;
-  hosts: Hostname[]
+  hosts: Hostname[];
 
   input: InputType;
   getInput: () => InputType;

@@ -10,7 +10,7 @@ import { Hostname } from './plugin';
 export class ActionTaskManager {
   actionService: ActionService;
   itemService: ItemService;
-  hosts: Hostname[]
+  hosts: Hostname[];
 
   constructor(actionService: ActionService, itemService: ItemService, hosts: Hostname[]) {
     this.actionService = actionService;

@@ -1,5 +1,5 @@
-export const VIEW_UNKNOWN_NAME = 'unknown'
-export const VIEW_BUILDER_NAME = 'builder'
+export const VIEW_UNKNOWN_NAME = 'unknown';
+export const VIEW_BUILDER_NAME = 'builder';
 
 export enum ACTION_TYPES {
   GET = 'get',
@@ -21,9 +21,9 @@ export enum METHODS {
 export const paths = {
   baseItem: /^\/items\/(?=.*[0-9])(?=.*[a-zA-Z])([a-z0-9-]+)$/,
   copyItem: /^\/items\/(?=.*[0-9])(?=.*[a-zA-Z])([a-z0-9-]+)\/copy/,
-  copyItems: /^\/items\/copy?id=(?=.*[0-9])(?=.*[a-zA-Z])([a-z0-9-]+)/,
+  copyItems: /^\/items\/copy\?id=(?=.*[0-9])(?=.*[a-zA-Z])([a-z0-9-]+)/,
   moveItem: /^\/items\/(?=.*[0-9])(?=.*[a-zA-Z])([a-z0-9-]+)\/move/,
-  moveItems: /^\/items\/move?id=(?=.*[0-9])(?=.*[a-zA-Z])([a-z0-9-]+)/,
+  moveItems: /^\/items\/move\?id=(?=.*[0-9])(?=.*[a-zA-Z])([a-z0-9-]+)/,
   childrenItem: /^\/items\/(?=.*[0-9])(?=.*[a-zA-Z])([a-z0-9-]+)\/children/,
   multipleItems: /^\/items\?id=(?=.*[0-9])(?=.*[a-zA-Z])([a-z0-9-]+)/,
 };

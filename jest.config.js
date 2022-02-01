@@ -4,12 +4,13 @@ module.exports = {
       tsconfig: 'tsconfig.json',
     },
   },
-  moduleFileExtensions: ['ts', 'js', 'json'],
+  moduleFileExtensions: ['ts', 'js'],
   transform: {
     '^.+\\.(ts|tsx)$': 'ts-jest',
   },
-  testMatch: ['/**/*.test.(ts|js)'],
+  testMatch: ['**/*.test.(ts|js)'],
   testEnvironment: 'node',
   // added for jest to look for the dependencies
   modulePaths: ['src/'],
+  transformIgnorePatterns: ['node_modules/(?!graasp-.*)'],
 };

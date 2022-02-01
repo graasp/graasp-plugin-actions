@@ -1,26 +1,26 @@
 // global
 import { FastifyPluginAsync } from 'fastify';
-import { Item, Member, IdParam, Actor, ItemMembership, } from 'graasp';
+import { Item, Member, IdParam, Actor, ItemMembership } from 'graasp';
 
 // local
 import { GetActionsTask } from './services/action/get-actions-task';
 import { BaseAction } from './services/action/base-action';
 import { ActionService } from './db-service';
 import { Action } from './interfaces/action';
-import { ACTION_TYPES, VIEW_BUILDER_NAME, } from './constants/constants';
+import { ACTION_TYPES, VIEW_BUILDER_NAME } from './constants/constants';
 import { getOne, deleteAllById } from './schemas/schemas';
 import { BaseAnalytics } from './services/action/base-analytics';
 import { Analytics, AnalyticsQueryParams } from './interfaces/analytics';
 import { ActionTaskManager } from './task-manager';
 
 export type Hostname = {
-  name: string,
-  hostname: string
-}
+  name: string;
+  hostname: string;
+};
 export interface GraaspActionsOptions {
   graaspActor: Actor;
   shouldSave?: boolean;
-  hosts: Hostname[]
+  hosts: Hostname[];
 }
 
 const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options) => {
@@ -59,7 +59,7 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
           geolocation,
           extra,
         });
-        actionService.create(action, handler);
+        await actionService.create(action, handler);
       },
     );
 

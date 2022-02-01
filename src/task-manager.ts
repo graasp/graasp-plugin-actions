@@ -22,7 +22,7 @@ export class ActionTaskManager {
     member: Actor,
     payload: { request: FastifyRequest; reply: FastifyReply },
   ): CreateActionTask {
-    console.log('taskmanager', JSON.stringify(payload))
+    console.log('taskmanager', payload.request)
     return new CreateActionTask(member, this.actionService, this.itemService, this.hosts, payload);
   }
 

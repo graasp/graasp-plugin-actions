@@ -16,7 +16,7 @@ export const buildActionsFromRequest = async (
   hosts: Hostname[],
   log: FastifyLoggerInstance,
 ): Promise<BaseAction[]> => {
-  console.log('start', request, request.ip, request.hostname);
+  console.log('start ip', request.ip, request.hostname);
   // function called each time there is a request in the items in graasp (onResponse hook in graasp)
   // identify and check the correct endpoint of the request
   // check that the request is ok
@@ -182,7 +182,6 @@ export class CreateActionTask extends BaseActionTask<Action> {
     log.debug('create action');
 
     const { request, reply } = this.input;
-    console.log('crea request: ', request);
 
     // create action only on successful requests
     if (reply.statusCode >= 200 && reply.statusCode < 300) {

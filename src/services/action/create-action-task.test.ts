@@ -22,7 +22,7 @@ const log = {
   debug: jest.fn(),
 } as unknown as FastifyLoggerInstance;
 const handler = {} as DatabaseTransactionHandler;
-const actionTaskManager = new ActionTaskManager(actionService, itemService, CLIENT_HOSTS);
+const actionTaskManager = new ActionTaskManager(actionService, CLIENT_HOSTS);
 
 // simplified core app using create action task on response
 const build = async (args: { method: string, url: string, shouldThrow?: boolean }) => {

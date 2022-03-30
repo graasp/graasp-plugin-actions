@@ -25,7 +25,7 @@ export interface GraaspActionsOptions {
 
 const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options) => {
   const {
-    items: { taskManager: itemTaskManager, dbService: itemService },
+    items: { taskManager: itemTaskManager },
     members: { taskManager: memberTaskManager },
     itemMemberships: { taskManager: itemMembershipsTaskManager },
     taskRunner: runner,
@@ -33,8 +33,9 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
   const { shouldSave, hosts } = options;
 
   const actionService = new ActionService();
-  const actionTaskManager = new ActionTaskManager(actionService, itemService, hosts);
+  const actionTaskManager = new ActionTaskManager(actionService, hosts);
 
+  console.log('Local plugin actions');
   // set hook handlers if can save actions
   if (shouldSave) {
     // save action when an item is created

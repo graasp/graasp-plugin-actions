@@ -1,14 +1,13 @@
-import fastify, { FastifyLoggerInstance, FastifyRequest } from 'fastify';
-import { DatabaseTransactionHandler, ItemService } from 'graasp';
-import qs from 'qs';
+import fastify, { FastifyLoggerInstance } from 'fastify';
 import { v4 } from 'uuid';
 import { ItemMembershipTaskManager, ItemTaskManager, TaskRunner } from 'graasp-test';
 import { CLIENT_HOSTS, CREATE_ACTION_WAIT_TIME, GRAASP_ACTOR } from '../../../test/constants';
 import { ActionService } from '../../db-service';
 import { ActionTaskManager } from '../../task-manager';
-import { ACTION_TYPES } from '../../constants/constants';
-import { checkActionData, getDummyItem } from '../../../test/utils';
-import { buildActionsFromRequest } from './create-action-task';
+import { MemberType } from '../../constants/constants';
+import { getDummyItem } from '../../../test/utils';
+import { BaseAction } from './base-action';
+import type { DatabaseTransactionHandler, ItemService } from 'graasp';
 
 const itemTaskManager = new ItemTaskManager();
 const itemService = {
@@ -23,9 +22,22 @@ const log = {
 } as unknown as FastifyLoggerInstance;
 const handler = {} as DatabaseTransactionHandler;
 const actionTaskManager = new ActionTaskManager(actionService, CLIENT_HOSTS);
+const buildActionsHandler = (): Promise<BaseAction[]> =>
+  Promise.all([
+    new BaseAction({
+      memberId: v4().toString(),
+      memberType: MemberType.Individual,
+      itemType: 'item',
+      actionType: 'create',
+      view: 'builder',
+      geolocation: null,
+      extra: {},
+      itemId: v4().toString(),
+    }),
+  ]);
 
 // simplified core app using create action task on response
-const build = async (args: { method: string, url: string, shouldThrow?: boolean }) => {
+const build = async (args: { method: string; url: string; shouldThrow?: boolean }) => {
   const { method, url, shouldThrow } = args;
   const app = fastify();
   // app.addSchema(schemas);
@@ -44,6 +56,7 @@ const build = async (args: { method: string, url: string, shouldThrow?: boolean 
       const createActionTask = actionTaskManager.createCreateTask(request.member, {
         request,
         reply,
+        handler: buildActionsHandler,
       });
       await runner.runSingle(createActionTask, log);
     }
@@ -71,23 +84,20 @@ describe('Create Action Task', () => {
     jest.clearAllMocks();
   });
 
-  it('check geolocation and view properties', async () => {
+  it('save action if request ok', async () => {
     const item = getDummyItem();
-    const request = {
-      url: `/items/${item.id}`,
-      method: 'GET',
-      member: GRAASP_ACTOR,
-      params: {},
-      query: {},
-      ip: '192.158.1.38',
-      headers: { origin: `https://${CLIENT_HOSTS[0].hostname}` },
-    } as unknown as FastifyRequest;
-    const getItemFromDb = async () => item;
-    const hosts = CLIENT_HOSTS;
+    const method = 'GET';
+    const buildUrl = (id) => `/items/${id}`;
+    const app = await build({ method, url: buildUrl(':id') });
 
-    const actions = await buildActionsFromRequest(request, getItemFromDb, hosts, log);
-    expect(actions[0].geolocation).toBeTruthy();
-    expect(actions[0].view).toEqual(CLIENT_HOSTS[0].name);
+    const mockCreateAction = jest.spyOn(actionService, 'create');
+    jest.spyOn(itemService, 'get').mockImplementation(async () => item);
+
+    // type fix: pass individually request's params
+    await app.inject({ method, url: buildUrl(item.id) });
+    await new Promise((r) => setTimeout(r, CREATE_ACTION_WAIT_TIME));
+
+    expect(mockCreateAction).toHaveBeenCalled();
   });
 
   it('does not save action if request rejects', async () => {
@@ -104,274 +114,5 @@ describe('Create Action Task', () => {
     await new Promise((r) => setTimeout(r, CREATE_ACTION_WAIT_TIME));
 
     expect(mockCreateAction).not.toHaveBeenCalled();
-  });
-
-  it('does not save action if request does not match any path', async () => {
-    const item = getDummyItem();
-    const method = 'GET';
-    const url = '/hello';
-    const app = await build({ method, url, shouldThrow: true });
-
-    const mockCreateAction = jest.spyOn(actionService, 'create');
-    jest.spyOn(itemService, 'get').mockImplementation(async () => item);
-
-    // type fix: pass individually request's params
-    await app.inject({ method, url });
-    await new Promise((r) => setTimeout(r, CREATE_ACTION_WAIT_TIME));
-
-    expect(mockCreateAction).not.toHaveBeenCalled();
-  });
-
-  it('GET an item', async () => {
-    const item = getDummyItem();
-    const method = 'GET';
-    const buildUrl = (id) => `/items/${id}`;
-    const app = await build({ method, url: buildUrl(':id') });
-
-    const mockCreateAction = jest.spyOn(actionService, 'create');
-    jest.spyOn(itemService, 'get').mockImplementation(async () => item);
-
-    // type fix: pass individually request's params
-    await app.inject({ method, url: buildUrl(item.id) });
-    await new Promise((r) => setTimeout(r, CREATE_ACTION_WAIT_TIME));
-
-    expect(mockCreateAction).toHaveBeenCalled();
-    const savedAction = mockCreateAction.mock.calls[0][0];
-    checkActionData(savedAction, {
-      itemId: item.id,
-      itemType: item.type,
-      actionType: ACTION_TYPES.GET,
-    });
-  });
-
-  it('GET children', async () => {
-    const item = getDummyItem();
-    const method = 'GET';
-    const buildUrl = (id) => `/items/${id}/children`;
-    const app = await build({ method, url: buildUrl(':id') });
-
-    const mockCreateAction = jest.spyOn(actionService, 'create');
-    jest.spyOn(itemService, 'get').mockImplementation(async () => item);
-
-    // type fix: pass individually request's params
-    await app.inject({ method, url: buildUrl(item.id) });
-    await new Promise((r) => setTimeout(r, CREATE_ACTION_WAIT_TIME));
-
-    expect(mockCreateAction).toHaveBeenCalled();
-    const savedAction = mockCreateAction.mock.calls[0][0];
-    checkActionData(savedAction, {
-      itemId: item.id,
-      itemType: item.type,
-      actionType: ACTION_TYPES.GET_CHILDREN,
-    });
-  });
-
-  it('POST copy item', async () => {
-    const item = getDummyItem();
-    const method = 'POST';
-    const buildUrl = (id) => `/items/${id}/copy`;
-    const app = await build({ method, url: buildUrl(':id') });
-
-    const mockCreateAction = jest.spyOn(actionService, 'create');
-    jest.spyOn(itemService, 'get').mockImplementation(async () => item);
-
-    // type fix: pass individually request's params
-    await app.inject({ method, url: buildUrl(item.id) });
-    await new Promise((r) => setTimeout(r, CREATE_ACTION_WAIT_TIME));
-
-    expect(mockCreateAction).toHaveBeenCalled();
-    const savedAction = mockCreateAction.mock.calls[0][0];
-    checkActionData(savedAction, {
-      itemId: item.id,
-      itemType: item.type,
-      actionType: ACTION_TYPES.COPY,
-    });
-  });
-
-  it('POST copy one item using copy multiple items endpoint', async () => {
-    const item = getDummyItem();
-    const method = 'POST';
-    const ids = [item.id];
-    const buildUrl = (id?) =>
-      `/items/copy${qs.stringify({ id }, { arrayFormat: 'repeat', addQueryPrefix: true })}`;
-    const app = await build({ method, url: buildUrl() });
-
-    const mockCreateAction = jest.spyOn(actionService, 'create');
-    jest.spyOn(itemService, 'get').mockImplementation(async () => item);
-
-    // type fix: pass individually request's params
-    await app.inject({ method, url: buildUrl(ids) });
-    await new Promise((r) => setTimeout(r, CREATE_ACTION_WAIT_TIME));
-
-    expect(mockCreateAction).toHaveBeenCalled();
-    expect(mockCreateAction.mock.calls.length).toEqual(1);
-    const savedAction = mockCreateAction.mock.calls[0][0];
-    checkActionData(savedAction, {
-      itemId: item.id,
-      itemType: item.type,
-      actionType: ACTION_TYPES.COPY,
-    });
-  });
-
-  it('POST copy multiple items', async () => {
-    const items = [getDummyItem(), getDummyItem()];
-    const method = 'POST';
-    const ids = items.map(({ id }) => id);
-    const buildUrl = (id?) =>
-      `/items/copy${qs.stringify({ id }, { arrayFormat: 'repeat', addQueryPrefix: true })}`;
-    const app = await build({ method, url: buildUrl() });
-
-    const mockCreateAction = jest.spyOn(actionService, 'create');
-    jest
-      .spyOn(itemService, 'get')
-      .mockImplementation(async (id) => items.find(({ id: thisId }) => thisId === id));
-
-    // type fix: pass individually request's params
-    await app.inject({ method, url: buildUrl(ids) });
-    await new Promise((r) => setTimeout(r, CREATE_ACTION_WAIT_TIME));
-
-    expect(mockCreateAction).toHaveBeenCalled();
-    expect(mockCreateAction.mock.calls.length).toEqual(2);
-    items.forEach((item, idx) => {
-      const savedAction = mockCreateAction.mock.calls[idx][0];
-      checkActionData(savedAction, {
-        itemId: item.id,
-        itemType: item.type,
-        actionType: ACTION_TYPES.COPY,
-      });
-    });
-  });
-
-  it('POST move item', async () => {
-    const item = getDummyItem();
-    const method = 'POST';
-    const parentId = v4();
-    const buildUrl = (id) => `/items/${id}/move`;
-    const app = await build({ method, url: buildUrl(':id') });
-
-    const mockCreateAction = jest.spyOn(actionService, 'create');
-    jest.spyOn(itemService, 'get').mockImplementation(async () => item);
-
-    // type fix: pass individually request's params
-    await app.inject({
-      method,
-      url: buildUrl(item.id),
-      payload: {
-        parentId,
-      },
-    });
-    await new Promise((r) => setTimeout(r, CREATE_ACTION_WAIT_TIME));
-
-    expect(mockCreateAction).toHaveBeenCalled();
-    const savedAction = mockCreateAction.mock.calls[0][0];
-    expect(savedAction.extra.parentId).toEqual(parentId);
-    checkActionData(savedAction, {
-      itemId: item.id,
-      itemType: item.type,
-      actionType: ACTION_TYPES.MOVE,
-    });
-  });
-  it('POST move one item using copy multiple items endpoint', async () => {
-    const item = getDummyItem();
-    const method = 'POST';
-    const ids = [item.id];
-    const buildUrl = (id?) =>
-      `/items/move${qs.stringify({ id }, { arrayFormat: 'repeat', addQueryPrefix: true })}`;
-    const app = await build({ method, url: buildUrl() });
-
-    const mockCreateAction = jest.spyOn(actionService, 'create');
-    jest.spyOn(itemService, 'get').mockImplementation(async () => item);
-
-    // type fix: pass individually request's params
-    await app.inject({ method, url: buildUrl(ids) });
-    await new Promise((r) => setTimeout(r, CREATE_ACTION_WAIT_TIME));
-
-    expect(mockCreateAction).toHaveBeenCalled();
-    expect(mockCreateAction.mock.calls.length).toEqual(1);
-    const savedAction = mockCreateAction.mock.calls[0][0];
-    checkActionData(savedAction, {
-      itemId: item.id,
-      itemType: item.type,
-      actionType: ACTION_TYPES.MOVE,
-    });
-  });
-
-  it('POST move multiple items', async () => {
-    const items = [getDummyItem(), getDummyItem()];
-    const method = 'POST';
-    const ids = items.map(({ id }) => id);
-    const buildUrl = (id?) =>
-      `/items/move${qs.stringify({ id }, { arrayFormat: 'repeat', addQueryPrefix: true })}`;
-    const app = await build({ method, url: buildUrl() });
-
-    const mockCreateAction = jest.spyOn(actionService, 'create');
-    jest
-      .spyOn(itemService, 'get')
-      .mockImplementation(async (id) => items.find(({ id: thisId }) => thisId === id));
-
-    // type fix: pass individually request's params
-    await app.inject({ method, url: buildUrl(ids) });
-    await new Promise((r) => setTimeout(r, CREATE_ACTION_WAIT_TIME));
-
-    expect(mockCreateAction).toHaveBeenCalled();
-    expect(mockCreateAction.mock.calls.length).toEqual(2);
-    items.forEach((item, idx) => {
-      const savedAction = mockCreateAction.mock.calls[idx][0];
-      checkActionData(savedAction, {
-        itemId: item.id,
-        itemType: item.type,
-        actionType: ACTION_TYPES.MOVE,
-      });
-    });
-  });
-
-  it('PATCH item', async () => {
-    const item = getDummyItem();
-    const method = 'PATCH';
-    const buildUrl = (id?) => `/items/${id}`;
-    const app = await build({ method, url: buildUrl(':id') });
-
-    const mockCreateAction = jest.spyOn(actionService, 'create');
-    jest.spyOn(itemService, 'get').mockImplementation(async () => item);
-
-    // type fix: pass individually request's params
-    await app.inject({ method, url: buildUrl(item.id) });
-    await new Promise((r) => setTimeout(r, CREATE_ACTION_WAIT_TIME));
-
-    expect(mockCreateAction).toHaveBeenCalled();
-    const savedAction = mockCreateAction.mock.calls[0][0];
-    checkActionData(savedAction, {
-      itemId: item.id,
-      itemType: item.type,
-      actionType: ACTION_TYPES.UPDATE,
-    });
-  });
-  it('PATCH multiple items', async () => {
-    const items = [getDummyItem(), getDummyItem()];
-    const method = 'PATCH';
-    const ids = items.map(({ id }) => id);
-    const buildUrl = (id?) =>
-      `/items${qs.stringify({ id }, { arrayFormat: 'repeat', addQueryPrefix: true })}`;
-    const app = await build({ method, url: buildUrl() });
-
-    const mockCreateAction = jest.spyOn(actionService, 'create');
-    jest
-      .spyOn(itemService, 'get')
-      .mockImplementation(async (id) => items.find(({ id: thisId }) => thisId === id));
-
-    // type fix: pass individually request's params
-    await app.inject({ method, url: buildUrl(ids) });
-    await new Promise((r) => setTimeout(r, CREATE_ACTION_WAIT_TIME));
-
-    expect(mockCreateAction).toHaveBeenCalled();
-    expect(mockCreateAction.mock.calls.length).toEqual(2);
-    items.forEach((item, idx) => {
-      const savedAction = mockCreateAction.mock.calls[idx][0];
-      checkActionData(savedAction, {
-        itemId: item.id,
-        itemType: item.type,
-        actionType: ACTION_TYPES.UPDATE,
-      });
-    });
   });
 });

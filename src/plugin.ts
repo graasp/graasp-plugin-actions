@@ -35,7 +35,6 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
   const actionService = new ActionService();
   const actionTaskManager = new ActionTaskManager(actionService, hosts);
 
-  console.log('Local plugin actions');
   // set hook handlers if can save actions
   if (shouldSave) {
     // save action when an item is created

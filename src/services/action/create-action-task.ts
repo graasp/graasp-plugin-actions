@@ -13,6 +13,7 @@ interface InputType {
   reply: FastifyReply;
   handler?: ActionHandler;
 }
+
 export class CreateActionTask extends BaseActionTask<Action> {
   readonly action: Action;
   hosts: Hostname[];
@@ -24,12 +25,7 @@ export class CreateActionTask extends BaseActionTask<Action> {
     return CreateActionTask.name;
   }
 
-  constructor(
-    actor: Actor,
-    actionService: ActionService,
-    hosts: Hostname[],
-    input: InputType,
-  ) {
+  constructor(actor: Actor, actionService: ActionService, hosts: Hostname[], input: InputType) {
     super(actor, actionService);
     this.input = input;
     this.hosts = hosts;
@@ -52,7 +48,6 @@ export class CreateActionTask extends BaseActionTask<Action> {
         log,
       };
       const actions = await buildActionHandler(actionInput);
-
       // save action
       this._result = await Promise.all(
         actions.map(async (action) => {

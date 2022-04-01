@@ -17,6 +17,11 @@ export enum METHODS {
   PATCH = 'PATCH',
 }
 
+export enum MemberType {
+  Individual = 'individual',
+  Group = 'group',
+}
+
 // todo: refactor from graasp utils? constants?
 export const paths = {
   baseItem: /^\/items\/(?=.*[0-9])(?=.*[a-zA-Z])([a-z0-9-]+)$/,

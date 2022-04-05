@@ -1,4 +1,4 @@
-import { CLIENT_HOSTS } from '../../test/constants';
+import { CLIENT_HOSTS } from '../constants/constants';
 import { VIEW_UNKNOWN_NAME } from '../constants/constants';
 import geoip from 'geoip-lite';
 

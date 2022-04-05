@@ -1,6 +1,5 @@
-import { CLIENT_HOSTS } from '../../test/constants';
 import { getGeolocationIp, getView } from './actions';
-import { VIEW_UNKNOWN_NAME } from '../constants/constants';
+import { CLIENT_HOSTS, VIEW_UNKNOWN_NAME } from '../constants/constants';
 
 const BUILDER_CLIENT_HOST = CLIENT_HOSTS[0];
 
@@ -8,7 +7,7 @@ describe('Action Utils', () => {
   it('check geolocation and view properties', async () => {
     // create a request with valid ip and headers to test view and geolocation
     const ip = '192.158.1.38';
-    
+
     const geolocation = getGeolocationIp(ip);
     expect(geolocation).toBeTruthy();
   });

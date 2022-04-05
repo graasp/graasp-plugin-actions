@@ -1,7 +1,12 @@
 import fastify, { FastifyLoggerInstance } from 'fastify';
 import { v4 } from 'uuid';
 import { ItemMembershipTaskManager, ItemTaskManager, TaskRunner } from 'graasp-test';
-import { CLIENT_HOSTS } from '../../constants/constants';
+import {
+  ACTION_TYPES,
+  CLIENT_HOSTS,
+  ITEM_TYPE,
+  VIEW_BUILDER_NAME,
+} from '../../constants/constants';
 import { ActionService } from '../../db-service';
 import { ActionTaskManager } from '../../task-manager';
 import { MemberType } from '../../constants/constants';
@@ -23,17 +28,17 @@ const log = {
 } as unknown as FastifyLoggerInstance;
 const handler = {} as DatabaseTransactionHandler;
 const actionTaskManager = new ActionTaskManager(actionService, CLIENT_HOSTS);
-const buildActionsHandler = (): Promise<BaseAction[]> =>
+const generateActionsHandler = (): Promise<BaseAction[]> =>
   Promise.all([
     new BaseAction({
-      memberId: v4().toString(),
+      memberId: v4(),
       memberType: MemberType.Individual,
-      itemType: 'item',
-      actionType: 'create',
-      view: 'builder',
+      itemType: ITEM_TYPE,
+      actionType: ACTION_TYPES.CREATE,
+      view: VIEW_BUILDER_NAME,
       geolocation: null,
       extra: {},
-      itemId: v4().toString(),
+      itemId: v4(),
     }),
   ]);
 
@@ -57,7 +62,7 @@ const build = async (args: { method: string; url: string; shouldThrow?: boolean 
       const createActionTask = actionTaskManager.createCreateTask(request.member, {
         request,
         reply,
-        handler: buildActionsHandler,
+        handler: generateActionsHandler,
       });
       await runner.runSingle(createActionTask, log);
     }

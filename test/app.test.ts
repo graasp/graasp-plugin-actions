@@ -1,12 +1,11 @@
-import qs from 'qs';
-import { v4 } from 'uuid';
 import { ItemTaskManager, ItemMembershipTaskManager, TaskRunner } from 'graasp-test';
-import { CLIENT_HOSTS, GRAASP_ACTOR } from './constants';
+import { GRAASP_ACTOR } from './constants';
 import build from './app';
-import { ActionService } from '../src/db-service';
+import { ActionService } from '../src';
 import { checkActionData, getDummyItem } from './utils';
 import { ACTION_TYPES, VIEW_BUILDER_NAME } from '../src/constants/constants';
 import { MemberTaskManager } from 'graasp';
+import { CLIENT_HOSTS } from '../src/constants/constants';
 
 const itemTaskManager = new ItemTaskManager();
 const memberTaskManager = {} as unknown as MemberTaskManager;

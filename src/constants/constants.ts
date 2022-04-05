@@ -1,6 +1,8 @@
 export const VIEW_UNKNOWN_NAME = 'unknown';
 export const VIEW_BUILDER_NAME = 'builder';
 
+export const ITEM_TYPE = 'item';
+
 // todo: get from graasp constants
 export const CLIENT_HOSTS = [
   {

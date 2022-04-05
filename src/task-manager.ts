@@ -19,7 +19,7 @@ export class ActionTaskManager {
 
   createCreateTask(
     member: Actor,
-    payload: { request: FastifyRequest; reply: FastifyReply; handler?: ActionHandler },
+    payload: { request: FastifyRequest; reply: FastifyReply; handler: ActionHandler },
   ): CreateActionTask {
     return new CreateActionTask(member, this.actionService, this.hosts, payload);
   }

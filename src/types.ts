@@ -10,8 +10,6 @@ declare module 'fastify' {
   }
 }
 
-// export { FastifyRequest as AuthedFastifyRequest };
-
 export interface ActionHandlerInput {
   request: FastifyRequest;
   reply: FastifyReply;

@@ -11,7 +11,7 @@ import { ActionHandler, ActionHandlerInput } from '../../types';
 interface InputType {
   request: FastifyRequest;
   reply: FastifyReply;
-  handler?: ActionHandler;
+  handler: ActionHandler;
 }
 
 export class CreateActionTask extends BaseActionTask<Action> {
@@ -36,18 +36,17 @@ export class CreateActionTask extends BaseActionTask<Action> {
 
     log.debug('create action');
 
-    const { request, reply, handler: buildActionHandler } = this.input;
+    const { request, reply, handler: generateActions } = this.input;
 
     // create action only on successful requests
     if (reply.statusCode >= 200 && reply.statusCode < 300) {
-      // new version with the handler
       const actionInput: ActionHandlerInput = {
         request,
         reply,
         dbHandler: handler,
         log,
       };
-      const actions = await buildActionHandler(actionInput);
+      const actions = await generateActions(actionInput);
       // save action
       this._result = await Promise.all(
         actions.map(async (action) => {

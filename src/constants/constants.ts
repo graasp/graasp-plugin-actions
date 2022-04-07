@@ -1,6 +1,24 @@
 export const VIEW_UNKNOWN_NAME = 'unknown';
 export const VIEW_BUILDER_NAME = 'builder';
 
+export const ITEM_TYPE = 'item';
+
+// todo: get from graasp constants
+export const CLIENT_HOSTS = [
+  {
+    name: 'builder',
+    hostname: 'builder.graasp.org',
+  },
+  {
+    name: 'player',
+    hostname: 'player.graasp.org',
+  },
+  {
+    name: 'explorer',
+    hostname: 'explorer.graasp.org',
+  },
+];
+
 export enum ACTION_TYPES {
   GET = 'get',
   GET_CHILDREN = 'get_children',
@@ -15,6 +33,11 @@ export enum METHODS {
   GET = 'GET',
   POST = 'POST',
   PATCH = 'PATCH',
+}
+
+export enum MemberType {
+  Individual = 'individual',
+  Group = 'group',
 }
 
 // todo: refactor from graasp utils? constants?

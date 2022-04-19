@@ -1,19 +1,14 @@
 import fastify, { FastifyLoggerInstance } from 'fastify';
 import { v4 } from 'uuid';
 import { ItemMembershipTaskManager, ItemTaskManager, TaskRunner } from 'graasp-test';
-import {
-  ACTION_TYPES,
-  CLIENT_HOSTS,
-  ITEM_TYPE,
-  VIEW_BUILDER_NAME,
-} from '../../constants/constants';
+import { ACTION_TYPES, CLIENT_HOSTS, VIEW_BUILDER_NAME } from '../../constants/constants';
 import { ActionService } from '../../db-service';
 import { ActionTaskManager } from '../../task-manager';
 import { MemberType } from '../../constants/constants';
 import { getDummyItem } from '../../../test/utils';
 import { BaseAction } from './base-action';
 import type { DatabaseTransactionHandler, ItemService } from 'graasp';
-import { CREATE_ACTION_WAIT_TIME, GRAASP_ACTOR } from '../../../test/constants';
+import { CREATE_ACTION_WAIT_TIME, GRAASP_ACTOR, ITEM_TYPE } from '../../../test/constants';
 
 const itemTaskManager = new ItemTaskManager();
 const itemService = {

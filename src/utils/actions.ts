@@ -11,7 +11,7 @@ const getView = (headers: { origin?: string | string[] }): string =>
   VIEW_UNKNOWN_NAME;
 
 const getBaseAction = (request: FastifyRequest): Partial<BaseAction> => {
-  const {member, ip, headers} = request;
+  const { member, ip, headers } = request;
   const view = getView(headers);
   const geolocation = getGeolocationIp(ip) as unknown as Serializable;
   return {

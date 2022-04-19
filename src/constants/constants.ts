@@ -1,7 +1,7 @@
+import path from 'path';
+
 export const VIEW_UNKNOWN_NAME = 'unknown';
 export const VIEW_BUILDER_NAME = 'builder';
-
-export const ITEM_TYPE = 'item';
 
 // todo: get from graasp constants
 export const CLIENT_HOSTS = [
@@ -55,3 +55,7 @@ export const paths = {
 export const DEFAULT_ACTIONS_SAMPLE_SIZE = 5000;
 export const MIN_ACTIONS_SAMPLE_SIZE = 0;
 export const MAX_ACTIONS_SAMPLE_SIZE = 10000;
+
+export const TMP_FOLDER_PATH = path.join(__dirname, 'tmp');
+
+export const ZIP_MIMETYPE = 'application/zip';

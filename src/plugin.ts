@@ -1,17 +1,35 @@
 // global
 import { FastifyPluginAsync } from 'fastify';
 import { Item, Member, IdParam, Actor, ItemMembership } from 'graasp';
+import fs from 'fs';
+import path from 'path';
+import mailerPlugin from 'graasp-mailer';
+import {
+  FileTaskManager,
+  GraaspLocalFileItemOptions,
+  GraaspS3FileItemOptions,
+  ServiceMethod,
+} from 'graasp-plugin-file';
 
 // local
 import { GetActionsTask } from './services/action/get-actions-task';
 import { BaseAction } from './services/action/base-action';
 import { ActionService } from './db-service';
 import { Action } from './interfaces/action';
-import { ACTION_TYPES, VIEW_BUILDER_NAME } from './constants/constants';
-import { getOne, deleteAllById } from './schemas/schemas';
+import {
+  ACTION_TYPES,
+  CLIENT_HOSTS,
+  MAX_ACTIONS_SAMPLE_SIZE,
+  TMP_FOLDER_PATH,
+  VIEW_BUILDER_NAME,
+  ZIP_MIMETYPE,
+} from './constants/constants';
+import { getOne, deleteAllById, exportAction } from './schemas/schemas';
 import { BaseAnalytics } from './services/action/base-analytics';
 import { Analytics, AnalyticsQueryParams } from './interfaces/analytics';
 import { ActionTaskManager } from './task-manager';
+import { StatusCodes } from 'http-status-codes';
+import { buildActionFilePath, buildItemTmpFolder, createActionArchive } from './utils/export';
 
 export type Hostname = {
   name: string;
@@ -21,6 +39,8 @@ export interface GraaspActionsOptions {
   graaspActor: Actor;
   shouldSave?: boolean;
   hosts: Hostname[];
+  serviceMethod: ServiceMethod;
+  serviceOptions: { s3: GraaspS3FileItemOptions; local: GraaspLocalFileItemOptions };
 }
 
 const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options) => {
@@ -29,11 +49,59 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
     members: { taskManager: memberTaskManager },
     itemMemberships: { taskManager: itemMembershipsTaskManager },
     taskRunner: runner,
+    mailer,
   } = fastify;
-  const { shouldSave, hosts } = options;
+  const { serviceMethod, serviceOptions, shouldSave, hosts } = options;
 
   const actionService = new ActionService();
   const actionTaskManager = new ActionTaskManager(actionService, hosts);
+
+  const fileTaskManager = new FileTaskManager(serviceOptions, serviceMethod);
+
+  if (!mailerPlugin) {
+    throw new Error('Mailer plugin is not defined');
+  }
+
+  const getActions = async ({ member, itemId }) => {
+    const getTasks = CLIENT_HOSTS.map(({ name }) => {
+      // todo: get all actions? will depend on subscription?
+      // TODO: should get latest and not random actions!!
+      return new GetActionsTask(member, itemId, MAX_ACTIONS_SAMPLE_SIZE, name, actionService);
+    });
+    return runner.runMultiple(getTasks);
+  };
+
+  const uploadArchive =
+    ({ member, log }) =>
+    async ({ filepath, itemId, timestamp, mimetype }) => {
+      log.debug(`upload archive for item ${itemId}`);
+
+      const uploadFilePath = buildActionFilePath(itemId, timestamp);
+      const uploadTask = fileTaskManager.createUploadFileTask(member, {
+        file: fs.createReadStream(filepath),
+        filepath: uploadFilePath,
+        mimetype,
+        size: fs.statSync(filepath).size,
+      });
+      await runner.runSingle(uploadTask);
+      return uploadFilePath;
+    };
+
+  const onSuccess =
+    ({ member, log }) =>
+    async ({ itemId, timestamp }) => {
+      // send mail
+      log.debug('send action file by mail');
+      const lang = member?.extra?.lang;
+      const getDownloadLinkTask = fileTaskManager.createDownloadFileTask(member, {
+        filepath: buildActionFilePath(itemId, timestamp),
+        itemId,
+        mimetype: ZIP_MIMETYPE,
+      });
+
+      const downloadLink = (await runner.runSingle(getDownloadLinkTask)) as string;
+      await mailer.sendActionExportEmail(member, downloadLink, lang);
+    };
 
   // set hook handlers if can save actions
   if (shouldSave) {
@@ -130,6 +198,40 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
       reply.send(responseData);
     },
   );
+
+  // get all the actions matching the given `id`
+  fastify.route<{ Params: IdParam }>({
+    method: 'POST',
+    url: '/items/:id/export',
+    schema: exportAction,
+    handler: async ({ member, params: { id: itemId }, log }, reply) => {
+      // create tmp folder to temporaly save files
+      const tmpFolder = path.join(TMP_FOLDER_PATH, itemId);
+      fs.mkdirSync(tmpFolder, { recursive: true });
+
+      createActionArchive({
+        itemId,
+        tmpFolder,
+        getActions: getActions({ member, itemId }),
+        onSuccess: onSuccess({ member, log }),
+        uploadArchive: uploadArchive({ member, log }),
+      });
+
+      // reply no content and let the server create the archive and send the mail
+      reply.status(StatusCodes.NO_CONTENT);
+    },
+    // on response delete tmp folder
+    onResponse: async ({ params, log }) => {
+      // delete tmp files after endpoint responded
+      const itemId = (params as IdParam)?.id;
+      const fileStorage = buildItemTmpFolder(itemId);
+      if (fs.existsSync(fileStorage)) {
+        fs.rmSync(fileStorage, { recursive: true });
+      } else {
+        log?.error(`${fileStorage} was not found, and was not deleted`);
+      }
+    },
+  });
 
   // delete all the actions matching the given `memberId`
   fastify.delete<{ Params: IdParam }>(

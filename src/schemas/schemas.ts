@@ -1,4 +1,5 @@
 import S from 'fluent-json-schema';
+import { StatusCodes } from 'http-status-codes';
 
 // local
 import { MIN_ACTIONS_SAMPLE_SIZE, MAX_ACTIONS_SAMPLE_SIZE } from '../constants/constants';
@@ -10,7 +11,7 @@ export const uuid = S.string().pattern(
 export const id = S.object().prop('id', uuid).required(['id']);
 
 // schema for getting item analytics with view and requestedSampleSize query parameters
-const getOne = {
+export const getOne = {
   params: id,
   querystring: {
     requestedSampleSize: {
@@ -27,8 +28,13 @@ const getOne = {
 };
 
 // schema for removing all actions of a member
-const deleteAllById = {
+export const deleteAllById = {
   params: id,
 };
 
-export { getOne, deleteAllById };
+export const exportAction = {
+  params: id,
+  response: {
+    [StatusCodes.NO_CONTENT]: {},
+  },
+};

@@ -3,22 +3,6 @@ import path from 'path';
 export const VIEW_UNKNOWN_NAME = 'unknown';
 export const VIEW_BUILDER_NAME = 'builder';
 
-// todo: get from graasp constants
-export const CLIENT_HOSTS = [
-  {
-    name: 'builder',
-    hostname: 'builder.graasp.org',
-  },
-  {
-    name: 'player',
-    hostname: 'player.graasp.org',
-  },
-  {
-    name: 'explorer',
-    hostname: 'explorer.graasp.org',
-  },
-];
-
 export enum ACTION_TYPES {
   GET = 'get',
   GET_CHILDREN = 'get_children',

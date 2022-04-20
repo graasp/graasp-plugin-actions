@@ -3,6 +3,7 @@ import { FastifyLoggerInstance, FastifyReply, FastifyRequest } from 'fastify';
 // local
 import { BaseAction } from './services/action/base-action';
 import { DatabaseTransactionHandler, Member } from 'graasp';
+import { BaseAnalytics } from './services/action/base-analytics';
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -19,3 +20,11 @@ export interface ActionHandlerInput {
 
 // type of the handler function responsible for building the action object
 export type ActionHandler = (actionInput: ActionHandlerInput) => Promise<BaseAction[]>;
+
+export type onExportSuccessFunction = (args: { itemId: string; timestamp: number }) => void;
+export type UploadArchiveFunction = (args: {
+  filepath: string;
+  itemId: string;
+  timestamp: number;
+}) => Promise<void>;
+export type GetBaseAnalyticsForViewsFunction = () => BaseAnalytics[];

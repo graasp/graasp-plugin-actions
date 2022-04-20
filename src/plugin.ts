@@ -18,10 +18,10 @@ import { ActionService } from './db-service';
 import { Action } from './interfaces/action';
 import {
   ACTION_TYPES,
-  CLIENT_HOSTS,
   MAX_ACTIONS_SAMPLE_SIZE,
   TMP_FOLDER_PATH,
   VIEW_BUILDER_NAME,
+  VIEW_UNKNOWN_NAME,
   ZIP_MIMETYPE,
 } from './constants/constants';
 import { getOne, deleteAllById, exportAction } from './schemas/schemas';
@@ -30,6 +30,8 @@ import { Analytics, AnalyticsQueryParams } from './interfaces/analytics';
 import { ActionTaskManager } from './task-manager';
 import { StatusCodes } from 'http-status-codes';
 import { buildActionFilePath, buildItemTmpFolder, createActionArchive } from './utils/export';
+import { onExportSuccessFunction, UploadArchiveFunction } from './types';
+import { EmptyActionError } from './utils/errors';
 
 export type Hostname = {
   name: string;
@@ -54,54 +56,18 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
   const { serviceMethod, serviceOptions, shouldSave, hosts } = options;
 
   const actionService = new ActionService();
-  const actionTaskManager = new ActionTaskManager(actionService, hosts);
+  const actionTaskManager = new ActionTaskManager(
+    actionService,
+    itemTaskManager,
+    itemMembershipsTaskManager,
+    hosts,
+  );
 
   const fileTaskManager = new FileTaskManager(serviceOptions, serviceMethod);
 
   if (!mailerPlugin) {
     throw new Error('Mailer plugin is not defined');
   }
-
-  const getActions = async ({ member, itemId }) => {
-    const getTasks = CLIENT_HOSTS.map(({ name }) => {
-      // todo: get all actions? will depend on subscription?
-      // TODO: should get latest and not random actions!!
-      return new GetActionsTask(member, itemId, MAX_ACTIONS_SAMPLE_SIZE, name, actionService);
-    });
-    return runner.runMultiple(getTasks);
-  };
-
-  const uploadArchive =
-    ({ member, log }) =>
-    async ({ filepath, itemId, timestamp, mimetype }) => {
-      log.debug(`upload archive for item ${itemId}`);
-
-      const uploadFilePath = buildActionFilePath(itemId, timestamp);
-      const uploadTask = fileTaskManager.createUploadFileTask(member, {
-        file: fs.createReadStream(filepath),
-        filepath: uploadFilePath,
-        mimetype,
-        size: fs.statSync(filepath).size,
-      });
-      await runner.runSingle(uploadTask);
-      return uploadFilePath;
-    };
-
-  const onSuccess =
-    ({ member, log }) =>
-    async ({ itemId, timestamp }) => {
-      // send mail
-      log.debug('send action file by mail');
-      const lang = member?.extra?.lang;
-      const getDownloadLinkTask = fileTaskManager.createDownloadFileTask(member, {
-        filepath: buildActionFilePath(itemId, timestamp),
-        itemId,
-        mimetype: ZIP_MIMETYPE,
-      });
-
-      const downloadLink = (await runner.runSingle(getDownloadLinkTask)) as string;
-      await mailer.sendActionExportEmail(member, downloadLink, lang);
-    };
 
   // set hook handlers if can save actions
   if (shouldSave) {
@@ -165,8 +131,18 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
     { schema: getOne },
     async ({ member, params: { id }, query: { requestedSampleSize, view }, log }, reply) => {
       const itemId = id;
+
+      // const t1 = actionTaskManager.createGetActionAndMoreDataTaskSequence(member, {
+      //   views: [view],
+      //   sampleSize: requestedSampleSize,
+      //   itemId: id
+      // });
+
       // get actions aplying the parameters (view and requestedSampleSize)
-      const t1 = new GetActionsTask(member, itemId, requestedSampleSize, view, actionService);
+      const t1 = actionTaskManager.createGetActionsTask(member, itemId, {
+        requestedSampleSize,
+        view,
+      });
       const actions = await runner.runSingle(t1);
 
       // get item
@@ -193,7 +169,7 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
       };
 
       // generate responseData with actions, members, item, and metadata
-      const responseData: Analytics = new BaseAnalytics(actions, members, item, metadata);
+      const responseData: Analytics = new BaseAnalytics({ actions, members, item, metadata });
 
       reply.send(responseData);
     },
@@ -209,27 +185,71 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
       const tmpFolder = path.join(TMP_FOLDER_PATH, itemId);
       fs.mkdirSync(tmpFolder, { recursive: true });
 
+      // get actions and more data
+      const tasks = actionTaskManager.createGetBaseAnalyticsForItemTaskSequence(member, {
+        itemId,
+        sampleSize: MAX_ACTIONS_SAMPLE_SIZE,
+      });
+      const baseAnalytics = (await runner.runSingleSequence(tasks)) as BaseAnalytics;
+
+      // throws no action for itemId
+      if (!baseAnalytics?.actions?.length) {
+        throw new EmptyActionError(itemId);
+      }
+
+      // util function to upload the created archive
+      const uploadArchive: UploadArchiveFunction = async ({ filepath, itemId, timestamp }) => {
+        log.debug(`upload archive for item ${itemId}`);
+
+        const uploadFilePath = buildActionFilePath(itemId, timestamp);
+        const uploadTask = fileTaskManager.createUploadFileTask(member, {
+          file: fs.createReadStream(filepath),
+          filepath: uploadFilePath,
+          mimetype: ZIP_MIMETYPE,
+          size: fs.statSync(filepath).size,
+        });
+
+        await runner.runSingle(uploadTask);
+      };
+
+      // util function triggered once the archive is created
+      // delete tmp folder and send link by mail
+      const onSuccess: onExportSuccessFunction = async ({ itemId, timestamp }) => {
+        // delete tmp folder
+        const fileStorage = buildItemTmpFolder(itemId);
+        if (fs.existsSync(fileStorage)) {
+          fs.rmSync(fileStorage, { recursive: true });
+        } else {
+          log?.error(`${fileStorage} was not found, and was not deleted`);
+        }
+
+        // get download link
+        const lang = member?.extra?.lang as string;
+        const getDownloadLinkTask = fileTaskManager.createDownloadFileTask(member, {
+          filepath: buildActionFilePath(itemId, timestamp),
+          itemId,
+          mimetype: ZIP_MIMETYPE,
+        });
+        const downloadLink = (await runner.runSingle(getDownloadLinkTask)) as string;
+
+        // send mail
+        log.debug('send action file by mail');
+        await mailer
+          .sendActionExportEmail(member, downloadLink, lang)
+          .catch((err) => log.warn(err, `mailer failed. action download link: ${downloadLink}`));
+      };
+
       createActionArchive({
         itemId,
         tmpFolder,
-        getActions: getActions({ member, itemId }),
-        onSuccess: onSuccess({ member, log }),
-        uploadArchive: uploadArchive({ member, log }),
+        onSuccess,
+        baseAnalytics,
+        uploadArchive,
+        views: [...hosts.map(({ name }) => name), VIEW_UNKNOWN_NAME],
       });
 
       // reply no content and let the server create the archive and send the mail
       reply.status(StatusCodes.NO_CONTENT);
-    },
-    // on response delete tmp folder
-    onResponse: async ({ params, log }) => {
-      // delete tmp files after endpoint responded
-      const itemId = (params as IdParam)?.id;
-      const fileStorage = buildItemTmpFolder(itemId);
-      if (fs.existsSync(fileStorage)) {
-        fs.rmSync(fileStorage, { recursive: true });
-      } else {
-        log?.error(`${fileStorage} was not found, and was not deleted`);
-      }
     },
   });
 

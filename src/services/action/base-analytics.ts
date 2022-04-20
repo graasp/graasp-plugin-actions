@@ -6,25 +6,25 @@ import { Action } from '../../interfaces/action';
 
 export class BaseAnalytics implements Analytics {
   readonly actions: Action[];
-  readonly users: Member[];
+  readonly members: Member[];
   readonly item: Item;
   readonly metadata: {
     numActionsRetrieved: number;
     requestedSampleSize: number;
   };
 
-  constructor(
-    actions: Action[],
-    users: Member[],
-    item: Item,
+  constructor(args: {
+    actions: Action[];
+    members: Member[];
+    item: Item;
     metadata: {
       numActionsRetrieved: number;
       requestedSampleSize: number;
-    },
-  ) {
-    this.actions = actions;
-    this.users = users;
-    this.item = item;
-    this.metadata = metadata;
+    };
+  }) {
+    this.actions = args.actions;
+    this.members = args.members;
+    this.item = args.item;
+    this.metadata = args.metadata;
   }
 }

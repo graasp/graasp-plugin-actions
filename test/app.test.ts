@@ -1,12 +1,11 @@
 import { ItemTaskManager, ItemMembershipTaskManager, TaskRunner } from 'graasp-test';
-import { GRAASP_ACTOR } from './constants';
+import { CLIENT_HOSTS, createDummyAction, GRAASP_ACTOR } from './constants';
 import build from './app';
-import { ActionService } from '../src';
+import { ActionService, ActionTaskManager } from '../src';
 import * as utils from '../src/utils/export';
 import { checkActionData, getDummyItem } from './utils';
 import { ACTION_TYPES, VIEW_BUILDER_NAME } from '../src/constants/constants';
-import { MemberTaskManager } from 'graasp';
-import { CLIENT_HOSTS } from '../src/constants/constants';
+import { Item, MemberTaskManager } from 'graasp';
 import { StatusCodes } from 'http-status-codes';
 import { v4 } from 'uuid';
 import {
@@ -16,6 +15,8 @@ import {
   ServiceMethod,
 } from 'graasp-plugin-file';
 import MockTask from 'graasp-test/src/tasks/task';
+import { BaseAnalytics } from '../src/services/action/base-analytics';
+import { EmptyActionError } from '../src/utils/errors';
 
 const itemTaskManager = new ItemTaskManager();
 const memberTaskManager = {} as unknown as MemberTaskManager;
@@ -121,7 +122,17 @@ describe('Plugin Tests', () => {
           // do nothing
         });
 
-      jest.spyOn(runner, 'runMultiple').mockImplementation(async () => [new MockTask(true)]);
+      const baseAnalytics = new BaseAnalytics({
+        actions: [createDummyAction()],
+        item: { id: itemId } as unknown as Item,
+        members: [],
+        metadata: {
+          requestedSampleSize: 5,
+          numActionsRetrieved: 5
+        }
+      });
+      jest.spyOn(ActionTaskManager.prototype, 'createGetBaseAnalyticsForItemTaskSequence').mockImplementation(() => [])
+      jest.spyOn(runner, 'runSingleSequence').mockImplementation(async () => baseAnalytics);
       jest.spyOn(runner, 'runSingle').mockImplementation(async () => new MockTask(true));
       jest
         .spyOn(FileTaskManager.prototype, 'createDownloadFileTask')
@@ -144,6 +155,48 @@ describe('Plugin Tests', () => {
       expect(res.statusCode).toBe(StatusCodes.NO_CONTENT);
       expect(res.payload).toBeFalsy();
     });
+
+    it('Empty action for item should throw', async () => {
+      const itemId = v4();
+
+      const createArchiveMock = jest
+        .spyOn(utils, 'createActionArchive')
+        .mockImplementation(async () => {
+          // do nothing
+        });
+
+      const baseAnalytics = new BaseAnalytics({
+        actions: [],
+        item: { id: itemId } as unknown as Item,
+        members: [],
+        metadata: {
+          requestedSampleSize: 5,
+          numActionsRetrieved: 0
+        }
+      });
+      jest.spyOn(ActionTaskManager.prototype, 'createGetBaseAnalyticsForItemTaskSequence').mockImplementation(() => [])
+      jest.spyOn(runner, 'runSingleSequence').mockImplementation(async () => baseAnalytics);
+      jest.spyOn(runner, 'runSingle').mockImplementation(async () => new MockTask(true));
+      jest
+        .spyOn(FileTaskManager.prototype, 'createDownloadFileTask')
+        .mockImplementation(() => new MockTask(''));
+
+      const app = await build({
+        itemTaskManager,
+        runner,
+        itemMembershipTaskManager,
+        memberTaskManager,
+        options: DEFAULT_OPTIONS,
+      });
+
+      const res = await app.inject({
+        method: 'POST',
+        url: `/items/${itemId}/export`,
+      });
+
+      expect(await res.json()).toEqual(new EmptyActionError(itemId));
+    });
+
 
     it('Invalid item id throws', async () => {
       const itemId = 'invalid';

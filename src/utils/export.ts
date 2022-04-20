@@ -1,41 +1,54 @@
-import fs from 'fs';
+import fs, { mkdirSync } from 'fs';
 import path from 'path';
 import archiver from 'archiver';
 import { TMP_FOLDER_PATH } from '../constants/constants';
-import { Action } from '../interfaces/action';
+import { onExportSuccessFunction, UploadArchiveFunction } from '../types';
+import { BaseAnalytics } from '../services/action/base-analytics';
 
-export const buildItemTmpFolder = (itemId) => path.join(TMP_FOLDER_PATH, itemId);
-export const buildActionFileName = (timestamp, view): string => `${view}_${timestamp}.json`;
+export const buildItemTmpFolder = (itemId: string): string => path.join(TMP_FOLDER_PATH, itemId);
+export const buildActionFileName = (datetime: string, view: string): string =>
+  `${view}_${datetime}.json`;
 
-export const buildActionFilePath = (itemId, timestamp) => `actions/${itemId}/${timestamp}`;
+export const buildActionFilePath = (itemId: string, timestamp: number): string =>
+  `actions/${itemId}/${timestamp}`;
 
-export const createActionArchive = async ({
-  itemId,
-  getActions,
-  onSuccess,
-  tmpFolder,
-  uploadArchive,
+export const createActionArchive = async (args: {
+  itemId: string;
+  views: string[];
+  tmpFolder: string;
+  baseAnalytics: BaseAnalytics;
+  onSuccess: onExportSuccessFunction;
+  uploadArchive: UploadArchiveFunction;
 }): Promise<void> => {
-  // create tmp dir
+  const { itemId, baseAnalytics, onSuccess, tmpFolder, uploadArchive, views } = args;
+
+  // timestamp and datetime are used to build folder name and human readable filename
   const timestamp = Date.now();
-  const outputStream = fs.createWriteStream(path.join(tmpFolder, `${itemId}.zip`));
+  const datetime = timestamp.toString();
+  const fileName = `${baseAnalytics.item.name}_${datetime}`;
+
+  // create tmp dir
+  const outputPath = path.join(tmpFolder, `${fileName}.zip`);
+  const outputStream = fs.createWriteStream(outputPath);
   const archive = archiver('zip');
   archive.pipe(outputStream);
 
-  const actions = (await getActions()) as Action[][];
+  archive.directory(fileName);
 
-  // create file for each view
   try {
-    actions.forEach((content) => {
-      // create file only if content is not empty
-      if (content.length) {
-        const view = content[0].view;
-        const filename = buildActionFileName(timestamp, view);
-        const filepath = path.join(tmpFolder, filename);
-        fs.writeFileSync(filepath, JSON.stringify(content));
-        archive.file(filepath);
-      }
+    const fileFolderPath = path.join(tmpFolder, fileName);
+    mkdirSync(fileFolderPath);
+
+    // create file for each view
+    views.forEach((viewName) => {
+      const actionsPerView = baseAnalytics.actions.filter(({ view }) => view === viewName);
+      const filename = buildActionFileName(datetime, viewName);
+      const filepath = path.join(fileFolderPath, filename);
+      fs.writeFileSync(filepath, JSON.stringify(actionsPerView));
     });
+
+    // add directory in archive
+    archive.directory(fileFolderPath, fileName);
   } catch (e) {
     console.log('Cannot write file ', e);
   }
@@ -52,7 +65,7 @@ export const createActionArchive = async ({
     });
 
     outputStream.on('close', async () => {
-      await uploadArchive();
+      await uploadArchive({ filepath: outputPath, itemId, timestamp });
 
       // callback
       if (onSuccess) {

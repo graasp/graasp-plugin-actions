@@ -3,9 +3,11 @@ import { CreateActionTask } from './services/action/create-action-task';
 import {
   Actor,
   Item,
+  ItemMembership,
   ItemMembershipTaskManager,
   ItemTaskManager,
-  PermissionLevel,
+  Member,
+  MemberTaskManager,
   Task,
 } from 'graasp';
 
@@ -21,6 +23,7 @@ import { Action } from './interfaces/action';
 export class ActionTaskManager {
   actionService: ActionService;
   itemTaskManager: ItemTaskManager;
+  memberTaskManager: MemberTaskManager;
   itemMembershipsTaskManager: ItemMembershipTaskManager;
   hosts: Hostname[];
 
@@ -28,12 +31,14 @@ export class ActionTaskManager {
     actionService: ActionService,
     itemTaskManager: ItemTaskManager,
     itemMembershipsTaskManager: ItemMembershipTaskManager,
+    memberTaskManager: MemberTaskManager,
     hosts: Hostname[],
   ) {
     this.actionService = actionService;
     this.hosts = hosts;
     this.itemTaskManager = itemTaskManager;
     this.itemMembershipsTaskManager = itemMembershipsTaskManager;
+    this.memberTaskManager = memberTaskManager
   }
 
   createCreateTask(
@@ -53,24 +58,36 @@ export class ActionTaskManager {
 
   createGetBaseAnalyticsForItemTaskSequence(
     member: Actor,
-    payload: { itemId: string; sampleSize: number },
+    payload: { itemId: string; sampleSize: number, view?: string },
   ): Task<Actor, unknown>[] {
     // get item
     const getTasks = this.itemTaskManager.createGetTaskSequence(member, payload.itemId);
 
     // check member has admin membership over item
-    const membershipTask =
+    const checkMembershipTask =
       this.itemMembershipsTaskManager.createGetMemberItemMembershipTask(member);
-    membershipTask.getInput = () => ({
+    checkMembershipTask.getInput = () => ({
       item: getTasks[getTasks.length - 1].getResult(),
       // todo: use graasp PermissionLevel
       validatePermission: 'admin',
     });
 
-    // todo: get all actions? will depend on subscription?
+    // get memberships
+    const getMembershipsTaskSequence = this.itemMembershipsTaskManager.createGetOfItemTaskSequence(member, payload.itemId);
+
+    // get members
+    const getMembersTask = this.memberTaskManager.createGetManyTask(member);
+    getMembersTask.getInput = () => {
+      const memberships = getMembershipsTaskSequence[getMembershipsTaskSequence.length - 1].result as ItemMembership[]
+      return {
+        memberIds: memberships.map(({ memberId }) => memberId)
+      };
+    };
+
+    // get actions
     // TODO: should get latest and not random actions!!
     const getActionsTask = new GetActionsTask(member, this.actionService, payload.itemId, {
-      requestedSampleSize: payload.sampleSize,
+      requestedSampleSize: payload.sampleSize, view: payload.view
     });
 
     // set all data in last task's result
@@ -79,7 +96,8 @@ export class ActionTaskManager {
       return new BaseAnalytics({
         item: getTasks[getTasks.length - 1].result as Item,
         actions,
-        members: [],
+        members: getMembersTask.result as Member[],
+        itemMemberships: getMembershipsTaskSequence[getMembershipsTaskSequence.length - 1].result as ItemMembership[],
         metadata: {
           numActionsRetrieved: actions.length,
           requestedSampleSize: payload.sampleSize,
@@ -87,7 +105,7 @@ export class ActionTaskManager {
       });
     };
 
-    return [...getTasks, membershipTask, getActionsTask];
+    return [...getTasks, checkMembershipTask, ...getMembershipsTaskSequence, getMembersTask, getActionsTask];
   }
 
   createDeleteTask(member: Actor, id: string): DeleteActionsTask {

@@ -7,7 +7,7 @@ import { ActionTaskManager } from '../../task-manager';
 import { MemberType } from '../../constants/constants';
 import { getDummyItem } from '../../../test/utils';
 import { BaseAction } from './base-action';
-import type { DatabaseTransactionHandler, ItemService } from 'graasp';
+import type { DatabaseTransactionHandler, ItemService, MemberTaskManager } from 'graasp';
 import {
   CLIENT_HOSTS,
   CREATE_ACTION_WAIT_TIME,
@@ -20,6 +20,7 @@ const itemService = {
   get: jest.fn(),
 } as unknown as ItemService;
 const itemMembershipTaskManager = new ItemMembershipTaskManager();
+const memberTaskMananger = {} as unknown as MemberTaskManager;
 const runner = new TaskRunner();
 
 const actionService = new ActionService();
@@ -31,6 +32,7 @@ const actionTaskManager = new ActionTaskManager(
   actionService,
   itemTaskManager,
   itemMembershipTaskManager,
+  memberTaskMananger,
   CLIENT_HOSTS,
 );
 const generateActionsHandler = (): Promise<BaseAction[]> =>

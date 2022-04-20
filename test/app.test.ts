@@ -125,6 +125,7 @@ describe('Plugin Tests', () => {
       const baseAnalytics = new BaseAnalytics({
         actions: [createDummyAction()],
         item: { id: itemId } as unknown as Item,
+        itemMemberships: [],
         members: [],
         metadata: {
           requestedSampleSize: 5,
@@ -168,7 +169,7 @@ describe('Plugin Tests', () => {
       const baseAnalytics = new BaseAnalytics({
         actions: [],
         item: { id: itemId } as unknown as Item,
-        members: [],
+        members: [], itemMemberships: [],
         metadata: {
           requestedSampleSize: 5,
           numActionsRetrieved: 0

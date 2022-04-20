@@ -14,6 +14,7 @@ const actions: Action[] = [createDummyAction(), createDummyAction(), createDummy
 const baseAnalytics = new BaseAnalytics({
   actions,
   members: [],
+  itemMemberships: [],
   item: { id: itemId } as unknown as Item,
   metadata: { numActionsRetrieved: 5, requestedSampleSize: 5 },
 });

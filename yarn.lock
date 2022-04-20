@@ -913,10 +913,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/graasp@github:graasp/graasp-types.git#master":
+"@types/graasp@github:graasp/graasp-types.git#20/getManyMembers":
   version: 0.1.0
-  resolution: "@types/graasp@https://github.com/graasp/graasp-types.git#commit=c49643d52243f9819678a53cfe46080c17c321ba"
-  checksum: cabc5781ead8f3e9a2a1849b815ac0b4df7795fa871aec9efbc27a3d26119338819533301cccaa51ff87b74eb74a0d2a5595b18e840a6314eaf6698150722843
+  resolution: "@types/graasp@https://github.com/graasp/graasp-types.git#commit=51a63071a35aa740bd3c462444d08ca7f8b28bdc"
+  checksum: 8ada1dcede2fcd9bd5cf7c5acda81f3a11a291e240b8f4929c7824e2473932c877fa4ce784f3e0cc39cd545db61ded694c2e1ceb3bf870be1e58f32b36b20cbc
   languageName: node
   linkType: hard
 
@@ -3213,7 +3213,7 @@ __metadata:
   dependencies:
     "@types/eslint": 7.2.5
     "@types/geoip-lite": 1.4.1
-    "@types/graasp": "github:graasp/graasp-types.git#master"
+    "@types/graasp": "github:graasp/graasp-types.git#20/getManyMembers"
     "@types/jest": 27.4.0
     "@types/node": 14.14.7
     "@types/uuid": 8.3.4

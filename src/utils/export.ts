@@ -6,8 +6,8 @@ import { onExportSuccessFunction, UploadArchiveFunction } from '../types';
 import { BaseAnalytics } from '../services/action/base-analytics';
 
 export const buildItemTmpFolder = (itemId: string): string => path.join(TMP_FOLDER_PATH, itemId);
-export const buildActionFileName = (datetime: string, view: string): string =>
-  `${view}_${datetime}.json`;
+export const buildActionFileName = (name: string, datetime: string): string =>
+  `${name}_${datetime}.json`;
 
 export const buildActionFilePath = (itemId: string, timestamp: number): string =>
   `actions/${itemId}/${timestamp}`;
@@ -42,10 +42,23 @@ export const createActionArchive = async (args: {
     // create file for each view
     views.forEach((viewName) => {
       const actionsPerView = baseAnalytics.actions.filter(({ view }) => view === viewName);
-      const filename = buildActionFileName(datetime, viewName);
+      const filename = buildActionFileName(viewName, datetime);
       const filepath = path.join(fileFolderPath, filename);
       fs.writeFileSync(filepath, JSON.stringify(actionsPerView));
     });
+
+    // create file for item
+    // todo: add item tree data
+    const filepath = path.join(fileFolderPath, buildActionFileName('item', datetime));
+    fs.writeFileSync(filepath, JSON.stringify(baseAnalytics.item));
+
+    // create file for the members
+    const membersFilepath = path.join(fileFolderPath, buildActionFileName('members', datetime));
+    fs.writeFileSync(membersFilepath, JSON.stringify(baseAnalytics.members));
+
+    // create file for the memberships
+    const iMembershipsPath = path.join(fileFolderPath, buildActionFileName('memberships', datetime));
+    fs.writeFileSync(iMembershipsPath, JSON.stringify(baseAnalytics.itemMemberships));
 
     // add directory in archive
     archive.directory(fileFolderPath, fileName);

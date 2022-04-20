@@ -60,6 +60,7 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
     actionService,
     itemTaskManager,
     itemMembershipsTaskManager,
+    memberTaskManager,
     hosts,
   );
 
@@ -130,48 +131,16 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
     '/items/:id',
     { schema: getOne },
     async ({ member, params: { id }, query: { requestedSampleSize, view }, log }, reply) => {
-      const itemId = id;
 
-      // const t1 = actionTaskManager.createGetActionAndMoreDataTaskSequence(member, {
-      //   views: [view],
-      //   sampleSize: requestedSampleSize,
-      //   itemId: id
-      // });
+      const tasks = actionTaskManager.createGetBaseAnalyticsForItemTaskSequence(member,
+        {
+          sampleSize: requestedSampleSize,
+          itemId: id,
+          view
+        });
+      const result = await runner.runSingleSequence(tasks);
 
-      // get actions aplying the parameters (view and requestedSampleSize)
-      const t1 = actionTaskManager.createGetActionsTask(member, itemId, {
-        requestedSampleSize,
-        view,
-      });
-      const actions = await runner.runSingle(t1);
-
-      // get item
-      const t2 = itemTaskManager.createGetTaskSequence(member, itemId);
-      const itemResponse = await runner.runSingleSequence(t2);
-      const item = itemResponse as Item;
-
-      // get memberships of the item
-      const t3 = itemMembershipsTaskManager.createGetOfItemTaskSequence(member, itemId);
-      const membershipsResponse = await runner.runSingleSequence(t3);
-      const memberships = membershipsResponse as ItemMembership[];
-
-      // get members of the item
-      const tasks = memberships.map((membership) =>
-        memberTaskManager.createGetTask(member, membership.memberId),
-      );
-      const membersResponse = await runner.runMultiple(tasks, log);
-      const members = membersResponse as Member[];
-
-      const numActionsRetrieved = actions.length;
-      const metadata = {
-        numActionsRetrieved: numActionsRetrieved,
-        requestedSampleSize: requestedSampleSize,
-      };
-
-      // generate responseData with actions, members, item, and metadata
-      const responseData: Analytics = new BaseAnalytics({ actions, members, item, metadata });
-
-      reply.send(responseData);
+      reply.send(result);
     },
   );
 

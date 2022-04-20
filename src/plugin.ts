@@ -1,6 +1,6 @@
 // global
 import { FastifyPluginAsync } from 'fastify';
-import { Item, Member, IdParam, Actor, ItemMembership } from 'graasp';
+import { Item, Member, IdParam, Actor } from 'graasp';
 import fs from 'fs';
 import path from 'path';
 import mailerPlugin from 'graasp-mailer';
@@ -12,7 +12,6 @@ import {
 } from 'graasp-plugin-file';
 
 // local
-import { GetActionsTask } from './services/action/get-actions-task';
 import { BaseAction } from './services/action/base-action';
 import { ActionService } from './db-service';
 import { Action } from './interfaces/action';
@@ -26,7 +25,7 @@ import {
 } from './constants/constants';
 import { getOne, deleteAllById, exportAction } from './schemas/schemas';
 import { BaseAnalytics } from './services/action/base-analytics';
-import { Analytics, AnalyticsQueryParams } from './interfaces/analytics';
+import { AnalyticsQueryParams } from './interfaces/analytics';
 import { ActionTaskManager } from './task-manager';
 import { StatusCodes } from 'http-status-codes';
 import { buildActionFilePath, buildItemTmpFolder, createActionArchive } from './utils/export';
@@ -130,14 +129,12 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
   fastify.get<{ Params: IdParam; Querystring: AnalyticsQueryParams }>(
     '/items/:id',
     { schema: getOne },
-    async ({ member, params: { id }, query: { requestedSampleSize, view }, log }, reply) => {
-
-      const tasks = actionTaskManager.createGetBaseAnalyticsForItemTaskSequence(member,
-        {
-          sampleSize: requestedSampleSize,
-          itemId: id,
-          view
-        });
+    async ({ member, params: { id }, query: { requestedSampleSize, view } }, reply) => {
+      const tasks = actionTaskManager.createGetBaseAnalyticsForItemTaskSequence(member, {
+        sampleSize: requestedSampleSize,
+        itemId: id,
+        view,
+      });
       const result = await runner.runSingleSequence(tasks);
 
       reply.send(result);
@@ -167,10 +164,10 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
       }
 
       // util function to upload the created archive
-      const uploadArchive: UploadArchiveFunction = async ({ filepath, itemId, timestamp }) => {
+      const uploadArchive: UploadArchiveFunction = async ({ filepath, itemId, datetime }) => {
         log.debug(`upload archive for item ${itemId}`);
 
-        const uploadFilePath = buildActionFilePath(itemId, timestamp);
+        const uploadFilePath = buildActionFilePath(itemId, datetime);
         const uploadTask = fileTaskManager.createUploadFileTask(member, {
           file: fs.createReadStream(filepath),
           filepath: uploadFilePath,
@@ -183,7 +180,7 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
 
       // util function triggered once the archive is created
       // delete tmp folder and send link by mail
-      const onSuccess: onExportSuccessFunction = async ({ itemId, timestamp }) => {
+      const onSuccess: onExportSuccessFunction = async ({ itemId, datetime }) => {
         // delete tmp folder
         const fileStorage = buildItemTmpFolder(itemId);
         if (fs.existsSync(fileStorage)) {
@@ -195,7 +192,7 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
         // get download link
         const lang = member?.extra?.lang as string;
         const getDownloadLinkTask = fileTaskManager.createDownloadFileTask(member, {
-          filepath: buildActionFilePath(itemId, timestamp),
+          filepath: buildActionFilePath(itemId, datetime),
           itemId,
           mimetype: ZIP_MIMETYPE,
         });

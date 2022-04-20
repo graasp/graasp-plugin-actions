@@ -1,7 +1,7 @@
 import fs, { mkdirSync } from 'fs';
 import path from 'path';
 import archiver from 'archiver';
-import { DEFAULT_LOCALE, TMP_FOLDER_PATH } from '../constants/constants';
+import { TMP_FOLDER_PATH } from '../constants/constants';
 import { onExportSuccessFunction, UploadArchiveFunction } from '../types';
 import { BaseAnalytics } from '../services/action/base-analytics';
 
@@ -9,8 +9,8 @@ export const buildItemTmpFolder = (itemId: string): string => path.join(TMP_FOLD
 export const buildActionFileName = (name: string, datetime: string): string =>
   `${name}_${datetime}.json`;
 
-export const buildActionFilePath = (itemId: string, timestamp: number): string =>
-  `actions/${itemId}/${timestamp}`;
+export const buildActionFilePath = (itemId: string, datetime: string): string =>
+  `actions/${itemId}/${datetime}`;
 
 export const createActionArchive = async (args: {
   itemId: string;
@@ -23,8 +23,8 @@ export const createActionArchive = async (args: {
   const { itemId, baseAnalytics, onSuccess, tmpFolder, uploadArchive, views } = args;
 
   // timestamp and datetime are used to build folder name and human readable filename
-  const timestamp = Date.now();
-  const datetime = timestamp.toLocaleString(DEFAULT_LOCALE);
+  const timestamp = new Date();
+  const datetime = timestamp.toISOString();
   const fileName = `${baseAnalytics.item.name}_${datetime}`;
 
   // create tmp dir
@@ -36,7 +36,7 @@ export const createActionArchive = async (args: {
   archive.directory(fileName);
 
   try {
-    const fileFolderPath = path.join(tmpFolder, fileName);
+    const fileFolderPath = path.join(tmpFolder, datetime);
     mkdirSync(fileFolderPath);
 
     // create file for each view
@@ -57,7 +57,10 @@ export const createActionArchive = async (args: {
     fs.writeFileSync(membersFilepath, JSON.stringify(baseAnalytics.members));
 
     // create file for the memberships
-    const iMembershipsPath = path.join(fileFolderPath, buildActionFileName('memberships', datetime));
+    const iMembershipsPath = path.join(
+      fileFolderPath,
+      buildActionFileName('memberships', datetime),
+    );
     fs.writeFileSync(iMembershipsPath, JSON.stringify(baseAnalytics.itemMemberships));
 
     // add directory in archive
@@ -78,11 +81,11 @@ export const createActionArchive = async (args: {
     });
 
     outputStream.on('close', async () => {
-      await uploadArchive({ filepath: outputPath, itemId, timestamp });
+      await uploadArchive({ filepath: outputPath, itemId, datetime });
 
       // callback
       if (onSuccess) {
-        await onSuccess({ itemId, timestamp });
+        await onSuccess({ itemId, datetime });
       }
 
       resolve('success');

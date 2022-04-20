@@ -58,7 +58,7 @@ export class GetActionsTask extends BaseActionTask<Action[]> {
     let actionResult = null;
     // Check if view parameter exits. If it is provided an incorrect view, it would be undefined
     if (view) {
-      // Get actions with requestedSampleSize
+      // Get actions with requestedSampleSize and view
       actionResult = await this.actionService.getActionsByItemWithSampleAndView(
         this.itemId,
         sampleSize,

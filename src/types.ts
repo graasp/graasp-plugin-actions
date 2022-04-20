@@ -21,10 +21,10 @@ export interface ActionHandlerInput {
 // type of the handler function responsible for building the action object
 export type ActionHandler = (actionInput: ActionHandlerInput) => Promise<BaseAction[]>;
 
-export type onExportSuccessFunction = (args: { itemId: string; timestamp: number }) => void;
+export type onExportSuccessFunction = (args: { itemId: string; datetime: string }) => void;
 export type UploadArchiveFunction = (args: {
   filepath: string;
   itemId: string;
-  timestamp: number;
+  datetime: string;
 }) => Promise<void>;
 export type GetBaseAnalyticsForViewsFunction = () => BaseAnalytics[];

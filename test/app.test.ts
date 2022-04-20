@@ -129,10 +129,12 @@ describe('Plugin Tests', () => {
         members: [],
         metadata: {
           requestedSampleSize: 5,
-          numActionsRetrieved: 5
-        }
+          numActionsRetrieved: 5,
+        },
       });
-      jest.spyOn(ActionTaskManager.prototype, 'createGetBaseAnalyticsForItemTaskSequence').mockImplementation(() => [])
+      jest
+        .spyOn(ActionTaskManager.prototype, 'createGetBaseAnalyticsForItemTaskSequence')
+        .mockImplementation(() => []);
       jest.spyOn(runner, 'runSingleSequence').mockImplementation(async () => baseAnalytics);
       jest.spyOn(runner, 'runSingle').mockImplementation(async () => new MockTask(true));
       jest
@@ -169,13 +171,16 @@ describe('Plugin Tests', () => {
       const baseAnalytics = new BaseAnalytics({
         actions: [],
         item: { id: itemId } as unknown as Item,
-        members: [], itemMemberships: [],
+        members: [],
+        itemMemberships: [],
         metadata: {
           requestedSampleSize: 5,
-          numActionsRetrieved: 0
-        }
+          numActionsRetrieved: 0,
+        },
       });
-      jest.spyOn(ActionTaskManager.prototype, 'createGetBaseAnalyticsForItemTaskSequence').mockImplementation(() => [])
+      jest
+        .spyOn(ActionTaskManager.prototype, 'createGetBaseAnalyticsForItemTaskSequence')
+        .mockImplementation(() => []);
       jest.spyOn(runner, 'runSingleSequence').mockImplementation(async () => baseAnalytics);
       jest.spyOn(runner, 'runSingle').mockImplementation(async () => new MockTask(true));
       jest
@@ -197,7 +202,6 @@ describe('Plugin Tests', () => {
 
       expect(await res.json()).toEqual(new EmptyActionError(itemId));
     });
-
 
     it('Invalid item id throws', async () => {
       const itemId = 'invalid';

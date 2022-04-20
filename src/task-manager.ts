@@ -2,7 +2,6 @@ import { CreateActionTask } from './services/action/create-action-task';
 // global
 import {
   Actor,
-  Item,
   ItemMembership,
   ItemMembershipTaskManager,
   ItemTaskManager,
@@ -38,7 +37,7 @@ export class ActionTaskManager {
     this.hosts = hosts;
     this.itemTaskManager = itemTaskManager;
     this.itemMembershipsTaskManager = itemMembershipsTaskManager;
-    this.memberTaskManager = memberTaskManager
+    this.memberTaskManager = memberTaskManager;
   }
 
   createCreateTask(
@@ -58,7 +57,7 @@ export class ActionTaskManager {
 
   createGetBaseAnalyticsForItemTaskSequence(
     member: Actor,
-    payload: { itemId: string; sampleSize: number, view?: string },
+    payload: { itemId: string; sampleSize: number; view?: string },
   ): Task<Actor, unknown>[] {
     // get item
     const getTask = this.itemTaskManager.createGetTask(member, payload.itemId);
@@ -67,27 +66,32 @@ export class ActionTaskManager {
     const checkMembershipTask =
       this.itemMembershipsTaskManager.createGetMemberItemMembershipTask(member);
     checkMembershipTask.getInput = () => ({
-      item: getTask.getResult(),
+      item: getTask.result,
       // todo: use graasp PermissionLevel
       validatePermission: 'admin',
     });
 
     // get memberships
-    const getMembershipsTaskSequence = this.itemMembershipsTaskManager.createGetOfItemTaskSequence(member, payload.itemId);
+    const getMembershipsTaskSequence = this.itemMembershipsTaskManager.createGetOfItemTaskSequence(
+      member,
+      payload.itemId,
+    );
 
     // get members
     const getMembersTask = this.memberTaskManager.createGetManyTask(member);
     getMembersTask.getInput = () => {
-      const memberships = getMembershipsTaskSequence[getMembershipsTaskSequence.length - 1].result as ItemMembership[]
+      const memberships = getMembershipsTaskSequence[getMembershipsTaskSequence.length - 1]
+        .result as ItemMembership[];
       return {
-        memberIds: memberships.map(({ memberId }) => memberId)
+        memberIds: memberships.map(({ memberId }) => memberId),
       };
     };
 
     // get actions
     // TODO: should get latest and not random actions!!
     const getActionsTask = new GetActionsTask(member, this.actionService, payload.itemId, {
-      requestedSampleSize: payload.sampleSize, view: payload.view
+      requestedSampleSize: payload.sampleSize,
+      view: payload.view,
     });
 
     // set all data in last task's result
@@ -97,7 +101,8 @@ export class ActionTaskManager {
         item: getTask.result,
         actions,
         members: getMembersTask.result as Member[],
-        itemMemberships: getMembershipsTaskSequence[getMembershipsTaskSequence.length - 1].result as ItemMembership[],
+        itemMemberships: getMembershipsTaskSequence[getMembershipsTaskSequence.length - 1]
+          .result as ItemMembership[],
         metadata: {
           numActionsRetrieved: actions.length,
           requestedSampleSize: payload.sampleSize,
@@ -105,7 +110,13 @@ export class ActionTaskManager {
       });
     };
 
-    return [getTask, checkMembershipTask, ...getMembershipsTaskSequence, getMembersTask, getActionsTask];
+    return [
+      getTask,
+      checkMembershipTask,
+      ...getMembershipsTaskSequence,
+      getMembersTask,
+      getActionsTask,
+    ];
   }
 
   createDeleteTask(member: Actor, id: string): DeleteActionsTask {

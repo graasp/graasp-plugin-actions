@@ -38,5 +38,4 @@ describe('createActionArchive', () => {
     // call on success callback
     expect(onSuccess).toHaveBeenCalled();
   });
-
 });

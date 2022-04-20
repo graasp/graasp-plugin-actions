@@ -43,5 +43,3 @@ export const MAX_ACTIONS_SAMPLE_SIZE = 10000;
 export const TMP_FOLDER_PATH = path.join(__dirname, 'tmp');
 
 export const ZIP_MIMETYPE = 'application/zip';
-
-export const DEFAULT_LOCALE = 'en-US'

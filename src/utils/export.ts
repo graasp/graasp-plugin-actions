@@ -1,7 +1,7 @@
 import fs, { mkdirSync } from 'fs';
 import path from 'path';
 import archiver from 'archiver';
-import { TMP_FOLDER_PATH } from '../constants/constants';
+import { DEFAULT_LOCALE, TMP_FOLDER_PATH } from '../constants/constants';
 import { onExportSuccessFunction, UploadArchiveFunction } from '../types';
 import { BaseAnalytics } from '../services/action/base-analytics';
 
@@ -24,7 +24,7 @@ export const createActionArchive = async (args: {
 
   // timestamp and datetime are used to build folder name and human readable filename
   const timestamp = Date.now();
-  const datetime = timestamp.toString();
+  const datetime = timestamp.toLocaleString(DEFAULT_LOCALE);
   const fileName = `${baseAnalytics.item.name}_${datetime}`;
 
   // create tmp dir
@@ -42,7 +42,7 @@ export const createActionArchive = async (args: {
     // create file for each view
     views.forEach((viewName) => {
       const actionsPerView = baseAnalytics.actions.filter(({ view }) => view === viewName);
-      const filename = buildActionFileName(viewName, datetime);
+      const filename = buildActionFileName(`actions_${viewName}`, datetime);
       const filepath = path.join(fileFolderPath, filename);
       fs.writeFileSync(filepath, JSON.stringify(actionsPerView));
     });

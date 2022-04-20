@@ -61,13 +61,13 @@ export class ActionTaskManager {
     payload: { itemId: string; sampleSize: number, view?: string },
   ): Task<Actor, unknown>[] {
     // get item
-    const getTasks = this.itemTaskManager.createGetTaskSequence(member, payload.itemId);
+    const getTask = this.itemTaskManager.createGetTask(member, payload.itemId);
 
     // check member has admin membership over item
     const checkMembershipTask =
       this.itemMembershipsTaskManager.createGetMemberItemMembershipTask(member);
     checkMembershipTask.getInput = () => ({
-      item: getTasks[getTasks.length - 1].getResult(),
+      item: getTask.getResult(),
       // todo: use graasp PermissionLevel
       validatePermission: 'admin',
     });
@@ -94,7 +94,7 @@ export class ActionTaskManager {
     getActionsTask.getResult = () => {
       const actions = getActionsTask.result as Action[];
       return new BaseAnalytics({
-        item: getTasks[getTasks.length - 1].result as Item,
+        item: getTask.result,
         actions,
         members: getMembersTask.result as Member[],
         itemMemberships: getMembershipsTaskSequence[getMembershipsTaskSequence.length - 1].result as ItemMembership[],
@@ -105,7 +105,7 @@ export class ActionTaskManager {
       });
     };
 
-    return [...getTasks, checkMembershipTask, ...getMembershipsTaskSequence, getMembersTask, getActionsTask];
+    return [getTask, checkMembershipTask, ...getMembershipsTaskSequence, getMembersTask, getActionsTask];
   }
 
   createDeleteTask(member: Actor, id: string): DeleteActionsTask {

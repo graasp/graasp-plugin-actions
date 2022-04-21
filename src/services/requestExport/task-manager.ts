@@ -4,7 +4,7 @@ import {
   CreateRequestExportTaskInputType,
 } from './create-request-export-task';
 import { RequestExportService } from './db-service';
-import { GetRequestExportTask, GetRequestExportTaskInputType } from './get-request-export-task';
+import { GetLastRequestExportTask, GetLastRequestExportTaskInputType } from './get-request-export-task';
 
 export class RequestExportTaskManager {
   requestExportService: RequestExportService;
@@ -20,7 +20,7 @@ export class RequestExportTaskManager {
     return new CreateRequestExportTask(member, this.requestExportService, payload);
   }
 
-  createGetTask(member: Actor, payload: GetRequestExportTaskInputType): GetRequestExportTask {
-    return new GetRequestExportTask(member, this.requestExportService, payload);
+  createGetTask(member: Actor, payload: GetLastRequestExportTaskInputType): GetLastRequestExportTask {
+    return new GetLastRequestExportTask(member, this.requestExportService, payload);
   }
 }

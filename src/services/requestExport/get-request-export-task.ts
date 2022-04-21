@@ -3,24 +3,24 @@ import { RequestExport } from '../../interfaces/requestExport';
 import { BaseRequestExportTask } from './base-request-export-task';
 import { RequestExportService } from './db-service';
 
-export interface GetRequestExportTaskInputType {
+export interface GetLastRequestExportTaskInputType {
   memberId: string;
   itemId: string;
 }
 
-export class GetRequestExportTask extends BaseRequestExportTask<RequestExport> {
+export class GetLastRequestExportTask extends BaseRequestExportTask<RequestExport> {
   readonly itemId: string;
 
-  input: GetRequestExportTaskInputType;
+  input: GetLastRequestExportTaskInputType;
 
   get name(): string {
-    return GetRequestExportTask.name;
+    return GetLastRequestExportTask.name;
   }
 
   constructor(
     actor: Actor,
     actionService: RequestExportService,
-    input: GetRequestExportTaskInputType,
+    input: GetLastRequestExportTaskInputType,
   ) {
     super(actor, actionService);
     this.input = input;
@@ -29,7 +29,7 @@ export class GetRequestExportTask extends BaseRequestExportTask<RequestExport> {
   async run(handler: DatabaseTransactionHandler): Promise<void> {
     this.status = 'RUNNING';
 
-    const requestExport = await this.requestExportService.get(this.input, handler);
+    const requestExport = await this.requestExportService.getLast(this.input, handler);
 
     this._result = requestExport;
     this.status = 'OK';

@@ -177,24 +177,27 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
     url: '/items/:id/export',
     schema: exportAction,
     handler: async ({ member, params: { id: itemId }, log }, reply) => {
+
       // check if a previous request already created the file and send it back
+      const requestExportTask = requestExportTaskManager.createGetTask(member, {
+        memberId: member.id,
+        itemId,
+      });
+      const requestExport = await runner.runSingle(requestExportTask);
       try {
-        const requestExportTask = requestExportTaskManager.createGetTask(member, {
-          memberId: member.id,
-          itemId,
-        });
-        const requestExport = await runner.runSingle(requestExportTask);
-        const lowerLimitDate = new Date(Date.now() - DEFAULT_REQUEST_EXPORT_INTERVAL);
-        const createdAtDate = new Date(requestExport.createdAt);
-        if (createdAtDate.getTime() >= lowerLimitDate.getTime()) {
-          createExportLinkAndSendMail({
-            member,
-            itemId,
-            log,
-            dateString: createdAtDate.toISOString(),
-          });
-          reply.status(StatusCodes.NO_CONTENT);
-          return;
+        if (requestExport) {
+          const lowerLimitDate = new Date(Date.now() - DEFAULT_REQUEST_EXPORT_INTERVAL);
+          const createdAtDate = new Date(requestExport.createdAt);
+          if (createdAtDate.getTime() >= lowerLimitDate.getTime()) {
+            createExportLinkAndSendMail({
+              member,
+              itemId,
+              log,
+              dateString: createdAtDate.toISOString(),
+            });
+            reply.status(StatusCodes.NO_CONTENT);
+            return;
+          }
         }
       } catch (err) {
         // continue normally if the archive was not automatically found -> create a new one

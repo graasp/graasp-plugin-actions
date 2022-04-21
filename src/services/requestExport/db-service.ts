@@ -12,9 +12,9 @@ export class RequestExportService {
       !Array.isArray(c)
         ? sql.identifier([c])
         : sql.join(
-            c.map((cwa) => sql.identifier([cwa])),
-            sql` AS `,
-          ),
+          c.map((cwa) => sql.identifier([cwa])),
+          sql` AS `,
+        ),
     ),
     sql`, `,
   );
@@ -31,7 +31,7 @@ export class RequestExportService {
     return transactionHandler
       .query<RequestExport>(
         sql`
-        INSERT INTO "action_request_export" (
+        INSERT INTO action_request_export (
             "member_id",
             "item_id",
             "created_at"
@@ -48,11 +48,11 @@ export class RequestExportService {
   }
 
   /**
-   * Get request export given item id and member id
+   * Get last request export given item id and member id
    * @param requestExport RequestExport to create
    * @param transactionHandler Database transaction handler
    */
-  async get(
+  async getLast(
     { memberId, itemId }: Partial<RequestExport>,
     transactionHandler: TrxHandler,
   ): Promise<RequestExport> {
@@ -60,10 +60,12 @@ export class RequestExportService {
       .query<RequestExport>(
         sql`
         SELECT ${RequestExportService.allColumns}
+        FROM action_request_export
+        ORDER BY created_at DESC LIMIT 1
         WHERE 
-          member_id='${memberId}' 
+          member_id=${memberId} 
           AND 
-          item_id='${itemId}'
+          item_id=${itemId}
       `,
       )
       .then(({ rows }) => rows[0]);

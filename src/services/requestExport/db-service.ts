@@ -39,7 +39,7 @@ export class RequestExportService {
         VALUES (
             ${requestExport.memberId},
             ${requestExport.itemId},
-            to_timestamp(${requestExport.createdAt}/ 1000.0),
+            to_timestamp(${requestExport.createdAt}/ 1000.0)
         )
         RETURNING ${RequestExportService.allColumns}
       `,
@@ -61,11 +61,12 @@ export class RequestExportService {
         sql`
         SELECT ${RequestExportService.allColumns}
         FROM action_request_export
-        ORDER BY created_at DESC LIMIT 1
         WHERE 
           member_id=${memberId} 
           AND 
           item_id=${itemId}
+        ORDER BY created_at DESC 
+        LIMIT 1
       `,
       )
       .then(({ rows }) => rows[0]);

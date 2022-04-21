@@ -86,17 +86,24 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
       mimetype: ZIP_MIMETYPE,
       expiration: EXPORT_FILE_EXPIRATION,
     });
-    const downloadLink = (await runner.runSingle(getDownloadLinkTask)) as string;
 
-    if (!downloadLink) {
-      throw new ArchiveNotFound({ filepath });
+    try {
+      // throws if file is not found
+      const downloadLink = (await runner.runSingle(getDownloadLinkTask)) as string;
+
+      // send mail
+      log.debug('send action file by mail');
+      await mailer.sendActionExportEmail(member, downloadLink, lang).catch((err) => {
+        log.warn(err, `mailer failed. action download link: ${downloadLink}`);
+      });
+      return downloadLink;
     }
-
-    // send mail
-    log.debug('send action file by mail');
-    return mailer.sendActionExportEmail(member, downloadLink, lang).catch((err) => {
-      log.warn(err, `mailer failed. action download link: ${downloadLink}`);
-    });
+    catch (err) {
+      if (err?.statusCode !== StatusCodes.NOT_FOUND) {
+        throw err;
+      }
+      console.log(err);
+    }
   };
 
   // set hook handlers if can save actions
@@ -184,27 +191,24 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
         itemId,
       });
       const requestExport = await runner.runSingle(requestExportTask);
-      try {
-        if (requestExport) {
-          const lowerLimitDate = new Date(Date.now() - DEFAULT_REQUEST_EXPORT_INTERVAL);
-          const createdAtDate = new Date(requestExport.createdAt);
-          if (createdAtDate.getTime() >= lowerLimitDate.getTime()) {
-            createExportLinkAndSendMail({
-              member,
-              itemId,
-              log,
-              dateString: createdAtDate.toISOString(),
-            });
+      if (requestExport) {
+        const lowerLimitDate = new Date(Date.now() - DEFAULT_REQUEST_EXPORT_INTERVAL);
+        const createdAtDate = new Date(requestExport.createdAt);
+        if (createdAtDate.getTime() >= lowerLimitDate.getTime()) {
+          const link = createExportLinkAndSendMail({
+            member,
+            itemId,
+            log,
+            dateString: createdAtDate.toISOString(),
+          });
+          // mail was successful sent
+          if (link) {
             reply.status(StatusCodes.NO_CONTENT);
             return;
           }
         }
-      } catch (err) {
-        // continue normally if the archive was not automatically found -> create a new one
-        if (!(err instanceof ArchiveNotFound)) {
-          throw err;
-        }
       }
+
 
       // create tmp folder to temporaly save files
       const tmpFolder = path.join(TMP_FOLDER_PATH, itemId);

@@ -13,10 +13,12 @@ import {
 
 // local
 import { BaseAction } from './services/action/base-action';
-import { ActionService } from './db-service';
+import { ActionService } from './services/action/db-service';
 import { Action } from './interfaces/action';
 import {
   ACTION_TYPES,
+  DEFAULT_REQUEST_EXPORT_INTERVAL,
+  EXPORT_FILE_EXPIRATION,
   MAX_ACTIONS_SAMPLE_SIZE,
   TMP_FOLDER_PATH,
   VIEW_BUILDER_NAME,
@@ -26,11 +28,13 @@ import {
 import { getOne, deleteAllById, exportAction } from './schemas/schemas';
 import { BaseAnalytics } from './services/action/base-analytics';
 import { AnalyticsQueryParams } from './interfaces/analytics';
-import { ActionTaskManager } from './task-manager';
+import { ActionTaskManager } from './services/action/task-manager';
 import { StatusCodes } from 'http-status-codes';
-import { buildActionFilePath, buildItemTmpFolder, createActionArchive } from './utils/export';
+import { buildActionFilePath, buildItemTmpFolder, exportActionsInArchive } from './utils/export';
 import { onExportSuccessFunction, UploadArchiveFunction } from './types';
-import { EmptyActionError } from './utils/errors';
+import { ArchiveNotFound, EmptyActionError } from './utils/errors';
+import { RequestExportTaskManager } from './services/requestExport/task-manager';
+import { RequestExportService } from './services/requestExport/db-service';
 
 export type Hostname = {
   name: string;
@@ -63,11 +67,37 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
     hosts,
   );
 
+  const requestExportDS = new RequestExportService();
+  const requestExportTaskManager = new RequestExportTaskManager(requestExportDS);
+
   const fileTaskManager = new FileTaskManager(serviceOptions, serviceMethod);
 
   if (!mailerPlugin) {
     throw new Error('Mailer plugin is not defined');
   }
+
+  const createExportLinkAndSendMail = async ({ member, itemId, log, dateString }) => {
+    // get download link
+    const lang = member?.extra?.lang as string;
+    const filepath = buildActionFilePath(itemId, dateString);
+    const getDownloadLinkTask = fileTaskManager.createDownloadFileTask(member, {
+      filepath,
+      itemId,
+      mimetype: ZIP_MIMETYPE,
+      expiration: EXPORT_FILE_EXPIRATION,
+    });
+    const downloadLink = (await runner.runSingle(getDownloadLinkTask)) as string;
+
+    if (!downloadLink) {
+      throw new ArchiveNotFound({ filepath });
+    }
+
+    // send mail
+    log.debug('send action file by mail');
+    return mailer.sendActionExportEmail(member, downloadLink, lang).catch((err) => {
+      log.warn(err, `mailer failed. action download link: ${downloadLink}`);
+    });
+  };
 
   // set hook handlers if can save actions
   if (shouldSave) {
@@ -147,6 +177,32 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
     url: '/items/:id/export',
     schema: exportAction,
     handler: async ({ member, params: { id: itemId }, log }, reply) => {
+      // check if a previous request already created the file and send it back
+      try {
+        const requestExportTask = requestExportTaskManager.createGetTask(member, {
+          memberId: member.id,
+          itemId,
+        });
+        const requestExport = await runner.runSingle(requestExportTask);
+        const lowerLimitDate = new Date(Date.now() - DEFAULT_REQUEST_EXPORT_INTERVAL);
+        const createdAtDate = new Date(requestExport.createdAt);
+        if (createdAtDate.getTime() >= lowerLimitDate.getTime()) {
+          createExportLinkAndSendMail({
+            member,
+            itemId,
+            log,
+            dateString: createdAtDate.toISOString(),
+          });
+          reply.status(StatusCodes.NO_CONTENT);
+          return;
+        }
+      } catch (err) {
+        // continue normally if the archive was not automatically found -> create a new one
+        if (!(err instanceof ArchiveNotFound)) {
+          throw err;
+        }
+      }
+
       // create tmp folder to temporaly save files
       const tmpFolder = path.join(TMP_FOLDER_PATH, itemId);
       fs.mkdirSync(tmpFolder, { recursive: true });
@@ -164,10 +220,10 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
       }
 
       // util function to upload the created archive
-      const uploadArchive: UploadArchiveFunction = async ({ filepath, itemId, datetime }) => {
+      const uploadArchive: UploadArchiveFunction = async ({ filepath, itemId, dateString }) => {
         log.debug(`upload archive for item ${itemId}`);
 
-        const uploadFilePath = buildActionFilePath(itemId, datetime);
+        const uploadFilePath = buildActionFilePath(itemId, dateString);
         const uploadTask = fileTaskManager.createUploadFileTask(member, {
           file: fs.createReadStream(filepath),
           filepath: uploadFilePath,
@@ -180,7 +236,7 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
 
       // util function triggered once the archive is created
       // delete tmp folder and send link by mail
-      const onSuccess: onExportSuccessFunction = async ({ itemId, datetime }) => {
+      const onSuccess: onExportSuccessFunction = async ({ itemId, dateString, timestamp }) => {
         // delete tmp folder
         const fileStorage = buildItemTmpFolder(itemId);
         if (fs.existsSync(fileStorage)) {
@@ -189,23 +245,17 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
           log?.error(`${fileStorage} was not found, and was not deleted`);
         }
 
-        // get download link
-        const lang = member?.extra?.lang as string;
-        const getDownloadLinkTask = fileTaskManager.createDownloadFileTask(member, {
-          filepath: buildActionFilePath(itemId, datetime),
+        // create request row
+        const createRequestExportTask = requestExportTaskManager.createCreateTask(member, {
           itemId,
-          mimetype: ZIP_MIMETYPE,
+          createdAt: timestamp.getTime(),
         });
-        const downloadLink = (await runner.runSingle(getDownloadLinkTask)) as string;
+        await runner.runSingle(createRequestExportTask);
 
-        // send mail
-        log.debug('send action file by mail');
-        await mailer
-          .sendActionExportEmail(member, downloadLink, lang)
-          .catch((err) => log.warn(err, `mailer failed. action download link: ${downloadLink}`));
+        await createExportLinkAndSendMail({ member, itemId, log, dateString });
       };
 
-      createActionArchive({
+      exportActionsInArchive({
         itemId,
         tmpFolder,
         onSuccess,

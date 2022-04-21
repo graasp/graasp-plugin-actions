@@ -28,12 +28,15 @@ const build = async ({
   itemMembershipTaskManager,
   memberTaskManager,
   options,
+  sendActionExportEmail,
 }: {
   runner: TaskRunner<Item>;
   itemTaskManager: ItemTaskManager;
   itemMembershipTaskManager: ItemMembershipTaskManager;
   memberTaskManager: MemberTaskManager;
   options?: GraaspActionsOptions;
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  sendActionExportEmail?: Function;
 }) => {
   const app = fastify();
   app.addSchema(schemas);
@@ -48,6 +51,9 @@ const build = async ({
   });
   app.decorate('members', {
     taskManager: memberTaskManager,
+  });
+  app.decorate('mailer', {
+    sendActionExportEmail: sendActionExportEmail ?? jest.fn(),
   });
 
   await app.register(plugin, options);

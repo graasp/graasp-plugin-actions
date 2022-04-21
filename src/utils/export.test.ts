@@ -2,7 +2,7 @@ import { v4 } from 'uuid';
 import path from 'path';
 import fs from 'fs';
 import { CLIENT_HOSTS, createDummyAction } from '../../test/constants';
-import { createActionArchive } from './export';
+import { exportActionsInArchive } from './export';
 import { BaseAnalytics } from '../services/action/base-analytics';
 import { Action } from '../interfaces/action';
 import { Item } from 'graasp';
@@ -26,7 +26,7 @@ describe('createActionArchive', () => {
   it('Create archive successfully', async () => {
     const onSuccess = jest.fn();
     const uploadArchive = jest.fn();
-    await createActionArchive({
+    await exportActionsInArchive({
       itemId,
       baseAnalytics,
       onSuccess,

@@ -1,4 +1,4 @@
-import { CreateActionTask } from './services/action/create-action-task';
+import { CreateActionTask } from './create-action-task';
 // global
 import {
   Actor,
@@ -12,12 +12,12 @@ import {
 
 import { ActionService } from './db-service';
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { DeleteActionsTask } from './services/action/delete-actions-task';
-import { Hostname } from './plugin';
-import { ActionHandler } from './types';
-import { GetActionsTask, GetActionsTaskInputType } from './services/action/get-actions-task';
-import { BaseAnalytics } from './services/action/base-analytics';
-import { Action } from './interfaces/action';
+import { DeleteActionsTask } from './delete-actions-task';
+import { Hostname } from '../../plugin';
+import { ActionHandler } from '../../types';
+import { GetActionsTask, GetActionsTaskInputType } from './get-actions-task';
+import { BaseAnalytics } from './base-analytics';
+import { Action } from '../../interfaces/action';
 
 export class ActionTaskManager {
   actionService: ActionService;

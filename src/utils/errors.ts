@@ -31,3 +31,16 @@ export class EmptyActionError extends GraaspActionError {
     );
   }
 }
+
+export class ArchiveNotFound extends GraaspActionError {
+  constructor(data?: unknown) {
+    super(
+      {
+        code: 'GPAERR002',
+        statusCode: StatusCodes.NOT_FOUND,
+        message: 'The requested archive was not found',
+      },
+      data,
+    );
+  }
+}

@@ -12,7 +12,7 @@ export const buildActionFileName = (name: string, datetime: string): string =>
 export const buildActionFilePath = (itemId: string, datetime: string): string =>
   `actions/${itemId}/${datetime}`;
 
-export const createActionArchive = async (args: {
+export const exportActionsInArchive = async (args: {
   itemId: string;
   views: string[];
   tmpFolder: string;
@@ -24,8 +24,8 @@ export const createActionArchive = async (args: {
 
   // timestamp and datetime are used to build folder name and human readable filename
   const timestamp = new Date();
-  const datetime = timestamp.toISOString();
-  const fileName = `${baseAnalytics.item.name}_${datetime}`;
+  const isoDate = timestamp.toISOString();
+  const fileName = `${baseAnalytics.item.name}_${isoDate}`;
 
   // create tmp dir
   const outputPath = path.join(tmpFolder, `${fileName}.zip`);
@@ -36,31 +36,28 @@ export const createActionArchive = async (args: {
   archive.directory(fileName);
 
   try {
-    const fileFolderPath = path.join(tmpFolder, datetime);
+    const fileFolderPath = path.join(tmpFolder, isoDate);
     mkdirSync(fileFolderPath);
 
     // create file for each view
     views.forEach((viewName) => {
       const actionsPerView = baseAnalytics.actions.filter(({ view }) => view === viewName);
-      const filename = buildActionFileName(`actions_${viewName}`, datetime);
+      const filename = buildActionFileName(`actions_${viewName}`, isoDate);
       const filepath = path.join(fileFolderPath, filename);
       fs.writeFileSync(filepath, JSON.stringify(actionsPerView));
     });
 
     // create file for item
     // todo: add item tree data
-    const filepath = path.join(fileFolderPath, buildActionFileName('item', datetime));
+    const filepath = path.join(fileFolderPath, buildActionFileName('item', isoDate));
     fs.writeFileSync(filepath, JSON.stringify(baseAnalytics.item));
 
     // create file for the members
-    const membersFilepath = path.join(fileFolderPath, buildActionFileName('members', datetime));
+    const membersFilepath = path.join(fileFolderPath, buildActionFileName('members', isoDate));
     fs.writeFileSync(membersFilepath, JSON.stringify(baseAnalytics.members));
 
     // create file for the memberships
-    const iMembershipsPath = path.join(
-      fileFolderPath,
-      buildActionFileName('memberships', datetime),
-    );
+    const iMembershipsPath = path.join(fileFolderPath, buildActionFileName('memberships', isoDate));
     fs.writeFileSync(iMembershipsPath, JSON.stringify(baseAnalytics.itemMemberships));
 
     // add directory in archive
@@ -81,11 +78,11 @@ export const createActionArchive = async (args: {
     });
 
     outputStream.on('close', async () => {
-      await uploadArchive({ filepath: outputPath, itemId, datetime });
+      await uploadArchive({ filepath: outputPath, itemId, dateString: isoDate });
 
       // callback
       if (onSuccess) {
-        await onSuccess({ itemId, datetime });
+        await onSuccess({ itemId, dateString: isoDate, timestamp });
       }
 
       resolve('success');

@@ -6,7 +6,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "test": "jest",
+    "test": "jest test/app.test.ts",
     "test:watch": "yarn test --watchAll",
     "prepare": "yarn build",
     "prepack": "yarn build",
@@ -30,7 +30,7 @@
     "fluent-json-schema": "3.0.1",
     "geoip-lite": "1.4.2",
     "graasp-mailer": "github:graasp/graasp-mailer#17/actionExport",
-    "graasp-plugin-file": "github:graasp/graasp-plugin-file",
+    "graasp-plugin-file": "github:graasp/graasp-plugin-file#19/expirationDownload",
     "http-status-codes": "2.2.0",
     "uuid": "8.3.2"
   },

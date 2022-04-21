@@ -3,10 +3,10 @@ import { FastifyLoggerInstance } from 'fastify';
 import { Actor, DatabaseTransactionHandler } from 'graasp';
 import { Task, TaskStatus } from 'graasp';
 // local
-import { ActionService } from './db-service';
+import { RequestExportService } from './db-service';
 
-export abstract class BaseActionTask<R> implements Task<Actor, R> {
-  protected actionService: ActionService;
+export abstract class BaseRequestExportTask<R> implements Task<Actor, R> {
+  protected requestExportService: RequestExportService;
   protected _result;
   protected _message: string;
 
@@ -21,9 +21,9 @@ export abstract class BaseActionTask<R> implements Task<Actor, R> {
 
   getResult: () => unknown;
 
-  constructor(actor: Actor, actionService: ActionService) {
+  constructor(actor: Actor, requestExportService: RequestExportService) {
     this.actor = actor;
-    this.actionService = actionService;
+    this.requestExportService = requestExportService;
     this.status = 'NEW';
   }
 
@@ -38,5 +38,5 @@ export abstract class BaseActionTask<R> implements Task<Actor, R> {
   abstract run(
     handler: DatabaseTransactionHandler,
     log: FastifyLoggerInstance,
-  ): Promise<void | BaseActionTask<R>[]>;
+  ): Promise<void | BaseRequestExportTask<R>[]>;
 }

@@ -1,7 +1,7 @@
 // global
 import { Actor, DatabaseTransactionHandler } from 'graasp';
 // local
-import { ActionService } from '../../db-service';
+import { ActionService } from './db-service';
 import { BaseActionTask } from './base-action-task';
 import { Action } from '../../interfaces/action';
 import {

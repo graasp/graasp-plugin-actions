@@ -1,6 +1,6 @@
 // global
 import { sql, DatabaseTransactionConnectionType as TrxHandler } from 'slonik';
-import { Action } from './interfaces/action';
+import { Action } from '../../interfaces/action';
 
 /**
  * Database's first layer of abstraction for Actions

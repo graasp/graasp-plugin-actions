@@ -14,3 +14,10 @@ CREATE TABLE "action" (
     "extra" jsonb NOT NULL DEFAULT '{}'::jsonb,
     "created_at" timestamp NOT NULL DEFAULT (NOW() AT TIME ZONE 'utc')
 );
+
+CREATE TABLE "action_request_export" (
+  "id" uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
+  "member_id" uuid REFERENCES "member" ("id") ON DELETE CASCADE,
+  "item_id" uuid REFERENCES "item" ("id") ON DELETE CASCADE,
+  "created_at" timestamp NOT NULL DEFAULT (NOW() AT TIME ZONE 'utc')
+);

@@ -45,4 +45,4 @@ export const TMP_FOLDER_PATH = path.join(__dirname, 'tmp');
 export const ZIP_MIMETYPE = 'application/zip';
 
 export const DEFAULT_REQUEST_EXPORT_INTERVAL = 3600 * 1000 * 24; // 1 day - used for timestamp
-export const EXPORT_FILE_EXPIRATION = 3600 * 24 * 30;
+export const EXPORT_FILE_EXPIRATION = 3600 * 24 * 7; // max value: one week

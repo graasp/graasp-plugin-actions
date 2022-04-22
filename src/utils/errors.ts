@@ -19,26 +19,13 @@ export class GraaspActionError implements GraaspError {
   }
 }
 
-export class EmptyActionError extends GraaspActionError {
+export class CannotWriteFileError extends GraaspActionError {
   constructor(data?: unknown) {
     super(
       {
         code: 'GPAERR001',
         statusCode: StatusCodes.NOT_FOUND,
-        message: 'No action to export for this item',
-      },
-      data,
-    );
-  }
-}
-
-export class ArchiveNotFound extends GraaspActionError {
-  constructor(data?: unknown) {
-    super(
-      {
-        code: 'GPAERR002',
-        statusCode: StatusCodes.NOT_FOUND,
-        message: 'The requested archive was not found',
+        message: 'A file was not created properly for the requested archive',
       },
       data,
     );

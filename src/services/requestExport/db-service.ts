@@ -12,9 +12,9 @@ export class RequestExportService {
       !Array.isArray(c)
         ? sql.identifier([c])
         : sql.join(
-          c.map((cwa) => sql.identifier([cwa])),
-          sql` AS `,
-        ),
+            c.map((cwa) => sql.identifier([cwa])),
+            sql` AS `,
+          ),
     ),
     sql`, `,
   );

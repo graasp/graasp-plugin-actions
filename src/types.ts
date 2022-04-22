@@ -25,10 +25,6 @@ export type onExportSuccessFunction = (args: {
   itemId: string;
   dateString: string;
   timestamp: Date;
-}) => void;
-export type UploadArchiveFunction = (args: {
   filepath: string;
-  itemId: string;
-  dateString: string;
-}) => Promise<void>;
+}) => void;
 export type GetBaseAnalyticsForViewsFunction = () => BaseAnalytics[];

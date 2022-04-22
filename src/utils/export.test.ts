@@ -7,6 +7,7 @@ import { BaseAnalytics } from '../services/action/base-analytics';
 import { Action } from '../interfaces/action';
 import { Item } from 'graasp';
 import { VIEW_UNKNOWN_NAME } from '../constants/constants';
+import { CannotWriteFileError } from './errors';
 
 const itemId = v4();
 const views = [...CLIENT_HOSTS.map(({ name }) => name), VIEW_UNKNOWN_NAME];
@@ -19,23 +20,40 @@ const baseAnalytics = new BaseAnalytics({
   metadata: { numActionsRetrieved: 5, requestedSampleSize: 5 },
 });
 
-const tmpFolder = path.join(__dirname, 'tmp');
-fs.mkdirSync(tmpFolder, { recursive: true });
+const storageFolder = path.join(__dirname, 'tmp');
+fs.mkdirSync(storageFolder, { recursive: true });
 
 describe('createActionArchive', () => {
   it('Create archive successfully', async () => {
-    const onSuccess = jest.fn();
-    const uploadArchive = jest.fn();
-    await exportActionsInArchive({
-      itemId,
+    const writeFileSyncMock = jest.spyOn(fs, 'writeFileSync');
+
+    const result = await exportActionsInArchive({
       baseAnalytics,
-      onSuccess,
-      tmpFolder,
-      uploadArchive,
+      storageFolder,
       views,
     });
 
     // call on success callback
-    expect(onSuccess).toHaveBeenCalled();
+    expect(result).toBeTruthy();
+    // create files for all views, items, members and memberships
+    expect(writeFileSyncMock).toHaveBeenCalledTimes(views.length + 3);
+  });
+
+  it('Throws if a file is not created', async () => {
+    jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {
+      throw new Error();
+    });
+
+    const onSuccess = jest.fn();
+    await expect(async () => {
+      await exportActionsInArchive({
+        baseAnalytics,
+        storageFolder,
+        views,
+      });
+    }).rejects.toBeInstanceOf(CannotWriteFileError);
+
+    // call on success callback
+    expect(onSuccess).not.toHaveBeenCalled();
   });
 });

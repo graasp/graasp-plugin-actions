@@ -19,22 +19,19 @@ import {
   ACTION_TYPES,
   DEFAULT_REQUEST_EXPORT_INTERVAL,
   EXPORT_FILE_EXPIRATION,
-  MAX_ACTIONS_SAMPLE_SIZE,
+  EXPORT_FILE_EXPIRATION_DAYS,
   TMP_FOLDER_PATH,
   VIEW_BUILDER_NAME,
-  VIEW_UNKNOWN_NAME,
   ZIP_MIMETYPE,
 } from './constants/constants';
 import { getOne, deleteAllById, exportAction } from './schemas/schemas';
-import { BaseAnalytics } from './services/action/base-analytics';
 import { AnalyticsQueryParams } from './interfaces/analytics';
 import { ActionTaskManager } from './services/action/task-manager';
 import { StatusCodes } from 'http-status-codes';
-import { buildActionFilePath, buildItemTmpFolder, exportActionsInArchive } from './utils/export';
-import { onExportSuccessFunction, UploadArchiveFunction } from './types';
-import { ArchiveNotFound, EmptyActionError } from './utils/errors';
+import { buildActionFilePath, buildArchiveDateAsName, buildItemTmpFolder } from './utils/export';
 import { RequestExportTaskManager } from './services/requestExport/task-manager';
 import { RequestExportService } from './services/requestExport/db-service';
+import { RequestExport } from './interfaces/requestExport';
 
 export type Hostname = {
   name: string;
@@ -67,22 +64,26 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
     hosts,
   );
 
-  const requestExportDS = new RequestExportService();
-  const requestExportTaskManager = new RequestExportTaskManager(requestExportDS);
-
   const fileTaskManager = new FileTaskManager(serviceOptions, serviceMethod);
+  const requestExportDS = new RequestExportService();
+  const requestExportTaskManager = new RequestExportTaskManager(
+    requestExportDS,
+    actionTaskManager,
+    fileTaskManager,
+    hosts,
+  );
 
   if (!mailerPlugin) {
     throw new Error('Mailer plugin is not defined');
   }
 
-  const createExportLinkAndSendMail = async ({ member, itemId, log, dateString }) => {
+  const createExportLinkAndSendMail = async ({ member, item, log, archiveDate }) => {
     // get download link
     const lang = member?.extra?.lang as string;
-    const filepath = buildActionFilePath(itemId, dateString);
+    const filepath = buildActionFilePath(item.id, archiveDate);
     const getDownloadLinkTask = fileTaskManager.createDownloadFileTask(member, {
       filepath,
-      itemId,
+      itemId: item.id,
       mimetype: ZIP_MIMETYPE,
       expiration: EXPORT_FILE_EXPIRATION,
     });
@@ -93,12 +94,13 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
 
       // send mail
       log.debug('send action file by mail');
-      await mailer.sendActionExportEmail(member, downloadLink, lang).catch((err) => {
-        log.warn(err, `mailer failed. action download link: ${downloadLink}`);
-      });
+      await mailer
+        .sendExportActionsEmail(member, downloadLink, item.name, lang, EXPORT_FILE_EXPIRATION_DAYS)
+        .catch((err) => {
+          log.warn(err, `mailer failed. action download link: ${downloadLink}`);
+        });
       return downloadLink;
-    }
-    catch (err) {
+    } catch (err) {
       if (err?.statusCode !== StatusCodes.NOT_FOUND) {
         throw err;
       }
@@ -184,22 +186,35 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
     url: '/items/:id/export',
     schema: exportAction,
     handler: async ({ member, params: { id: itemId }, log }, reply) => {
-
-      // check if a previous request already created the file and send it back
-      const requestExportTask = requestExportTaskManager.createGetTask(member, {
+      // check member has admin access to the item
+      const getItemTask = itemTaskManager.createGetTask(member, itemId);
+      const checkAdminRightsTask =
+        itemMembershipsTaskManager.createGetMemberItemMembershipTask(member);
+      checkAdminRightsTask.getInput = () => ({
+        validatePermission: 'admin',
+        item: getItemTask.result,
+      });
+      const requestExportTask = requestExportTaskManager.createGetLastTask(member, {
         memberId: member.id,
         itemId,
       });
-      const requestExport = await runner.runSingle(requestExportTask);
+      const requestExport = (await runner.runSingleSequence([
+        getItemTask,
+        checkAdminRightsTask,
+        requestExportTask,
+      ])) as RequestExport;
+      const item = getItemTask.result as Item;
+
+      // check if a previous request already created the file and send it back
       if (requestExport) {
         const lowerLimitDate = new Date(Date.now() - DEFAULT_REQUEST_EXPORT_INTERVAL);
         const createdAtDate = new Date(requestExport.createdAt);
         if (createdAtDate.getTime() >= lowerLimitDate.getTime()) {
           const link = createExportLinkAndSendMail({
             member,
-            itemId,
+            item,
             log,
-            dateString: createdAtDate.toISOString(),
+            archiveDate: buildArchiveDateAsName(createdAtDate),
           });
           // mail was successful sent
           if (link) {
@@ -209,41 +224,21 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
         }
       }
 
+      // get actions data and create archive in background
+      new Promise(async () => {
+        // create tmp folder to temporaly save files
+        const tmpFolder = path.join(TMP_FOLDER_PATH, itemId);
+        fs.mkdirSync(tmpFolder, { recursive: true });
 
-      // create tmp folder to temporaly save files
-      const tmpFolder = path.join(TMP_FOLDER_PATH, itemId);
-      fs.mkdirSync(tmpFolder, { recursive: true });
+        const createArchiveTaskSequence =
+          requestExportTaskManager.createCreateAndUploadArchiveTaskSequence(member, {
+            itemId,
+            storageFolder: tmpFolder,
+          });
+        const requestExport = (await runner.runSingleSequence(
+          createArchiveTaskSequence,
+        )) as RequestExport;
 
-      // get actions and more data
-      const tasks = actionTaskManager.createGetBaseAnalyticsForItemTaskSequence(member, {
-        itemId,
-        sampleSize: MAX_ACTIONS_SAMPLE_SIZE,
-      });
-      const baseAnalytics = (await runner.runSingleSequence(tasks)) as BaseAnalytics;
-
-      // throws no action for itemId
-      if (!baseAnalytics?.actions?.length) {
-        throw new EmptyActionError(itemId);
-      }
-
-      // util function to upload the created archive
-      const uploadArchive: UploadArchiveFunction = async ({ filepath, itemId, dateString }) => {
-        log.debug(`upload archive for item ${itemId}`);
-
-        const uploadFilePath = buildActionFilePath(itemId, dateString);
-        const uploadTask = fileTaskManager.createUploadFileTask(member, {
-          file: fs.createReadStream(filepath),
-          filepath: uploadFilePath,
-          mimetype: ZIP_MIMETYPE,
-          size: fs.statSync(filepath).size,
-        });
-
-        await runner.runSingle(uploadTask);
-      };
-
-      // util function triggered once the archive is created
-      // delete tmp folder and send link by mail
-      const onSuccess: onExportSuccessFunction = async ({ itemId, dateString, timestamp }) => {
         // delete tmp folder
         const fileStorage = buildItemTmpFolder(itemId);
         if (fs.existsSync(fileStorage)) {
@@ -252,23 +247,12 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
           log?.error(`${fileStorage} was not found, and was not deleted`);
         }
 
-        // create request row
-        const createRequestExportTask = requestExportTaskManager.createCreateTask(member, {
-          itemId,
-          createdAt: timestamp.getTime(),
+        await createExportLinkAndSendMail({
+          member,
+          item,
+          log,
+          archiveDate: buildArchiveDateAsName(new Date(requestExport.createdAt)),
         });
-        await runner.runSingle(createRequestExportTask);
-
-        await createExportLinkAndSendMail({ member, itemId, log, dateString });
-      };
-
-      exportActionsInArchive({
-        itemId,
-        tmpFolder,
-        onSuccess,
-        baseAnalytics,
-        uploadArchive,
-        views: [...hosts.map(({ name }) => name), VIEW_UNKNOWN_NAME],
       });
 
       // reply no content and let the server create the archive and send the mail

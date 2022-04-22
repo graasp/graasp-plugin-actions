@@ -1,15 +1,11 @@
 import { ItemTaskManager, ItemMembershipTaskManager, TaskRunner } from 'graasp-test';
-import { CLIENT_HOSTS, createDummyAction, GRAASP_ACTOR } from './constants';
+import { CLIENT_HOSTS, GRAASP_ACTOR } from './constants';
 import build from './app';
-import { ActionService, ActionTaskManager } from '../src';
+import { ActionService, RequestExportTaskManager } from '../src';
 import * as utils from '../src/utils/export';
 import { checkActionData, getDummyItem } from './utils';
-import {
-  ACTION_TYPES,
-  DEFAULT_REQUEST_EXPORT_INTERVAL,
-  VIEW_BUILDER_NAME,
-} from '../src/constants/constants';
-import { Item, MemberTaskManager } from 'graasp';
+import { ACTION_TYPES, VIEW_BUILDER_NAME } from '../src/constants/constants';
+import { MemberTaskManager } from 'graasp';
 import { StatusCodes } from 'http-status-codes';
 import { v4 } from 'uuid';
 import {
@@ -19,8 +15,7 @@ import {
   ServiceMethod,
 } from 'graasp-plugin-file';
 import MockTask from 'graasp-test/src/tasks/task';
-import { BaseAnalytics } from '../src/services/action/base-analytics';
-import { EmptyActionError } from '../src/utils/errors';
+import { mockCheckRequestExport, mockCreateArchiveTask, mockSendMail } from './mocks';
 
 const itemTaskManager = new ItemTaskManager();
 const memberTaskManager = {} as unknown as MemberTaskManager;
@@ -113,37 +108,27 @@ describe('Plugin Tests', () => {
 
   describe('Export Actions', () => {
     beforeEach(() => {
+      jest.clearAllMocks();
+
       jest.spyOn(runner, 'setTaskPreHookHandler').mockImplementation(async () => false);
       jest.spyOn(runner, 'setTaskPostHookHandler').mockImplementation(async () => false);
     });
 
     it('Request export actions successfully', async () => {
-      const itemId = v4();
+      mockCheckRequestExport({ itemTaskManager, itemMembershipTaskManager });
+      mockSendMail(runner);
 
-      const createArchiveMock = jest
-        .spyOn(utils, 'exportActionsInArchive')
-        .mockImplementation(async () => {
-          // do nothing
-        });
-
-      const baseAnalytics = new BaseAnalytics({
-        actions: [createDummyAction()],
-        item: { id: itemId } as unknown as Item,
-        itemMemberships: [],
-        members: [],
-        metadata: {
-          requestedSampleSize: 5,
-          numActionsRetrieved: 5,
-        },
+      jest.spyOn(runner, 'runSingleSequence').mockImplementation(async (tasks) => {
+        // check if request in interval exists
+        if (tasks.length === 3) {
+          return null;
+        }
+        // lasts tasks
+        return tasks[0].result;
       });
-      jest
-        .spyOn(ActionTaskManager.prototype, 'createGetBaseAnalyticsForItemTaskSequence')
-        .mockImplementation(() => []);
-      jest.spyOn(runner, 'runSingleSequence').mockImplementation(async () => baseAnalytics);
-      jest.spyOn(runner, 'runSingle').mockImplementation(async () => new MockTask(true));
-      jest
-        .spyOn(FileTaskManager.prototype, 'createDownloadFileTask')
-        .mockImplementation(() => new MockTask(''));
+
+      const createArchiveMock = mockCreateArchiveTask();
+      const sendExportActionsEmail = jest.fn().mockImplementation(async () => true);
 
       const app = await build({
         itemTaskManager,
@@ -151,8 +136,10 @@ describe('Plugin Tests', () => {
         itemMembershipTaskManager,
         memberTaskManager,
         options: DEFAULT_OPTIONS,
+        sendExportActionsEmail,
       });
 
+      const itemId = v4();
       const res = await app.inject({
         method: 'POST',
         url: `/items/${itemId}/export`,
@@ -164,33 +151,14 @@ describe('Plugin Tests', () => {
     });
 
     it('If previous request export exists, return the same file', async () => {
-      const itemId = v4();
-
-      const createArchiveMock = jest
-        .spyOn(utils, 'exportActionsInArchive')
-        .mockImplementation(async () => {
-          // do nothing
-        });
-
-      const baseAnalytics = new BaseAnalytics({
-        actions: [createDummyAction()],
-        item: { id: itemId } as unknown as Item,
-        itemMemberships: [],
-        members: [],
-        metadata: {
-          requestedSampleSize: 5,
-          numActionsRetrieved: 5,
-        },
-      });
-      const getDataMock = jest
-        .spyOn(ActionTaskManager.prototype, 'createGetBaseAnalyticsForItemTaskSequence')
-        .mockImplementation(() => []);
-      jest.spyOn(runner, 'runSingleSequence').mockImplementation(async () => baseAnalytics);
-      jest.spyOn(runner, 'runSingle').mockImplementation(async () => ({ createdAt: Date.now() }));
+      mockCheckRequestExport({ itemTaskManager, itemMembershipTaskManager });
+      mockSendMail(runner);
       jest
-        .spyOn(FileTaskManager.prototype, 'createDownloadFileTask')
-        .mockImplementation(() => new MockTask(''));
-      const sendActionExportEmail = jest.fn().mockImplementation(async () => true);
+        .spyOn(runner, 'runSingleSequence')
+        .mockImplementation(async () => ({ createdAt: new Date() }));
+
+      const createArchiveMock = mockCreateArchiveTask();
+      const sendExportActionsEmail = jest.fn().mockImplementation(async () => true);
 
       const app = await build({
         itemTaskManager,
@@ -198,61 +166,19 @@ describe('Plugin Tests', () => {
         itemMembershipTaskManager,
         memberTaskManager,
         options: DEFAULT_OPTIONS,
-        sendActionExportEmail,
+        sendExportActionsEmail,
       });
 
+      const itemId = v4();
       const res = await app.inject({
         method: 'POST',
         url: `/items/${itemId}/export`,
       });
 
-      expect(sendActionExportEmail).toHaveBeenCalled();
-      expect(getDataMock).not.toHaveBeenCalled();
+      expect(sendExportActionsEmail).toHaveBeenCalled();
       expect(createArchiveMock).not.toHaveBeenCalled();
       expect(res.statusCode).toBe(StatusCodes.NO_CONTENT);
       expect(res.payload).toBeFalsy();
-    });
-
-    it('Empty action for item should throw', async () => {
-      const itemId = v4();
-
-      jest.spyOn(utils, 'exportActionsInArchive').mockImplementation(async () => {
-        // do nothing
-      });
-
-      const baseAnalytics = new BaseAnalytics({
-        actions: [],
-        item: { id: itemId } as unknown as Item,
-        members: [],
-        itemMemberships: [],
-        metadata: {
-          requestedSampleSize: 5,
-          numActionsRetrieved: 0,
-        },
-      });
-      jest
-        .spyOn(ActionTaskManager.prototype, 'createGetBaseAnalyticsForItemTaskSequence')
-        .mockImplementation(() => []);
-      jest.spyOn(runner, 'runSingleSequence').mockImplementation(async () => baseAnalytics);
-      jest.spyOn(runner, 'runSingle').mockImplementation(async () => new MockTask(true));
-      jest
-        .spyOn(FileTaskManager.prototype, 'createDownloadFileTask')
-        .mockImplementation(() => new MockTask(''));
-
-      const app = await build({
-        itemTaskManager,
-        runner,
-        itemMembershipTaskManager,
-        memberTaskManager,
-        options: DEFAULT_OPTIONS,
-      });
-
-      const res = await app.inject({
-        method: 'POST',
-        url: `/items/${itemId}/export`,
-      });
-
-      expect(await res.json()).toEqual(new EmptyActionError(itemId));
     });
 
     it('Invalid item id throws', async () => {

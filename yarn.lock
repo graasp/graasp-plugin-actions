@@ -3194,7 +3194,7 @@ __metadata:
 
 "graasp-mailer@github:graasp/graasp-mailer#17/actionExport":
   version: 0.1.0
-  resolution: "graasp-mailer@https://github.com/graasp/graasp-mailer.git#commit=375979d0ab2f1ae0f5a38dc671e4c03eebeae8c4"
+  resolution: "graasp-mailer@https://github.com/graasp/graasp-mailer.git#commit=756625de4c21c7f6acadd9b8f62074873df73dde"
   dependencies:
     cpy-cli: 4.1.0
     eta: ^1.12.3
@@ -3203,7 +3203,7 @@ __metadata:
     fastify-polyglot: 1.0.0
     i18n: 0.14.2
     point-of-view: ^5.2.0
-  checksum: ea693c4e381d89461efc23547c6e36abe6ae9c98d6b268c7b9e03f1939531b3f4fdc13b457c5d8aee6535ace1a124b6d7d4a16e459485fb8e45ebb03b467898e
+  checksum: 3dfb2d9dea2220808196507ec3c96b5ca1d5ed04bb1f21674db8fc6bace13b59593f2058111a86c5fa228e09c1bc642168c25a132454b8f129dbce60d753b870
   languageName: node
   linkType: hard
 
@@ -3241,14 +3241,14 @@ __metadata:
 
 "graasp-plugin-file@github:graasp/graasp-plugin-file#19/expirationDownload":
   version: 0.1.0
-  resolution: "graasp-plugin-file@https://github.com/graasp/graasp-plugin-file.git#commit=45ed2b02383ce6d66661f13f44953514e5edecf7"
+  resolution: "graasp-plugin-file@https://github.com/graasp/graasp-plugin-file.git#commit=d4f431efd39de4d53a518292ab0510efcc6ca6c9"
   dependencies:
     aws-sdk: 2.1111.0
     content-disposition: 0.5.4
     fastify-multipart: 5.3.1
     http-status-codes: 2.2.0
     node-fetch: 2.6.7
-  checksum: ca0ac8372ff1de887afd425b472fce089d358bec98617a148e968f1c69d6236f3118758e50d154312f0fba256b8e83836bec752d0ff8e5db5620ae1f092e41d5
+  checksum: 54b27d7d59d6b36b75216e80a5560bb153939102da8f91b8a0e52e3410cbcd7ecdfd7e7dd0df4c07e4e0023267dc5a5c6fb0a4c8a49e15a6df0ec3da1fb31f74
   languageName: node
   linkType: hard
 

@@ -19,10 +19,10 @@ export class CreateRequestExportTask extends BaseRequestExportTask<RequestExport
   constructor(
     actor: Actor,
     requestExportService: RequestExportService,
-    input: CreateRequestExportTaskInputType,
+    input?: CreateRequestExportTaskInputType,
   ) {
     super(actor, requestExportService);
-    this.input = input;
+    this.input = input ?? {};
   }
 
   async run(handler: DatabaseTransactionHandler): Promise<void> {

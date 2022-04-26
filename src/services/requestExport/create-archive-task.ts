@@ -7,8 +7,8 @@ import { BaseAnalytics } from '../action/base-analytics';
 import { VIEW_UNKNOWN_NAME } from '../../constants/constants';
 
 export interface CreateArchiveTaskInputType {
-  baseAnalytics: BaseAnalytics;
-  storageFolder: string;
+  baseAnalytics?: BaseAnalytics;
+  storageFolder?: string;
 }
 
 export class CreateArchiveTask extends BaseRequestExportTask<ExportActionsInArchiveOutput> {
@@ -28,7 +28,7 @@ export class CreateArchiveTask extends BaseRequestExportTask<ExportActionsInArch
     input?: CreateArchiveTaskInputType,
   ) {
     super(actor, requestExportService);
-    this.input = input;
+    this.input = input ?? {};
     this.hosts = hosts;
   }
 

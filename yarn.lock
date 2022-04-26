@@ -3241,14 +3241,14 @@ __metadata:
 
 "graasp-plugin-file@github:graasp/graasp-plugin-file#19/expirationDownload":
   version: 0.1.0
-  resolution: "graasp-plugin-file@https://github.com/graasp/graasp-plugin-file.git#commit=d4f431efd39de4d53a518292ab0510efcc6ca6c9"
+  resolution: "graasp-plugin-file@https://github.com/graasp/graasp-plugin-file.git#commit=fbd1956ce8ec18cce31f440af47de612235d32d0"
   dependencies:
     aws-sdk: 2.1111.0
     content-disposition: 0.5.4
     fastify-multipart: 5.3.1
     http-status-codes: 2.2.0
     node-fetch: 2.6.7
-  checksum: 54b27d7d59d6b36b75216e80a5560bb153939102da8f91b8a0e52e3410cbcd7ecdfd7e7dd0df4c07e4e0023267dc5a5c6fb0a4c8a49e15a6df0ec3da1fb31f74
+  checksum: fb6547805d817dbbbb8d2ba58089f597c856314b327a0bf72a718b449213368c34be7fada9fb62c1e0385f9cf19e338dc9054972509e56c2a15ee4b8ce50be0e
   languageName: node
   linkType: hard
 

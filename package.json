@@ -30,14 +30,14 @@
     "fluent-json-schema": "3.0.1",
     "geoip-lite": "1.4.2",
     "graasp-mailer": "github:graasp/graasp-mailer#17/actionExport",
-    "graasp-plugin-file": "github:graasp/graasp-plugin-file#19/expirationDownload",
+    "graasp-plugin-file": "github:graasp/graasp-plugin-file",
     "http-status-codes": "2.2.0",
     "uuid": "8.3.2"
   },
   "devDependencies": {
     "@types/eslint": "7.2.5",
     "@types/geoip-lite": "1.4.1",
-    "@types/graasp": "github:graasp/graasp-types.git#20/getManyMembers",
+    "@types/graasp": "github:graasp/graasp-types.git",
     "@types/jest": "27.4.0",
     "@types/node": "14.14.7",
     "@types/uuid": "8.3.4",

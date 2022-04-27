@@ -913,9 +913,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/graasp@github:graasp/graasp-types.git#20/getManyMembers":
+"@types/graasp@github:graasp/graasp-types.git":
   version: 0.1.0
-  resolution: "@types/graasp@https://github.com/graasp/graasp-types.git#commit=51a63071a35aa740bd3c462444d08ca7f8b28bdc"
+  resolution: "@types/graasp@https://github.com/graasp/graasp-types.git#commit=1dde116429496a40a080dbaddf489a9f47196302"
   checksum: 8ada1dcede2fcd9bd5cf7c5acda81f3a11a291e240b8f4929c7824e2473932c877fa4ce784f3e0cc39cd545db61ded694c2e1ceb3bf870be1e58f32b36b20cbc
   languageName: node
   linkType: hard
@@ -3213,7 +3213,7 @@ __metadata:
   dependencies:
     "@types/eslint": 7.2.5
     "@types/geoip-lite": 1.4.1
-    "@types/graasp": "github:graasp/graasp-types.git#20/getManyMembers"
+    "@types/graasp": "github:graasp/graasp-types.git"
     "@types/jest": 27.4.0
     "@types/node": 14.14.7
     "@types/uuid": 8.3.4
@@ -3225,7 +3225,7 @@ __metadata:
     fluent-json-schema: 3.0.1
     geoip-lite: 1.4.2
     graasp-mailer: "github:graasp/graasp-mailer#17/actionExport"
-    graasp-plugin-file: "github:graasp/graasp-plugin-file#19/expirationDownload"
+    graasp-plugin-file: "github:graasp/graasp-plugin-file"
     graasp-test: "github:graasp/graasp-test"
     http-status-codes: 2.2.0
     jest: 27.4.7
@@ -3239,16 +3239,16 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"graasp-plugin-file@github:graasp/graasp-plugin-file#19/expirationDownload":
+"graasp-plugin-file@github:graasp/graasp-plugin-file":
   version: 0.1.0
-  resolution: "graasp-plugin-file@https://github.com/graasp/graasp-plugin-file.git#commit=fbd1956ce8ec18cce31f440af47de612235d32d0"
+  resolution: "graasp-plugin-file@https://github.com/graasp/graasp-plugin-file.git#commit=cd8b24cc4ff47a5558a173f2937543a060bd1669"
   dependencies:
     aws-sdk: 2.1111.0
     content-disposition: 0.5.4
     fastify-multipart: 5.3.1
     http-status-codes: 2.2.0
     node-fetch: 2.6.7
-  checksum: fb6547805d817dbbbb8d2ba58089f597c856314b327a0bf72a718b449213368c34be7fada9fb62c1e0385f9cf19e338dc9054972509e56c2a15ee4b8ce50be0e
+  checksum: 31dd64638b65d2d3efa92e8ccbea30777b41be060a001b8fb3c765a9e4f9636d640f381d45832daf401ee23287ee1d403948269451550cc2cce72b6fe1dac942
   languageName: node
   linkType: hard
 

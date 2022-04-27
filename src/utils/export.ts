@@ -51,7 +51,7 @@ export const exportActionsInArchive = async (args: {
     });
 
     // create file for item
-    // todo: add item tree data
+    // TODO: add item tree data
     const itemFilepath = path.join(fileFolderPath, buildActionFileName('item', archiveDate));
     fs.writeFileSync(itemFilepath, JSON.stringify(baseAnalytics.item));
 

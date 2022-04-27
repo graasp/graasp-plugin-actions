@@ -16,14 +16,20 @@ const baseAnalytics = new BaseAnalytics({
   actions,
   members: [],
   itemMemberships: [],
-  item: { id: itemId } as unknown as Item,
+  item: { id: itemId, name: 'item-name' } as unknown as Item,
   metadata: { numActionsRetrieved: 5, requestedSampleSize: 5 },
 });
 
 const storageFolder = path.join(__dirname, 'tmp');
 fs.mkdirSync(storageFolder, { recursive: true });
 
-describe('createActionArchive', () => {
+describe('exportActionsInArchive', () => {
+  beforeEach(() => {
+    fs.readdirSync(storageFolder).forEach((f) =>
+      fs.rmSync(`${storageFolder}/${f}`, { recursive: true }),
+    );
+  });
+
   it('Create archive successfully', async () => {
     const writeFileSyncMock = jest.spyOn(fs, 'writeFileSync');
 
@@ -37,6 +43,12 @@ describe('createActionArchive', () => {
     expect(result).toBeTruthy();
     // create files for all views, items, members and memberships
     expect(writeFileSyncMock).toHaveBeenCalledTimes(views.length + 3);
+    const files = fs.readdirSync(storageFolder);
+    expect(files.length).toBeTruthy();
+
+    const [folder, zip] = files;
+    expect(zip.includes(baseAnalytics.item.name)).toBeTruthy();
+    expect(fs.readdirSync(path.join(storageFolder, folder)).length).toEqual(views.length + 3);
   });
 
   it('Throws if a file is not created', async () => {

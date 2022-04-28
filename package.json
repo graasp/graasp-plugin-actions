@@ -29,7 +29,7 @@
     "archiver": "5.3.1",
     "fluent-json-schema": "3.0.1",
     "geoip-lite": "1.4.2",
-    "graasp-mailer": "github:graasp/graasp-mailer#17/actionExport",
+    "graasp-mailer": "github:graasp/graasp-mailer",
     "graasp-plugin-file": "github:graasp/graasp-plugin-file",
     "http-status-codes": "2.2.0",
     "uuid": "8.3.2"

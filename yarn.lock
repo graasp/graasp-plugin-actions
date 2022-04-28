@@ -3192,9 +3192,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"graasp-mailer@github:graasp/graasp-mailer#17/actionExport":
+"graasp-mailer@github:graasp/graasp-mailer":
   version: 0.1.0
-  resolution: "graasp-mailer@https://github.com/graasp/graasp-mailer.git#commit=714d2ee1876682fdb8f2469199c3c59411fa2b75"
+  resolution: "graasp-mailer@https://github.com/graasp/graasp-mailer.git#commit=97423e2c9561f833728567a6b4eac50363e4a794"
   dependencies:
     cpy-cli: 4.1.0
     eta: ^1.12.3
@@ -3224,7 +3224,7 @@ __metadata:
     fastify: 3.8.0
     fluent-json-schema: 3.0.1
     geoip-lite: 1.4.2
-    graasp-mailer: "github:graasp/graasp-mailer#17/actionExport"
+    graasp-mailer: "github:graasp/graasp-mailer"
     graasp-plugin-file: "github:graasp/graasp-plugin-file"
     graasp-test: "github:graasp/graasp-test"
     http-status-codes: 2.2.0

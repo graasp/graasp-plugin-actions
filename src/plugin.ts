@@ -20,6 +20,7 @@ import {
   DEFAULT_REQUEST_EXPORT_INTERVAL,
   EXPORT_FILE_EXPIRATION,
   EXPORT_FILE_EXPIRATION_DAYS,
+  PermissionLevel,
   TMP_FOLDER_PATH,
   VIEW_BUILDER_NAME,
   ZIP_MIMETYPE,
@@ -191,7 +192,7 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
       const checkAdminRightsTask =
         itemMembershipsTaskManager.createGetMemberItemMembershipTask(member);
       checkAdminRightsTask.getInput = () => ({
-        validatePermission: 'admin',
+        validatePermission: PermissionLevel.ADMIN,
         item: getItemTask.result,
       });
       const requestExportTask = requestExportTaskManager.createGetLastTask(member, {
@@ -222,6 +223,7 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
             return;
           }
         }
+        // the previous exported data is outdated and a new version should be uploaded
       }
 
       // get actions data and create archive in background

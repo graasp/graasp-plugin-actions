@@ -2,6 +2,7 @@ import fastify from 'fastify';
 import { Item, ItemMembershipTaskManager, MemberTaskManager, TaskRunner } from 'graasp';
 import { ItemTaskManager } from 'graasp-test';
 import plugin, { GraaspActionsOptions } from '../src/plugin';
+import { exportActionsInArchive } from '../src/utils/export';
 import { GRAASP_ACTOR } from './constants';
 
 const schemas = {
@@ -22,6 +23,7 @@ const schemas = {
   },
 };
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 const build = async ({
   runner,
   itemTaskManager,
@@ -35,8 +37,7 @@ const build = async ({
   itemMembershipTaskManager: ItemMembershipTaskManager;
   memberTaskManager: MemberTaskManager;
   options?: GraaspActionsOptions;
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  sendExportActionsEmail?: Function;
+  sendExportActionsEmail?: typeof exportActionsInArchive;
 }) => {
   const app = fastify();
   app.addSchema(schemas);

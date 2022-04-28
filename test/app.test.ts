@@ -123,7 +123,7 @@ describe('Plugin Tests', () => {
         if (tasks.length === 3) {
           return null;
         }
-        // lasts tasks
+        // run correctly for the other tasks
         return tasks[0].result;
       });
 

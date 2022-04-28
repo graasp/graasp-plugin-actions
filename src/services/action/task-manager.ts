@@ -18,6 +18,7 @@ import { ActionHandler } from '../../types';
 import { GetActionsTask, GetActionsTaskInputType } from './get-actions-task';
 import { BaseAnalytics } from './base-analytics';
 import { Action } from '../../interfaces/action';
+import { PermissionLevel } from '../../constants/constants';
 
 export class ActionTaskManager {
   actionService: ActionService;
@@ -67,8 +68,7 @@ export class ActionTaskManager {
       this.itemMembershipsTaskManager.createGetMemberItemMembershipTask(member);
     checkMembershipTask.getInput = () => ({
       item: getTask.result,
-      // todo: use graasp PermissionLevel
-      validatePermission: 'admin',
+      validatePermission: PermissionLevel.ADMIN,
     });
 
     // get memberships

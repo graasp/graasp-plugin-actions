@@ -3,7 +3,7 @@ import { Action } from './action';
 
 export interface Analytics {
   actions: Action[];
-  users: Member[];
+  members: Member[];
   item: Item;
   metadata: {
     numActionsRetrieved: number;

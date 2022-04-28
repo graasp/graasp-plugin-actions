@@ -1,23 +1,7 @@
+import path from 'path';
+
 export const VIEW_UNKNOWN_NAME = 'unknown';
 export const VIEW_BUILDER_NAME = 'builder';
-
-export const ITEM_TYPE = 'item';
-
-// todo: get from graasp constants
-export const CLIENT_HOSTS = [
-  {
-    name: 'builder',
-    hostname: 'builder.graasp.org',
-  },
-  {
-    name: 'player',
-    hostname: 'player.graasp.org',
-  },
-  {
-    name: 'explorer',
-    hostname: 'explorer.graasp.org',
-  },
-];
 
 export enum ACTION_TYPES {
   GET = 'get',
@@ -55,3 +39,16 @@ export const paths = {
 export const DEFAULT_ACTIONS_SAMPLE_SIZE = 5000;
 export const MIN_ACTIONS_SAMPLE_SIZE = 0;
 export const MAX_ACTIONS_SAMPLE_SIZE = 10000;
+
+export const TMP_FOLDER_PATH = path.join(__dirname, 'tmp');
+
+export const ZIP_MIMETYPE = 'application/zip';
+
+export const DEFAULT_REQUEST_EXPORT_INTERVAL = 3600 * 1000 * 24; // 1 day - used for timestamp
+export const EXPORT_FILE_EXPIRATION_DAYS = 7;
+export const EXPORT_FILE_EXPIRATION = 3600 * 24 * EXPORT_FILE_EXPIRATION_DAYS; // max value: one week
+
+// todo: export from graasp-utils/types
+export const PermissionLevel = {
+  ADMIN: 'admin'
+};

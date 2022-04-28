@@ -1,25 +1,26 @@
 import fastify, { FastifyLoggerInstance } from 'fastify';
 import { v4 } from 'uuid';
 import { ItemMembershipTaskManager, ItemTaskManager, TaskRunner } from 'graasp-test';
-import {
-  ACTION_TYPES,
-  CLIENT_HOSTS,
-  ITEM_TYPE,
-  VIEW_BUILDER_NAME,
-} from '../../constants/constants';
-import { ActionService } from '../../db-service';
-import { ActionTaskManager } from '../../task-manager';
+import { ACTION_TYPES, VIEW_BUILDER_NAME } from '../../constants/constants';
+import { ActionService } from './db-service';
+import { ActionTaskManager } from './task-manager';
 import { MemberType } from '../../constants/constants';
 import { getDummyItem } from '../../../test/utils';
 import { BaseAction } from './base-action';
-import type { DatabaseTransactionHandler, ItemService } from 'graasp';
-import { CREATE_ACTION_WAIT_TIME, GRAASP_ACTOR } from '../../../test/constants';
+import type { DatabaseTransactionHandler, ItemService, MemberTaskManager } from 'graasp';
+import {
+  CLIENT_HOSTS,
+  CREATE_ACTION_WAIT_TIME,
+  GRAASP_ACTOR,
+  ITEM_TYPE,
+} from '../../../test/constants';
 
 const itemTaskManager = new ItemTaskManager();
 const itemService = {
   get: jest.fn(),
 } as unknown as ItemService;
 const itemMembershipTaskManager = new ItemMembershipTaskManager();
+const memberTaskMananger = {} as unknown as MemberTaskManager;
 const runner = new TaskRunner();
 
 const actionService = new ActionService();
@@ -27,7 +28,13 @@ const log = {
   debug: jest.fn(),
 } as unknown as FastifyLoggerInstance;
 const handler = {} as DatabaseTransactionHandler;
-const actionTaskManager = new ActionTaskManager(actionService, CLIENT_HOSTS);
+const actionTaskManager = new ActionTaskManager(
+  actionService,
+  itemTaskManager,
+  itemMembershipTaskManager,
+  memberTaskMananger,
+  CLIENT_HOSTS,
+);
 const generateActionsHandler = (): Promise<BaseAction[]> =>
   Promise.all([
     new BaseAction({

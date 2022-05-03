@@ -12,8 +12,10 @@ const getView = (headers: { origin?: string | string[] }, hosts: Hostname[]): st
 
 const getBaseAction = (request: FastifyRequest, hosts: Hostname[]): Partial<BaseAction> => {
   const { member, ip, headers } = request;
+  console.log('ip: ', ip);
   const view = getView(headers, hosts);
   const geolocation = getGeolocationIp(ip) as unknown as Serializable;
+  console.log('geolocation: ', geolocation);
   return {
     memberId: member.id,
     memberType: member.type,

@@ -25,7 +25,7 @@ import {
   VIEW_BUILDER_NAME,
   ZIP_MIMETYPE,
 } from './constants/constants';
-import { getOne, deleteAllById, exportAction } from './schemas/schemas';
+import { getItemActions, deleteAllById, exportAction } from './schemas/schemas';
 import { AnalyticsQueryParams } from './interfaces/analytics';
 import { ActionTaskManager } from './services/action/task-manager';
 import { StatusCodes } from 'http-status-codes';
@@ -165,10 +165,10 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
     );
   }
 
-  // get all the actions matching the given `id`
+  // get actions and more data matching the given `id`
   fastify.get<{ Params: IdParam; Querystring: AnalyticsQueryParams }>(
     '/items/:id',
-    { schema: getOne },
+    { schema: getItemActions },
     async ({ member, params: { id }, query: { requestedSampleSize, view } }, reply) => {
       const tasks = actionTaskManager.createGetBaseAnalyticsForItemTaskSequence(member, {
         sampleSize: requestedSampleSize,
@@ -181,7 +181,7 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
     },
   );
 
-  // get all the actions matching the given `id`
+  // get actions matching the given `id`
   fastify.route<{ Params: IdParam }>({
     method: 'POST',
     url: '/items/:id/export',
@@ -262,6 +262,7 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
     },
   });
 
+  // todo: delete self data
   // delete all the actions matching the given `memberId`
   fastify.delete<{ Params: IdParam }>(
     '/members/:id/delete',

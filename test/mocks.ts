@@ -1,4 +1,4 @@
-import { Item } from 'graasp';
+import { Item, ItemMembership, Member, MemberTaskManager } from 'graasp';
 import { FileTaskManager } from 'graasp-plugin-file';
 import {
   Task as MockTask,
@@ -8,7 +8,12 @@ import {
 } from 'graasp-test';
 import { RequestExportTaskManager } from '../src';
 
-// using multiple mocks updates runSingleSequence multiple times
+export const mockRunSingleSequence = (data: unknown, shouldThrow?: boolean): jest.SpyInstance => {
+  return jest.spyOn(MockTaskRunner.prototype, 'runSingleSequence').mockImplementation(async () => {
+    if (shouldThrow) throw data;
+    return data;
+  });
+};
 
 export const mockGetTaskSequence = (
   data: Partial<Item> | Error,
@@ -19,7 +24,36 @@ export const mockGetTaskSequence = (
     .mockImplementation(() => {
       return [new MockTask(data)];
     });
-  jest.spyOn(MockTaskRunner.prototype, 'runSingleSequence').mockImplementation(async () => {
+  mockRunSingleSequence(data, shouldThrow);
+  return mockCreateTask;
+};
+
+export const mockGetDescendantsTask = (
+  data: Partial<Item>[] | Error,
+  shouldThrow?: boolean,
+): jest.SpyInstance => {
+  const mockCreateTask = jest
+    .spyOn(MockItemTaskManager.prototype, 'createGetDescendantsTask')
+    .mockImplementation(() => {
+      return new MockTask(data);
+    });
+  jest.spyOn(MockTaskRunner.prototype, 'runSingle').mockImplementation(async () => {
+    if (shouldThrow) throw data;
+    return data;
+  });
+  return mockCreateTask;
+};
+
+export const mockGetTask = (
+  data: Partial<Item> | Error,
+  shouldThrow?: boolean,
+): jest.SpyInstance => {
+  const mockCreateTask = jest
+    .spyOn(MockItemTaskManager.prototype, 'createGetTask')
+    .mockImplementation(() => {
+      return new MockTask(data);
+    });
+  jest.spyOn(MockTaskRunner.prototype, 'runSingle').mockImplementation(async () => {
     if (shouldThrow) throw data;
     return data;
   });
@@ -35,7 +69,7 @@ export const mockDeleteTask = (
     .mockImplementation(() => {
       return new MockTask(data);
     });
-  jest.spyOn(MockTaskRunner.prototype, 'runSingleSequence').mockImplementation(async () => {
+  jest.spyOn(MockTaskRunner.prototype, 'runSingle').mockImplementation(async () => {
     if (shouldThrow) throw data;
     return data;
   });
@@ -45,7 +79,7 @@ export const mockDeleteTask = (
 // item memberships
 
 export const mockCreateGetMemberItemMembershipTask = (
-  data: Partial<Item> | Error,
+  data: Partial<ItemMembership> | Error,
   shouldThrow?: boolean,
 ): jest.SpyInstance => {
   const mockTask = jest
@@ -58,6 +92,36 @@ export const mockCreateGetMemberItemMembershipTask = (
     return data;
   });
   return mockTask;
+};
+
+export const mockCreateGetOfItemTaskSequence = (
+  data: ItemMembership[] | Error,
+  shouldThrow?: boolean,
+): jest.SpyInstance => {
+  const mockTask = jest
+    .spyOn(MockItemMembershipTaskManager.prototype, 'createGetOfItemTaskSequence')
+    .mockImplementation(() => {
+      return [new MockTask(data)];
+    });
+  mockRunSingleSequence(data, shouldThrow);
+  return mockTask;
+};
+
+// members
+export const mockCreateGetManyTask = (
+  data: Partial<Member>[] | Error,
+  memberTaskManager: MemberTaskManager,
+  shouldThrow?: boolean,
+): jest.SpyInstance => {
+  const mock = jest.fn().mockImplementation(() => {
+    return new MockTask(data);
+  });
+  memberTaskManager.createGetManyTask = mock;
+  jest.spyOn(MockTaskRunner.prototype, 'runSingle').mockImplementation(async () => {
+    if (shouldThrow) throw data;
+    return data;
+  });
+  return mock;
 };
 
 export const mockCheckRequestExport = ({ itemTaskManager, itemMembershipTaskManager }) => {

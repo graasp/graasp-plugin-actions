@@ -11,7 +11,8 @@ import {
 } from '../../constants/constants';
 
 export interface GetActionsTaskInputType {
-  requestedSampleSize?: number;
+  itemPath?: string;
+  sampleSize?: number;
   view?: string;
 }
 
@@ -28,7 +29,7 @@ export class GetActionsTask extends BaseActionTask<Action[]> {
     actor: Actor,
     actionService: ActionService,
     itemId: string,
-    input: GetActionsTaskInputType,
+    input?: GetActionsTaskInputType,
   ) {
     super(actor, actionService);
     this.itemId = itemId;
@@ -38,41 +39,34 @@ export class GetActionsTask extends BaseActionTask<Action[]> {
   async run(handler: DatabaseTransactionHandler): Promise<void> {
     this.status = 'RUNNING';
 
-    const { requestedSampleSize, view } = this.input;
+    const { sampleSize, view, itemPath } = this.input;
+
+    if (!itemPath) {
+      throw new Error('');
+    }
 
     // Check validity of the requestSampleSize parameter (it is a number between min and max constants)
-    let sampleSize = DEFAULT_ACTIONS_SAMPLE_SIZE;
-    if (requestedSampleSize) {
+    let size = DEFAULT_ACTIONS_SAMPLE_SIZE;
+    if (sampleSize) {
       // If it is an integer, return the value bounded between min and max
-      if (Number.isInteger(requestedSampleSize)) {
-        sampleSize = Math.min(
-          Math.max(requestedSampleSize, MIN_ACTIONS_SAMPLE_SIZE),
-          MAX_ACTIONS_SAMPLE_SIZE,
-        );
+      if (Number.isInteger(sampleSize)) {
+        size = Math.min(Math.max(sampleSize, MIN_ACTIONS_SAMPLE_SIZE), MAX_ACTIONS_SAMPLE_SIZE);
         // If it is not valid, set the default value
       } else {
-        sampleSize = DEFAULT_ACTIONS_SAMPLE_SIZE;
+        size = DEFAULT_ACTIONS_SAMPLE_SIZE;
       }
     }
 
     let actionResult = null;
-    // Check if view parameter exits. If it is provided an incorrect view, it would be undefined
-    if (view) {
-      // Get actions with requestedSampleSize and view
-      actionResult = await this.actionService.getActionsByItemWithSampleAndView(
-        this.itemId,
-        sampleSize,
+    // Get actions with requestedSampleSize and view
+    actionResult = await this.actionService.getActionsByItem(
+      itemPath,
+      {
+        sampleSize: size,
         view,
-        handler,
-      );
-    } else {
-      // Get actions with requestedSampleSize
-      actionResult = await this.actionService.getActionsByItemWithSample(
-        this.itemId,
-        sampleSize,
-        handler,
-      );
-    }
+      },
+      handler,
+    );
 
     this._result = actionResult;
     this.status = 'OK';

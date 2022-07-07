@@ -125,9 +125,6 @@ describe('Plugin Tests', () => {
       it('Successfully get actions from item id', async () => {
         const items = [buildItem()];
         const item = items[0];
-        const itemMemberships = [{}] as unknown as ItemMembership[];
-        const actions = [createDummyAction()];
-        const members = [{ name: 'member' }];
         const metadata = {
           numActionsRetrieved: 5,
           requestedSampleSize: 5,

@@ -6,7 +6,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "test": "jest",
+    "test": "jest test/app.test.ts",
     "test:watch": "yarn test --watchAll",
     "prepare": "yarn build",
     "prepack": "yarn build",

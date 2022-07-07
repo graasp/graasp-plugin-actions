@@ -450,6 +450,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@graasp/utils@github:graasp/graasp-utils#15/testUtils":
+  version: 0.1.0
+  resolution: "@graasp/utils@https://github.com/graasp/graasp-utils.git#commit=0f6cce6b678b19fd3beb124a87216755ff420cd4"
+  dependencies:
+    js-cookie: 3.0.1
+    qs: 6.10.3
+  checksum: d76bef0923d5384c03cbec627fa0ae80ce7bd445444af833af7fe90b1269791275f389f74582014676f08669d0458dfaca2cf5430a33b61a1f6f38a874d6d86a
+  languageName: node
+  linkType: hard
+
 "@istanbuljs/load-nyc-config@npm:^1.0.0":
   version: 1.1.0
   resolution: "@istanbuljs/load-nyc-config@npm:1.1.0"
@@ -915,8 +925,8 @@ __metadata:
 
 "@types/graasp@github:graasp/graasp-types.git#23/createGetDescendantsTask":
   version: 0.1.0
-  resolution: "@types/graasp@https://github.com/graasp/graasp-types.git#commit=d711f1a353c6f02cf92ce574b00996f8e0cdc8eb"
-  checksum: f87b8cfd4adccea6492d22383b21325581045e9635ddcee4ff017a6ff5580581bb6ca15ff316d4a54bc86911145c84bc821ce3e04fd98fa98b6780ae2737f85d
+  resolution: "@types/graasp@https://github.com/graasp/graasp-types.git#commit=2ce04340b9c1481a3b6645ff67d2c88a814131b5"
+  checksum: 41ae6c80872feba8057fb86dacd489f62630538919cfb52661b16b6c974a79d31b5ba00ac818df1fa759a45d7cc621139597cc1853dc0b9a15435f3e7c9c6185
   languageName: node
   linkType: hard
 
@@ -3254,8 +3264,11 @@ __metadata:
 
 "graasp-test@github:graasp/graasp-test#21/createGetDescendantsTask":
   version: 0.1.0
-  resolution: "graasp-test@https://github.com/graasp/graasp-test.git#commit=e793ddfac2a6cf25ed28cae5777ea2813b9f55fd"
-  checksum: 04b75031d3de9f3a9e5172987a1a3b1bdc519969a05322001620ec0f3e9f98d4c55d2ed46ad73f13627cc5e4e52119ea6d79f5ef31111dd9b91c72f39016500b
+  resolution: "graasp-test@https://github.com/graasp/graasp-test.git#commit=ee32b42f1f775beda9ca881ba84f2d44f9451f65"
+  dependencies:
+    "@graasp/utils": "github:graasp/graasp-utils#15/testUtils"
+    uuid: 8.3.2
+  checksum: 23d134b234c17a68969c34603c9af2d3467722bc3db4e4eac2d38cb239a0a7a091bc119c6dd318e071f3f1510668398c433ac705ad82d66f3fa6b2294dc67715
   languageName: node
   linkType: hard
 
@@ -4386,6 +4399,13 @@ __metadata:
   version: 0.16.0
   resolution: "jmespath@npm:0.16.0"
   checksum: 2d602493a1e4addfd1350ac8c9d54b1b03ed09e305fd863bab84a4ee1f52868cf939dd1a08c5cdea29ce9ba8f86875ebb458b6ed45dab3e1c3f2694503fb2fd9
+  languageName: node
+  linkType: hard
+
+"js-cookie@npm:3.0.1":
+  version: 3.0.1
+  resolution: "js-cookie@npm:3.0.1"
+  checksum: bb48de67e2a6bd1ae3dfd6b2d5a167c33dd0c5a37e909206161eb0358c98f17cb55acd55827a58e9eea3630d89444e7479f7938ef4420dda443218b8c434a4c3
   languageName: node
   linkType: hard
 
@@ -5749,7 +5769,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"qs@npm:^6.10.2":
+"qs@npm:6.10.3, qs@npm:^6.10.2":
   version: 6.10.3
   resolution: "qs@npm:6.10.3"
   dependencies:

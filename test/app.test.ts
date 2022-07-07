@@ -1,20 +1,17 @@
-import { ItemTaskManager, ItemMembershipTaskManager, TaskRunner } from 'graasp-test';
+import { ItemTaskManager, ItemMembershipTaskManager, TaskRunner, buildItem } from 'graasp-test';
 import { CLIENT_HOSTS, createDummyAction, GRAASP_ACTOR } from './constants';
 import build from './app';
-import { ActionService, RequestExportTaskManager } from '../src';
-import * as utils from '../src/utils/export';
-import { checkActionData, getDummyItem } from './utils';
+import { ActionService } from '../src';
+import { checkActionData } from './utils';
 import { ACTION_TYPES, VIEW_BUILDER_NAME } from '../src/constants/constants';
 import { ItemMembership, MemberTaskManager } from 'graasp';
 import { StatusCodes } from 'http-status-codes';
 import { v4 } from 'uuid';
 import {
-  FileTaskManager,
   GraaspLocalFileItemOptions,
   GraaspS3FileItemOptions,
   ServiceMethod,
 } from 'graasp-plugin-file';
-import MockTask from 'graasp-test/src/tasks/task';
 import {
   mockCheckRequestExport,
   mockCreateArchiveTask,
@@ -50,7 +47,7 @@ describe('Plugin Tests', () => {
   });
 
   describe('Hooks', () => {
-    const item = getDummyItem();
+    const item = buildItem();
 
     describe('Create Post Hook Handler', () => {
       it('create action when creating an item', async () => {
@@ -126,7 +123,7 @@ describe('Plugin Tests', () => {
 
     describe('GET /items/:id', () => {
       it('Successfully get actions from item id', async () => {
-        const items = [getDummyItem()];
+        const items = [buildItem()];
         const item = items[0];
         const itemMemberships = [{}] as unknown as ItemMembership[];
         const actions = [createDummyAction()];
@@ -163,6 +160,56 @@ describe('Plugin Tests', () => {
         const res = await app.inject({
           method: 'GET',
           url: `/items/${itemId}`,
+        });
+
+        expect(res.statusCode).toBe(StatusCodes.OK);
+        expect(res.payload).toBeTruthy();
+        expect(res.json().actions).toEqual(actions);
+        expect(res.json().item).toEqual(items[0]);
+        expect(res.json().descendants).toEqual(items);
+        expect(res.json().members).toEqual(members);
+        expect(res.json().itemMemberships).toEqual(itemMemberships);
+        expect(res.json().metadata).toEqual(metadata);
+      });
+
+      it('Successfully get actions from item id with view and sample size', async () => {
+        const items = [buildItem()];
+        const item = items[0];
+        const itemMemberships = [{}] as unknown as ItemMembership[];
+        const actions = [createDummyAction()];
+        const members = [{ name: 'member' }];
+        const metadata = {
+          numActionsRetrieved: 5,
+          requestedSampleSize: 5,
+        };
+        mockGetTask(item);
+        mockCreateGetMemberItemMembershipTask(item);
+        mockCreateGetOfItemTaskSequence(itemMemberships);
+        mockCreateGetManyTask([GRAASP_ACTOR], memberTaskManager);
+        mockGetDescendantsTask(items);
+
+        const result = {
+          descendants: items,
+          item,
+          actions,
+          members,
+          itemMemberships,
+          metadata,
+        };
+        mockRunSingleSequence(result);
+
+        const app = await build({
+          itemTaskManager,
+          runner,
+          itemMembershipTaskManager,
+          memberTaskManager,
+          options: DEFAULT_OPTIONS,
+        });
+
+        const itemId = v4();
+        const res = await app.inject({
+          method: 'GET',
+          url: `/items/${itemId}?view=builder&requestedSampleSize=1`,
         });
 
         expect(res.statusCode).toBe(StatusCodes.OK);

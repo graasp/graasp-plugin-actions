@@ -9,7 +9,7 @@ export interface Action {
   itemType: string;
   actionType: string;
   view: string;
-  geolocation: Serializable;
   extra: Serializable;
   createdAt: string;
+  geolocation: Serializable | null;
 }

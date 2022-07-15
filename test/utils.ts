@@ -3,6 +3,7 @@ import { GRAASP_ACTOR } from './constants';
 
 export const checkActionData = (savedAction, args) => {
   const {
+    itemPath,
     itemId,
     extraItemId,
     itemType,
@@ -10,7 +11,7 @@ export const checkActionData = (savedAction, args) => {
     view = VIEW_UNKNOWN_NAME,
     memberId = GRAASP_ACTOR.id,
   } = args;
-  expect(savedAction.itemId).toEqual(itemId);
+  expect(savedAction.itemPath).toEqual(itemPath);
   expect(savedAction.itemType).toEqual(itemType);
   expect(savedAction.memberId).toEqual(memberId);
   expect(savedAction.actionType).toEqual(actionType);

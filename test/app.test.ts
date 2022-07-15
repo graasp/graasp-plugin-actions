@@ -23,12 +23,14 @@ import {
   mockRunSingleSequence,
   mockSendMail,
 } from './mocks';
+import { FastifyLoggerInstance } from 'fastify';
 
 const itemTaskManager = new ItemTaskManager();
 const memberTaskManager = {} as unknown as MemberTaskManager;
 const itemMembershipTaskManager = new ItemMembershipTaskManager();
 const runner = new TaskRunner();
 const actor = GRAASP_ACTOR;
+const MOCK_LOGGER = {} as unknown as FastifyLoggerInstance
 
 const DEFAULT_OPTIONS = {
   shouldSave: true,
@@ -57,12 +59,13 @@ describe('Plugin Tests', () => {
             const mockCreateAction = jest
               .spyOn(ActionService.prototype, 'create')
               .mockImplementation(async (action) => action);
-            await fn(item, actor, { log: undefined });
+            await fn(item, actor, { log: MOCK_LOGGER });
 
             const savedAction = mockCreateAction.mock.calls[0][0];
             expect(mockCreateAction).toHaveBeenCalled();
             checkActionData(savedAction, {
               itemId: item.id,
+              itemPath: item.path,
               itemType: item.type,
               actionType: ACTION_TYPES.CREATE,
               view: VIEW_BUILDER_NAME,
@@ -88,11 +91,12 @@ describe('Plugin Tests', () => {
             const mockCreateAction = jest
               .spyOn(ActionService.prototype, 'create')
               .mockImplementation(async (action) => action);
-            await fn(item, actor, { log: undefined });
+            await fn(item, actor, { log: MOCK_LOGGER });
 
             const savedAction = mockCreateAction.mock.calls[0][0];
             expect(mockCreateAction).toHaveBeenCalled();
             checkActionData(savedAction, {
+              itemPath: null,
               itemId: null,
               extraItemId: item.id,
               itemType: item.type,

@@ -11,5 +11,5 @@ export interface Action {
   view: string;
   extra: Serializable;
   createdAt: string;
-  geolocation: Serializable | null;
+  geolocation?: Serializable;
 }

@@ -12,7 +12,7 @@ export class BaseAction implements Action {
   itemType: string;
   actionType: string;
   view: string;
-  geolocation: Serializable | null;
+  geolocation?: Serializable;
   extra: Serializable;
   readonly createdAt: string;
 
@@ -23,7 +23,7 @@ export class BaseAction implements Action {
     itemType: string;
     actionType: string;
     view: string;
-    geolocation: Serializable | null;
+    geolocation?: Serializable;
     extra: Serializable;
   }) {
     const { memberId, itemId, memberType, itemType, actionType, view, geolocation, extra } = args;

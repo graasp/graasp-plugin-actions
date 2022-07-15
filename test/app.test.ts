@@ -30,7 +30,7 @@ const memberTaskManager = {} as unknown as MemberTaskManager;
 const itemMembershipTaskManager = new ItemMembershipTaskManager();
 const runner = new TaskRunner();
 const actor = GRAASP_ACTOR;
-const MOCK_LOGGER = {} as unknown as FastifyLoggerInstance
+const MOCK_LOGGER = {} as unknown as FastifyLoggerInstance;
 
 const DEFAULT_OPTIONS = {
   shouldSave: true,
@@ -129,6 +129,9 @@ describe('Plugin Tests', () => {
       it('Successfully get actions from item id', async () => {
         const items = [buildItem()];
         const item = items[0];
+        const itemMemberships = [{}] as unknown as ItemMembership[];
+        const actions = [createDummyAction()];
+        const members = [{ name: 'member' }];
         const metadata = {
           numActionsRetrieved: 5,
           requestedSampleSize: 5,

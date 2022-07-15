@@ -19,10 +19,10 @@ export class GetLastRequestExportTask extends BaseRequestExportTask<RequestExpor
 
   constructor(
     actor: Actor,
-    actionService: RequestExportService,
+    requestService: RequestExportService,
     input: GetLastRequestExportTaskInputType,
   ) {
-    super(actor, actionService);
+    super(actor, requestService);
     this.input = input;
   }
 

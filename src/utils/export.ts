@@ -51,9 +51,15 @@ export const exportActionsInArchive = async (args: {
     });
 
     // create file for item
-    // TODO: add item tree data
     const itemFilepath = path.join(fileFolderPath, buildActionFileName('item', archiveDate));
     fs.writeFileSync(itemFilepath, JSON.stringify(baseAnalytics.item));
+
+    // create file for descendants
+    const descendantsFilepath = path.join(
+      fileFolderPath,
+      buildActionFileName('descendants', archiveDate),
+    );
+    fs.writeFileSync(descendantsFilepath, JSON.stringify(baseAnalytics.descendants));
 
     // create file for the members
     const membersFilepath = path.join(fileFolderPath, buildActionFileName('members', archiveDate));

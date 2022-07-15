@@ -1,11 +1,10 @@
 import fastify, { FastifyLoggerInstance } from 'fastify';
 import { v4 } from 'uuid';
-import { ItemMembershipTaskManager, ItemTaskManager, TaskRunner } from 'graasp-test';
+import { buildItem, ItemMembershipTaskManager, ItemTaskManager, TaskRunner } from 'graasp-test';
 import { ACTION_TYPES, VIEW_BUILDER_NAME } from '../../constants/constants';
 import { ActionService } from './db-service';
 import { ActionTaskManager } from './task-manager';
 import { MemberType } from '../../constants/constants';
-import { getDummyItem } from '../../../test/utils';
 import { BaseAction } from './base-action';
 import type { DatabaseTransactionHandler, ItemService, MemberTaskManager } from 'graasp';
 import {
@@ -98,7 +97,7 @@ describe('Create Action Task', () => {
   });
 
   it('save action if request ok', async () => {
-    const item = getDummyItem();
+    const item = buildItem();
     const method = 'GET';
     const buildUrl = (id) => `/items/${id}`;
     const app = await build({ method, url: buildUrl(':id') });
@@ -114,7 +113,7 @@ describe('Create Action Task', () => {
   });
 
   it('does not save action if request rejects', async () => {
-    const item = getDummyItem();
+    const item = buildItem();
     const method = 'GET';
     const buildUrl = (id) => `/items/${id}`;
     const app = await build({ method, url: buildUrl(':id'), shouldThrow: true });

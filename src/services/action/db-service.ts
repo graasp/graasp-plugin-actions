@@ -1,5 +1,6 @@
 // global
 import { sql, DatabaseTransactionConnectionType as TrxHandler } from 'slonik';
+import { DEFAULT_ACTIONS_SAMPLE_SIZE } from '../../constants/constants';
 import { Action } from '../../interfaces/action';
 
 /**
@@ -12,7 +13,7 @@ export class ActionService {
       'id',
       ['member_id', 'memberId'],
       ['member_type', 'memberType'],
-      ['item_id', 'itemId'],
+      ['item_path', 'itemPath'],
       ['item_type', 'itemType'],
       ['action_type', 'actionType'],
       'view',
@@ -42,7 +43,7 @@ export class ActionService {
         INSERT INTO "action" (
             "member_id",
             "member_type",
-            "item_id",
+            "item_path",
             "item_type",
             "action_type",
             "view",
@@ -86,51 +87,28 @@ export class ActionService {
   }
 
   /**
-   * Get actions matching the given `itemId` or `[]`, if none is found.
-   * @param itemId ID of the item whose actions are retrieved
-   * @param requestedSampleSize Number of actions to retrieve in random way
-   * @param transactionHandler Database transaction handler
+   * Get random actions matching the given itemPath and below
+   * @param itemPath path of the item whose actions are retrieved
+   * @param filters.sampleSize number of actions to retrieve
+   * @param filters.view get actions only for a given view
+   * @param transactionHandler database transaction handler
    */
-  async getActionsByItemWithSample(
-    itemId: string,
-    requestedSampleSize: number,
+  async getActionsByItem(
+    itemPath: string,
+    filters: { sampleSize?: number; view?: string },
     transactionHandler: TrxHandler,
   ): Promise<readonly Action[]> {
-    return transactionHandler
-      .query<Action>(
-        sql`
-        SELECT ${ActionService.allColumns} 
-        FROM action
-        WHERE "item_id" = ${itemId}
-        ORDER BY RANDOM()
-        LIMIT ${requestedSampleSize}
-      `,
-      )
-      .then(({ rows }) => rows);
-  }
+    const size = filters.sampleSize ?? DEFAULT_ACTIONS_SAMPLE_SIZE;
+    const conditions = filters.view ? sql`AND view = ${filters.view}` : sql``;
 
-  /**
-   * Get actions matching the given `itemId` or `[]`, if none is found.
-   * @param itemId ID of the item whose actions are retrieved
-   * @param requestedSampleSize Number of actions to retrieve in random way
-   * @param view Obtain actions only from a certain Graasp view
-   * @param transactionHandler Database transaction handler
-   */
-  async getActionsByItemWithSampleAndView(
-    itemId: string,
-    requestedSampleSize: number,
-    view: string,
-    transactionHandler: TrxHandler,
-  ): Promise<readonly Action[]> {
     return transactionHandler
       .query<Action>(
         sql`
         SELECT ${ActionService.allColumns} 
         FROM action
-        WHERE "item_id" = ${itemId}
-        AND "view" = ${view}
+        WHERE item_path <@ ${itemPath} ${conditions}
         ORDER BY RANDOM()
-        LIMIT ${requestedSampleSize}
+        LIMIT ${size}
       `,
       )
       .then(({ rows }) => rows);

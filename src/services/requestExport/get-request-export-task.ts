@@ -1,4 +1,5 @@
-import { Actor, DatabaseTransactionHandler } from 'graasp';
+import { Actor, DatabaseTransactionHandler, TaskStatus } from '@graasp/sdk';
+
 import { RequestExport } from '../../interfaces/requestExport';
 import { BaseRequestExportTask } from './base-request-export-task';
 import { RequestExportService } from './db-service';
@@ -27,11 +28,11 @@ export class GetLastRequestExportTask extends BaseRequestExportTask<RequestExpor
   }
 
   async run(handler: DatabaseTransactionHandler): Promise<void> {
-    this.status = 'RUNNING';
+    this.status = TaskStatus.RUNNING;
 
     const requestExport = await this.requestExportService.getLast(this.input, handler);
 
     this._result = requestExport;
-    this.status = 'OK';
+    this.status = TaskStatus.OK;
   }
 }

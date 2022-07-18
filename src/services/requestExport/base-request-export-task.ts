@@ -1,8 +1,8 @@
-// global
 import { FastifyLoggerInstance } from 'fastify';
-import { Actor, DatabaseTransactionHandler } from 'graasp';
-import { Task, TaskStatus } from 'graasp';
-// local
+
+import { Actor, DatabaseTransactionHandler } from '@graasp/sdk';
+import { Task, TaskStatus } from '@graasp/sdk';
+
 import { RequestExportService } from './db-service';
 
 export abstract class BaseRequestExportTask<R> implements Task<Actor, R> {
@@ -24,7 +24,7 @@ export abstract class BaseRequestExportTask<R> implements Task<Actor, R> {
   constructor(actor: Actor, requestExportService: RequestExportService) {
     this.actor = actor;
     this.requestExportService = requestExportService;
-    this.status = 'NEW';
+    this.status = TaskStatus.NEW;
   }
 
   abstract get name(): string;

@@ -1,5 +1,7 @@
-import { Serializable } from 'graasp';
 import { v4 as uuidv4 } from 'uuid';
+
+import { Serializable } from '@graasp/sdk';
+
 import { Action } from '../../interfaces/action';
 
 export class BaseAction implements Action {

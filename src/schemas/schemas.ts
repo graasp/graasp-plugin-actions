@@ -1,8 +1,7 @@
 import S from 'fluent-json-schema';
 import { StatusCodes } from 'http-status-codes';
 
-// local
-import { MIN_ACTIONS_SAMPLE_SIZE, MAX_ACTIONS_SAMPLE_SIZE } from '../constants/constants';
+import { MAX_ACTIONS_SAMPLE_SIZE, MIN_ACTIONS_SAMPLE_SIZE } from '../constants/constants';
 
 // todo: get from graasp-utils
 export const uuid = S.string().pattern(

@@ -1,10 +1,11 @@
-import { Actor } from 'graasp';
-import { RequestExportService } from './db-service';
-import { BaseRequestExportTask } from './base-request-export-task';
-import { Hostname } from '../../plugin';
-import { exportActionsInArchive, ExportActionsInArchiveOutput } from '../../utils/export';
-import { BaseAnalytics } from '../action/base-analytics';
+import { Actor, TaskStatus } from '@graasp/sdk';
+
 import { VIEW_UNKNOWN_NAME } from '../../constants/constants';
+import { Hostname } from '../../plugin';
+import { ExportActionsInArchiveOutput, exportActionsInArchive } from '../../utils/export';
+import { BaseAnalytics } from '../action/base-analytics';
+import { BaseRequestExportTask } from './base-request-export-task';
+import { RequestExportService } from './db-service';
 
 export interface CreateArchiveTaskInputType {
   baseAnalytics?: BaseAnalytics;
@@ -33,7 +34,7 @@ export class CreateArchiveTask extends BaseRequestExportTask<ExportActionsInArch
   }
 
   async run(): Promise<void> {
-    this.status = 'RUNNING';
+    this.status = TaskStatus.RUNNING;
 
     const { storageFolder, baseAnalytics } = this.input;
 
@@ -45,6 +46,6 @@ export class CreateArchiveTask extends BaseRequestExportTask<ExportActionsInArch
     });
 
     this._result = result;
-    this.status = 'OK';
+    this.status = TaskStatus.OK;
   }
 }

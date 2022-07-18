@@ -1,5 +1,6 @@
-import { GraaspErrorDetails, GraaspError } from 'graasp';
 import { StatusCodes } from 'http-status-codes';
+
+import { GraaspError, GraaspErrorDetails } from '@graasp/sdk';
 
 export class GraaspActionError implements GraaspError {
   name: string;

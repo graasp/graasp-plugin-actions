@@ -1,4 +1,5 @@
 import { v4 } from 'uuid';
+
 import { paths } from './constants';
 
 describe('Constants', () => {

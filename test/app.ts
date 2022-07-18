@@ -1,6 +1,8 @@
 import fastify from 'fastify';
-import { Item, ItemMembershipTaskManager, MemberTaskManager, TaskRunner } from 'graasp';
+
+import { Item, ItemMembershipTaskManager, MemberTaskManager, TaskRunner } from '@graasp/sdk';
 import { ItemTaskManager } from 'graasp-test';
+
 import plugin, { GraaspActionsOptions } from '../src/plugin';
 import { exportActionsInArchive } from '../src/utils/export';
 import { GRAASP_ACTOR } from './constants';

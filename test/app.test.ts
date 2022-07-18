@@ -1,17 +1,22 @@
-import { ItemTaskManager, ItemMembershipTaskManager, TaskRunner, buildItem } from 'graasp-test';
-import { CLIENT_HOSTS, createDummyAction, GRAASP_ACTOR } from './constants';
-import build from './app';
-import { ActionService } from '../src';
-import { checkActionData } from './utils';
-import { ACTION_TYPES, VIEW_BUILDER_NAME } from '../src/constants/constants';
-import { ItemMembership, MemberTaskManager } from 'graasp';
 import { StatusCodes } from 'http-status-codes';
 import { v4 } from 'uuid';
+
+import { FastifyLoggerInstance } from 'fastify';
+
 import {
-  GraaspLocalFileItemOptions,
-  GraaspS3FileItemOptions,
-  ServiceMethod,
-} from 'graasp-plugin-file';
+  FileItemType,
+  ItemMembership,
+  ItemType,
+  LocalFileConfiguration,
+  MemberTaskManager,
+  S3FileConfiguration,
+} from '@graasp/sdk';
+import { ItemMembershipTaskManager, ItemTaskManager, TaskRunner, buildItem } from 'graasp-test';
+
+import { ActionService } from '../src';
+import { ACTION_TYPES, VIEW_BUILDER_NAME } from '../src/constants/constants';
+import build from './app';
+import { CLIENT_HOSTS, GRAASP_ACTOR, createDummyAction } from './constants';
 import {
   mockCheckRequestExport,
   mockCreateArchiveTask,
@@ -23,7 +28,7 @@ import {
   mockRunSingleSequence,
   mockSendMail,
 } from './mocks';
-import { FastifyLoggerInstance } from 'fastify';
+import { checkActionData } from './utils';
 
 const itemTaskManager = new ItemTaskManager();
 const memberTaskManager = {} as unknown as MemberTaskManager;
@@ -36,10 +41,10 @@ const DEFAULT_OPTIONS = {
   shouldSave: true,
   graaspActor: GRAASP_ACTOR,
   hosts: CLIENT_HOSTS,
-  serviceMethod: ServiceMethod.S3,
-  serviceOptions: {
-    s3: {} as unknown as GraaspS3FileItemOptions,
-    local: {} as unknown as GraaspLocalFileItemOptions,
+  fileItemType: ItemType.S3_FILE as FileItemType,
+  fileConfigurations: {
+    s3: {} as unknown as S3FileConfiguration,
+    local: {} as unknown as LocalFileConfiguration,
   },
 };
 

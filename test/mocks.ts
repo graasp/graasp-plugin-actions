@@ -1,11 +1,12 @@
-import { Item, ItemMembership, Member, MemberTaskManager } from 'graasp';
+import { Item, ItemMembership, Member, MemberTaskManager } from '@graasp/sdk';
 import { FileTaskManager } from 'graasp-plugin-file';
 import {
+  ItemMembershipTaskManager as MockItemMembershipTaskManager,
+  ItemTaskManager as MockItemTaskManager,
   Task as MockTask,
   TaskRunner as MockTaskRunner,
-  ItemTaskManager as MockItemTaskManager,
-  ItemMembershipTaskManager as MockItemMembershipTaskManager,
 } from 'graasp-test';
+
 import { RequestExportTaskManager } from '../src';
 
 export const mockRunSingleSequence = (data: unknown, shouldThrow?: boolean): jest.SpyInstance => {
@@ -35,7 +36,7 @@ export const mockGetDescendantsTask = (
   const mockCreateTask = jest
     .spyOn(MockItemTaskManager.prototype, 'createGetDescendantsTask')
     .mockImplementation(() => {
-      return new MockTask(data);
+      return new MockTask<Item[]>(data);
     });
   jest.spyOn(MockTaskRunner.prototype, 'runSingle').mockImplementation(async () => {
     if (shouldThrow) throw data;
@@ -51,7 +52,7 @@ export const mockGetTask = (
   const mockCreateTask = jest
     .spyOn(MockItemTaskManager.prototype, 'createGetTask')
     .mockImplementation(() => {
-      return new MockTask(data);
+      return new MockTask<Item>(data);
     });
   jest.spyOn(MockTaskRunner.prototype, 'runSingle').mockImplementation(async () => {
     if (shouldThrow) throw data;
@@ -85,7 +86,7 @@ export const mockCreateGetMemberItemMembershipTask = (
   const mockTask = jest
     .spyOn(MockItemMembershipTaskManager.prototype, 'createGetMemberItemMembershipTask')
     .mockImplementation(() => {
-      return new MockTask(data);
+      return new MockTask<ItemMembership>(data);
     });
   jest.spyOn(MockTaskRunner.prototype, 'runSingle').mockImplementation(async () => {
     if (shouldThrow) throw data;

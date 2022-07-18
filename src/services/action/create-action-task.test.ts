@@ -42,7 +42,6 @@ const generateActionsHandler = (): Promise<BaseAction[]> =>
       itemType: ITEM_TYPE,
       actionType: ACTION_TYPES.CREATE,
       view: VIEW_BUILDER_NAME,
-      geolocation: undefined,
       extra: {},
       itemPath: v4().replace(/-/, '_'),
     }),

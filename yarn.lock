@@ -971,10 +971,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/graasp@github:graasp/graasp-types.git#23/createGetDescendantsTask":
+"@types/graasp@github:graasp/graasp-types.git":
   version: 0.1.0
-  resolution: "@types/graasp@https://github.com/graasp/graasp-types.git#commit=2ce04340b9c1481a3b6645ff67d2c88a814131b5"
-  checksum: 41ae6c80872feba8057fb86dacd489f62630538919cfb52661b16b6c974a79d31b5ba00ac818df1fa759a45d7cc621139597cc1853dc0b9a15435f3e7c9c6185
+  resolution: "@types/graasp@https://github.com/graasp/graasp-types.git#commit=83f3d9acf3ae3f5c669a6a767e01a00659ec8d72"
+  checksum: dea7f0fb99affa20f343b2bcfcaf204151e3df9c57e6b5acbcea8d08ebc0daaebf3cc57b11a650c126d68ae0e07097e1ec597eb416bec556c9b7890811f9807f
   languageName: node
   linkType: hard
 
@@ -3303,7 +3303,7 @@ __metadata:
   dependencies:
     "@types/eslint": 7.2.5
     "@types/geoip-lite": 1.4.1
-    "@types/graasp": "github:graasp/graasp-types.git#23/createGetDescendantsTask"
+    "@types/graasp": "github:graasp/graasp-types.git"
     "@types/jest": 27.4.0
     "@types/node": 14.14.7
     "@types/uuid": 8.3.4
@@ -3316,7 +3316,7 @@ __metadata:
     geoip-lite: 1.4.2
     graasp-mailer: "github:graasp/graasp-mailer"
     graasp-plugin-file: "github:graasp/graasp-plugin-file"
-    graasp-test: "github:graasp/graasp-test#21/createGetDescendantsTask"
+    graasp-test: "github:graasp/graasp-test"
     http-status-codes: 2.2.0
     jest: 27.4.7
     prettier: 2.5.1
@@ -3344,12 +3344,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"graasp-test@github:graasp/graasp-test#21/createGetDescendantsTask":
+"graasp-test@github:graasp/graasp-test":
   version: 0.1.0
-  resolution: "graasp-test@https://github.com/graasp/graasp-test.git#commit=f64c6f306926338d419636add77557a5d28b641b"
+  resolution: "graasp-test@https://github.com/graasp/graasp-test.git#commit=1be3b29fff1955575e8a0b753705e798bee8d189"
   dependencies:
     uuid: 8.3.2
-  checksum: 3e2bc8baaddd17b0a939dbf3d8ae696f21c76fdc0ba30315f47f146ca9a78f122d9fdbe08e7c2cecb94ba817a14a010f91644c880d35dbac62486e06b94bde01
+  checksum: 4cc18579ba57400da8040b1e81eff0528d630aa8489adc42bbfb4040fe914f0d415e4e5c4aa78617a18157a9dec9873a630e9028f361a82b5f5743a1120173f7
   languageName: node
   linkType: hard
 

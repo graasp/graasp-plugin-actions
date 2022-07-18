@@ -1,13 +1,11 @@
-// global
 import { Serializable } from 'graasp';
 import { v4 as uuidv4 } from 'uuid';
-// local
 import { Action } from '../../interfaces/action';
 
 export class BaseAction implements Action {
   readonly id: string;
   readonly memberId: string;
-  readonly itemId: string;
+  readonly itemPath: string;
   memberType: string;
   itemType: string;
   actionType: string;
@@ -18,7 +16,7 @@ export class BaseAction implements Action {
 
   constructor(args: {
     memberId: string;
-    itemId?: string;
+    itemPath?: string;
     memberType: string;
     itemType: string;
     actionType: string;
@@ -26,10 +24,10 @@ export class BaseAction implements Action {
     geolocation?: Serializable;
     extra: Serializable;
   }) {
-    const { memberId, itemId, memberType, itemType, actionType, view, geolocation, extra } = args;
+    const { memberId, itemPath, memberType, itemType, actionType, view, geolocation, extra } = args;
     this.id = uuidv4();
     this.memberId = memberId;
-    this.itemId = itemId;
+    this.itemPath = itemPath;
     this.memberType = memberType;
     this.itemType = itemType;
     this.actionType = actionType;

@@ -8,15 +8,17 @@ export const GRAASP_ACTOR: Actor = {
 
 export const CREATE_ACTION_WAIT_TIME = 1000;
 
-export const createDummyAction = ({ itemId = v4(), view = 'view' } = {}): Action => ({
+export const createDummyAction = ({
+  itemPath = v4().replace(/-/, '_'),
+  view = 'view',
+} = {}): Action => ({
   id: v4(),
   memberId: v4(),
-  itemId,
+  itemPath,
   memberType: 'individual',
   itemType: 'folder',
   actionType: 'actionType',
   view,
-  geolocation: null,
   extra: {},
   createdAt: Date.now().toString(),
 });

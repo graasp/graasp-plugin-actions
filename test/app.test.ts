@@ -23,12 +23,14 @@ import {
   mockRunSingleSequence,
   mockSendMail,
 } from './mocks';
+import { FastifyLoggerInstance } from 'fastify';
 
 const itemTaskManager = new ItemTaskManager();
 const memberTaskManager = {} as unknown as MemberTaskManager;
 const itemMembershipTaskManager = new ItemMembershipTaskManager();
 const runner = new TaskRunner();
 const actor = GRAASP_ACTOR;
+const MOCK_LOGGER = {} as unknown as FastifyLoggerInstance;
 
 const DEFAULT_OPTIONS = {
   shouldSave: true,
@@ -57,12 +59,13 @@ describe('Plugin Tests', () => {
             const mockCreateAction = jest
               .spyOn(ActionService.prototype, 'create')
               .mockImplementation(async (action) => action);
-            await fn(item, actor, { log: undefined });
+            await fn(item, actor, { log: MOCK_LOGGER });
 
             const savedAction = mockCreateAction.mock.calls[0][0];
             expect(mockCreateAction).toHaveBeenCalled();
             checkActionData(savedAction, {
               itemId: item.id,
+              itemPath: item.path,
               itemType: item.type,
               actionType: ACTION_TYPES.CREATE,
               view: VIEW_BUILDER_NAME,
@@ -88,11 +91,12 @@ describe('Plugin Tests', () => {
             const mockCreateAction = jest
               .spyOn(ActionService.prototype, 'create')
               .mockImplementation(async (action) => action);
-            await fn(item, actor, { log: undefined });
+            await fn(item, actor, { log: MOCK_LOGGER });
 
             const savedAction = mockCreateAction.mock.calls[0][0];
             expect(mockCreateAction).toHaveBeenCalled();
             checkActionData(savedAction, {
+              itemPath: null,
               itemId: null,
               extraItemId: item.id,
               itemType: item.type,
@@ -160,6 +164,56 @@ describe('Plugin Tests', () => {
         const res = await app.inject({
           method: 'GET',
           url: `/items/${itemId}`,
+        });
+
+        expect(res.statusCode).toBe(StatusCodes.OK);
+        expect(res.payload).toBeTruthy();
+        expect(res.json().actions).toEqual(actions);
+        expect(res.json().item).toEqual(items[0]);
+        expect(res.json().descendants).toEqual(items);
+        expect(res.json().members).toEqual(members);
+        expect(res.json().itemMemberships).toEqual(itemMemberships);
+        expect(res.json().metadata).toEqual(metadata);
+      });
+
+      it('Successfully get actions from item id with view and sample size', async () => {
+        const items = [buildItem()];
+        const item = items[0];
+        const itemMemberships = [{}] as unknown as ItemMembership[];
+        const actions = [createDummyAction()];
+        const members = [{ name: 'member' }];
+        const metadata = {
+          numActionsRetrieved: 5,
+          requestedSampleSize: 5,
+        };
+        mockGetTask(item);
+        mockCreateGetMemberItemMembershipTask(item);
+        mockCreateGetOfItemTaskSequence(itemMemberships);
+        mockCreateGetManyTask([GRAASP_ACTOR], memberTaskManager);
+        mockGetDescendantsTask(items);
+
+        const result = {
+          descendants: items,
+          item,
+          actions,
+          members,
+          itemMemberships,
+          metadata,
+        };
+        mockRunSingleSequence(result);
+
+        const app = await build({
+          itemTaskManager,
+          runner,
+          itemMembershipTaskManager,
+          memberTaskManager,
+          options: DEFAULT_OPTIONS,
+        });
+
+        const itemId = v4();
+        const res = await app.inject({
+          method: 'GET',
+          url: `/items/${itemId}?view=builder&requestedSampleSize=1`,
         });
 
         expect(res.statusCode).toBe(StatusCodes.OK);

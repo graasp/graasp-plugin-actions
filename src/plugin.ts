@@ -1,4 +1,3 @@
-// global
 import { FastifyPluginAsync } from 'fastify';
 import { Item, Member, IdParam, Actor } from 'graasp';
 import fs from 'fs';
@@ -11,7 +10,6 @@ import {
   ServiceMethod,
 } from 'graasp-plugin-file';
 
-// local
 import { BaseAction } from './services/action/base-action';
 import { ActionService } from './services/action/db-service';
 import { Action } from './interfaces/action';
@@ -114,6 +112,7 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
     // save action when an item is created
     // we cannot use the onResponse hook in this case because in the creation of an item
     // the response object does not provide the item id (it is created later), therefore we do not have information about the item
+    // todo: with a refactor, this posthookhandler can be defined in the core in the item service
     const createItemTaskName = itemTaskManager.getCreateTaskName();
     runner.setTaskPostHookHandler(
       createItemTaskName,
@@ -125,7 +124,7 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
         const geolocation = null;
         const action: Action = new BaseAction({
           memberId: actor.id,
-          itemId: item.id,
+          itemPath: item.path,
           memberType: member.type,
           itemType: item.type,
           actionType: ACTION_TYPES.CREATE,
@@ -140,6 +139,7 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
     // save action when an item is deleted
     // we cannot use the onResponse hook in this case because when an item is deleted
     // the onResponse hook is executed after the item is removed, therefore we do not have information about the item
+    // todo: with a refactor, this posthookhandler can be defined in the core in the item service
     const deleteItemTaskName = itemTaskManager.getDeleteTaskName();
     runner.setTaskPostHookHandler(
       deleteItemTaskName,
@@ -149,11 +149,11 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
         // delete only happens in builder
         const view = VIEW_BUILDER_NAME;
         const geolocation = null;
-        // cannot add item id because it will be removed from the db
+        // cannot add item path because it will be removed from the db
         const action: Action = new BaseAction({
           memberId: actor.id,
           memberType: member.type,
-          itemId: null,
+          itemPath: null,
           itemType: item.type,
           actionType: ACTION_TYPES.DELETE,
           view,

@@ -1,4 +1,3 @@
-// global
 import { sql, DatabaseTransactionConnectionType as TrxHandler } from 'slonik';
 import { DEFAULT_ACTIONS_SAMPLE_SIZE } from '../../constants/constants';
 import { Action } from '../../interfaces/action';
@@ -53,7 +52,7 @@ export class ActionService {
         VALUES (
             ${action.memberId},
             ${action.memberType},
-            ${action.itemId},
+            ${action.itemPath},
             ${action.itemType},
             ${action.actionType},
             ${action.view},

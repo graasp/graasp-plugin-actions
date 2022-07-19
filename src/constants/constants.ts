@@ -1,5 +1,7 @@
 import path from 'path';
 
+export const PLUGIN_NAME = 'graasp-plugin-actions'
+
 export const VIEW_UNKNOWN_NAME = 'unknown';
 export const VIEW_BUILDER_NAME = 'builder';
 

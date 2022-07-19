@@ -1,7 +1,6 @@
-import { Actor, TaskStatus } from '@graasp/sdk';
+import { Actor, Hostname, TaskStatus } from '@graasp/sdk';
 
 import { VIEW_UNKNOWN_NAME } from '../../constants/constants';
-import { Hostname } from '../../plugin';
 import { ExportActionsInArchiveOutput, exportActionsInArchive } from '../../utils/export';
 import { BaseAnalytics } from '../action/base-analytics';
 import { BaseRequestExportTask } from './base-request-export-task';

@@ -2,6 +2,7 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 
 import {
   Actor,
+  Hostname,
   Item,
   ItemMembership,
   ItemMembershipTaskManager,
@@ -13,7 +14,6 @@ import {
 
 import { PermissionLevel } from '../../constants/constants';
 import { Action } from '../../interfaces/action';
-import { Hostname } from '../../plugin';
 import { ActionHandler } from '../../types';
 import { BaseAnalytics } from './base-analytics';
 import { CreateActionTask } from './create-action-task';

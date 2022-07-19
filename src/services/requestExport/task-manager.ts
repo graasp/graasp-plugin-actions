@@ -1,10 +1,9 @@
 import fs from 'fs';
 
-import { Actor, Task } from '@graasp/sdk';
+import { Actor, Hostname, Task } from '@graasp/sdk';
 import { FileTaskManager } from 'graasp-plugin-file';
 
 import { MAX_ACTIONS_SAMPLE_SIZE, ZIP_MIMETYPE } from '../../constants/constants';
-import { Hostname } from '../../plugin';
 import { buildActionFilePath, buildArchiveDateAsName } from '../../utils/export';
 import { BaseAnalytics } from '../action/base-analytics';
 import { ActionTaskManager } from '../action/task-manager';

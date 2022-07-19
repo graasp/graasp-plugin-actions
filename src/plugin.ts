@@ -7,6 +7,7 @@ import { FastifyPluginAsync } from 'fastify';
 import {
   Actor,
   FileItemType,
+  Hostname,
   IdParam,
   Item,
   LocalFileConfiguration,
@@ -37,10 +38,6 @@ import { RequestExportService } from './services/requestExport/db-service';
 import { RequestExportTaskManager } from './services/requestExport/task-manager';
 import { buildActionFilePath, buildArchiveDateAsName, buildItemTmpFolder } from './utils/export';
 
-export type Hostname = {
-  name: string;
-  hostname: string;
-};
 export interface GraaspActionsOptions {
   graaspActor: Actor;
   shouldSave?: boolean;

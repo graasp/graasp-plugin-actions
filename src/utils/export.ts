@@ -1,6 +1,7 @@
+import archiver from 'archiver';
 import fs, { mkdirSync } from 'fs';
 import path from 'path';
-import archiver from 'archiver';
+
 import { TMP_FOLDER_PATH } from '../constants/constants';
 import { BaseAnalytics } from '../services/action/base-analytics';
 import { CannotWriteFileError } from './errors';

@@ -1,13 +1,15 @@
-import { v4 } from 'uuid';
-import path from 'path';
 import fs from 'fs';
-import { CLIENT_HOSTS, createDummyAction } from '../../test/constants';
-import { exportActionsInArchive } from './export';
-import { BaseAnalytics } from '../services/action/base-analytics';
-import { Action } from '../interfaces/action';
-import { VIEW_UNKNOWN_NAME } from '../constants/constants';
-import { CannotWriteFileError } from './errors';
+import path from 'path';
+import { v4 } from 'uuid';
+
 import { buildItem } from 'graasp-test';
+
+import { CLIENT_HOSTS, createDummyAction } from '../../test/constants';
+import { VIEW_UNKNOWN_NAME } from '../constants/constants';
+import { Action } from '../interfaces/action';
+import { BaseAnalytics } from '../services/action/base-analytics';
+import { CannotWriteFileError } from './errors';
+import { exportActionsInArchive } from './export';
 
 const itemId = v4();
 const views = [...CLIENT_HOSTS.map(({ name }) => name), VIEW_UNKNOWN_NAME];

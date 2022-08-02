@@ -1,4 +1,5 @@
-import { sql, DatabaseTransactionConnectionType as TrxHandler } from 'slonik';
+import { DatabaseTransactionConnection as TrxHandler, sql } from 'slonik';
+
 import { DEFAULT_ACTIONS_SAMPLE_SIZE } from '../../constants/constants';
 import { Action } from '../../interfaces/action';
 

@@ -1,14 +1,13 @@
-// global
-import { Actor, DatabaseTransactionHandler } from 'graasp';
-// local
-import { ActionService } from './db-service';
-import { BaseActionTask } from './base-action-task';
-import { Action } from '../../interfaces/action';
+import { Actor, DatabaseTransactionHandler, TaskStatus } from '@graasp/sdk';
+
 import {
   DEFAULT_ACTIONS_SAMPLE_SIZE,
-  MIN_ACTIONS_SAMPLE_SIZE,
   MAX_ACTIONS_SAMPLE_SIZE,
+  MIN_ACTIONS_SAMPLE_SIZE,
 } from '../../constants/constants';
+import { Action } from '../../interfaces/action';
+import { BaseActionTask } from './base-action-task';
+import { ActionService } from './db-service';
 
 export interface GetActionsTaskInputType {
   itemPath?: string;
@@ -37,7 +36,7 @@ export class GetActionsTask extends BaseActionTask<Action[]> {
   }
 
   async run(handler: DatabaseTransactionHandler): Promise<void> {
-    this.status = 'RUNNING';
+    this.status = TaskStatus.RUNNING;
 
     const { sampleSize, view, itemPath } = this.input;
 
@@ -69,6 +68,6 @@ export class GetActionsTask extends BaseActionTask<Action[]> {
     );
 
     this._result = actionResult;
-    this.status = 'OK';
+    this.status = TaskStatus.OK;
   }
 }

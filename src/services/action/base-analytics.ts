@@ -1,8 +1,7 @@
-// global
-import { Member, Item, ItemMembership } from 'graasp';
-// local
-import { Analytics } from '../../interfaces/analytics';
+import { Item, ItemMembership, Member } from '@graasp/sdk';
+
 import { Action } from '../../interfaces/action';
+import { Analytics } from '../../interfaces/analytics';
 
 export class BaseAnalytics implements Analytics {
   readonly actions: Action[];

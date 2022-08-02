@@ -1,6 +1,6 @@
-import { getGeolocationIp, getView } from './actions';
-import { VIEW_UNKNOWN_NAME } from '../constants/constants';
 import { CLIENT_HOSTS } from '../../test/constants';
+import { VIEW_UNKNOWN_NAME } from '../constants/constants';
+import { getGeolocationIp, getView } from './actions';
 
 const BUILDER_CLIENT_HOST = CLIENT_HOSTS[0];
 

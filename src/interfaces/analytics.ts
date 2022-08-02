@@ -1,4 +1,5 @@
-import { Member, Item } from 'graasp';
+import { Item, Member } from '@graasp/sdk';
+
 import { Action } from './action';
 
 export interface Analytics {

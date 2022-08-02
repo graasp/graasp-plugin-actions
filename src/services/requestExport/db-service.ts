@@ -1,5 +1,5 @@
-// global
-import { sql, DatabaseTransactionConnectionType as TrxHandler } from 'slonik';
+import { DatabaseTransactionConnection as TrxHandler, sql } from 'slonik';
+
 import { RequestExport } from '../../interfaces/requestExport';
 
 /**

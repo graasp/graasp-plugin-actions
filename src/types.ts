@@ -1,8 +1,8 @@
-// global
 import { FastifyLoggerInstance, FastifyReply, FastifyRequest } from 'fastify';
-// local
+
+import { DatabaseTransactionHandler, Member } from '@graasp/sdk';
+
 import { BaseAction } from './services/action/base-action';
-import { DatabaseTransactionHandler, Member } from 'graasp';
 import { BaseAnalytics } from './services/action/base-analytics';
 
 declare module 'fastify' {

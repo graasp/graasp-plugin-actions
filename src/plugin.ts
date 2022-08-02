@@ -1,18 +1,22 @@
-import { FastifyPluginAsync } from 'fastify';
-import { Item, Member, IdParam, Actor } from 'graasp';
 import fs from 'fs';
+import { StatusCodes } from 'http-status-codes';
 import path from 'path';
-import mailerPlugin from 'graasp-mailer';
-import {
-  FileTaskManager,
-  GraaspLocalFileItemOptions,
-  GraaspS3FileItemOptions,
-  ServiceMethod,
-} from 'graasp-plugin-file';
 
-import { BaseAction } from './services/action/base-action';
-import { ActionService } from './services/action/db-service';
-import { Action } from './interfaces/action';
+import { FastifyPluginAsync } from 'fastify';
+
+import {
+  Actor,
+  FileItemType,
+  Hostname,
+  IdParam,
+  Item,
+  LocalFileConfiguration,
+  Member,
+  S3FileConfiguration,
+} from '@graasp/sdk';
+import mailerPlugin from 'graasp-mailer';
+import { FileTaskManager } from 'graasp-plugin-file';
+
 import {
   ACTION_TYPES,
   DEFAULT_REQUEST_EXPORT_INTERVAL,
@@ -23,25 +27,23 @@ import {
   VIEW_BUILDER_NAME,
   ZIP_MIMETYPE,
 } from './constants/constants';
-import { getItemActions, deleteAllById, exportAction } from './schemas/schemas';
+import { Action } from './interfaces/action';
 import { AnalyticsQueryParams } from './interfaces/analytics';
-import { ActionTaskManager } from './services/action/task-manager';
-import { StatusCodes } from 'http-status-codes';
-import { buildActionFilePath, buildArchiveDateAsName, buildItemTmpFolder } from './utils/export';
-import { RequestExportTaskManager } from './services/requestExport/task-manager';
-import { RequestExportService } from './services/requestExport/db-service';
 import { RequestExport } from './interfaces/requestExport';
+import { deleteAllById, exportAction, getItemActions } from './schemas/schemas';
+import { BaseAction } from './services/action/base-action';
+import { ActionService } from './services/action/db-service';
+import { ActionTaskManager } from './services/action/task-manager';
+import { RequestExportService } from './services/requestExport/db-service';
+import { RequestExportTaskManager } from './services/requestExport/task-manager';
+import { buildActionFilePath, buildArchiveDateAsName, buildItemTmpFolder } from './utils/export';
 
-export type Hostname = {
-  name: string;
-  hostname: string;
-};
 export interface GraaspActionsOptions {
   graaspActor: Actor;
   shouldSave?: boolean;
   hosts: Hostname[];
-  serviceMethod: ServiceMethod;
-  serviceOptions: { s3: GraaspS3FileItemOptions; local: GraaspLocalFileItemOptions };
+  fileItemType: FileItemType;
+  fileConfigurations: { s3: S3FileConfiguration; local: LocalFileConfiguration };
 }
 
 const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options) => {
@@ -52,7 +54,7 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
     taskRunner: runner,
     mailer,
   } = fastify;
-  const { serviceMethod, serviceOptions, shouldSave, hosts } = options;
+  const { fileItemType, fileConfigurations, shouldSave, hosts } = options;
 
   const actionService = new ActionService();
   const actionTaskManager = new ActionTaskManager(
@@ -63,7 +65,7 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
     hosts,
   );
 
-  const fileTaskManager = new FileTaskManager(serviceOptions, serviceMethod);
+  const fileTaskManager = new FileTaskManager(fileConfigurations, fileItemType);
   const requestExportDS = new RequestExportService();
   const requestExportTaskManager = new RequestExportTaskManager(
     requestExportDS,

@@ -682,9 +682,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graasp/sdk@github:graasp/graasp-utils.git#15/testUtils":
+"@graasp/sdk@github:graasp/graasp-sdk.git":
   version: 0.1.0
-  resolution: "@graasp/sdk@https://github.com/graasp/graasp-utils.git#commit=e80d31ed7a7794560c27d9df5e0e92734ce23027"
+  resolution: "@graasp/sdk@https://github.com/graasp/graasp-sdk.git#commit=7e3491095507f6dfd129d318a87e6c63f0eb486e"
   dependencies:
     "@fastify/secure-session": 5.2.0
     aws-sdk: 2.1111.0
@@ -694,7 +694,7 @@ __metadata:
     qs: 6.11.0
     slonik: 28.1.1
     uuid: 8.3.2
-  checksum: b3b221dba17f703b702003eae6af71770f372d06f9f512c18e5f7dac1ce65dd28180f7235f213d0e60a611fbfc47e419a7d4726207ef127fe6c82129f0d02df8
+  checksum: 1fdf3b5c52945769005bb6a83620a09f8995f5d16b2115675a7cf745b2a02e07758b3ed1a77b9357b0a9d6ab984e5427a18e4a5353e04f4d02ce16c2010e9785
   languageName: node
   linkType: hard
 
@@ -3519,7 +3519,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "graasp-plugin-actions@workspace:."
   dependencies:
-    "@graasp/sdk": "github:graasp/graasp-utils.git#15/testUtils"
+    "@graasp/sdk": "github:graasp/graasp-sdk.git"
     "@trivago/prettier-plugin-sort-imports": 3.2.0
     "@types/eslint": 7.2.5
     "@types/geoip-lite": 1.4.1
@@ -3535,7 +3535,7 @@ __metadata:
     geoip-lite: 1.4.2
     graasp-mailer: "github:graasp/graasp-mailer#25/sdk"
     graasp-plugin-file: "github:graasp/graasp-plugin-file#29/sdk"
-    graasp-test: "github:graasp/graasp-test#23/sdk"
+    graasp-test: "github:graasp/graasp-test"
     http-status-codes: 2.2.0
     jest: 27.4.7
     prettier: 2.5.1
@@ -3563,12 +3563,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"graasp-test@github:graasp/graasp-test#23/sdk":
+"graasp-test@github:graasp/graasp-test":
   version: 0.1.0
-  resolution: "graasp-test@https://github.com/graasp/graasp-test.git#commit=73af5781a47ba63fc9e8012c916dad4272ca21b1"
+  resolution: "graasp-test@https://github.com/graasp/graasp-test.git#commit=3ff1f7951d1c2439f84fab546bf8de60b530bd1c"
   dependencies:
     uuid: 8.3.2
-  checksum: 76630f0be124bab0e460f8bfebc5811c29402b42ff693befdf920d9871a9390d701be6dd5abd2e88e0d53280f642fda62c68192f99e635eccba9f0fd6f325400
+  checksum: aaa3759fe2842de03fdc99011623dced835636fe5e15598c8574b9d526c040615dac3bf06fd351007a07d267493f9cd4e70c14ef35b0b73fb2810f90be4bbae8
   languageName: node
   linkType: hard
 

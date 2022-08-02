@@ -646,6 +646,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@fastify/forwarded@npm:2.1.0":
+  version: 2.1.0
+  resolution: "@fastify/forwarded@npm:2.1.0"
+  checksum: 58dc42ffa7ac2690930aaf112a1fa3a8eac663582736de4370dc8ea7b19a283311c2352bee4e339ec4b68a0e97c0e9a28fd942b815bcbc1bf851518911629a69
+  languageName: node
+  linkType: hard
+
 "@fastify/multipart@npm:6.0.0":
   version: 6.0.0
   resolution: "@fastify/multipart@npm:6.0.0"
@@ -3519,6 +3526,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "graasp-plugin-actions@workspace:."
   dependencies:
+    "@fastify/forwarded": 2.1.0
     "@graasp/sdk": "github:graasp/graasp-sdk.git"
     "@trivago/prettier-plugin-sort-imports": 3.2.0
     "@types/eslint": 7.2.5

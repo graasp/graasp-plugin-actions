@@ -1,7 +1,6 @@
 import { FastifyLoggerInstance } from 'fastify';
 
-import { Actor, DatabaseTransactionHandler } from '@graasp/sdk';
-import { Task, TaskStatus } from '@graasp/sdk';
+import { Actor, DatabaseTransactionHandler, Task, TaskStatus } from '@graasp/sdk';
 
 import { ActionService } from './db-service';
 

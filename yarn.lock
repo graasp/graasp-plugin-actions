@@ -3500,9 +3500,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"graasp-mailer@github:graasp/graasp-mailer#25/sdk":
+"graasp-mailer@github:graasp/graasp-mailer":
   version: 0.1.0
-  resolution: "graasp-mailer@https://github.com/graasp/graasp-mailer.git#commit=9888156509a6635bed0835f1ddaf9b8739ab4e24"
+  resolution: "graasp-mailer@https://github.com/graasp/graasp-mailer.git#commit=ed640b93dce84f78fa6c87cfca3a42c03babdb8c"
   dependencies:
     cpy-cli: 4.1.0
     eta: ^1.12.3
@@ -3511,7 +3511,7 @@ __metadata:
     fastify-polyglot: 1.0.0
     i18n: 0.14.2
     point-of-view: ^5.2.0
-  checksum: bbfc85ae4a763d35a2a433cadaed0daa9d756fd3feb8fafbf8280b05fccce43ad8edda0f988ef3a97601a066d1a01fc07ee00145c2c98739720bc8299de12495
+  checksum: 59d82675a9dc01341a57d2b61296b2d9b9cd3196623afde1108ba0f16ea41c5c1c995ad1401b4d4e82e12f9f375f6e740093fd95c78dcb1a9734b6c37a5b70b9
   languageName: node
   linkType: hard
 
@@ -3533,8 +3533,8 @@ __metadata:
     fastify: ^3.29.1
     fluent-json-schema: 3.0.1
     geoip-lite: 1.4.2
-    graasp-mailer: "github:graasp/graasp-mailer#25/sdk"
-    graasp-plugin-file: "github:graasp/graasp-plugin-file#29/sdk"
+    graasp-mailer: "github:graasp/graasp-mailer"
+    graasp-plugin-file: "github:graasp/graasp-plugin-file"
     graasp-test: "github:graasp/graasp-test"
     http-status-codes: 2.2.0
     jest: 27.4.7
@@ -3548,9 +3548,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"graasp-plugin-file@github:graasp/graasp-plugin-file#29/sdk":
+"graasp-plugin-file@github:graasp/graasp-plugin-file":
   version: 0.1.0
-  resolution: "graasp-plugin-file@https://github.com/graasp/graasp-plugin-file.git#commit=898900c03db4fb8b4b565b634f2a3788facc9b61"
+  resolution: "graasp-plugin-file@https://github.com/graasp/graasp-plugin-file.git#commit=0381d1b3e271dd185d1708584a9e5e4683446920"
   dependencies:
     "@fastify/multipart": 6.0.0
     "@graasp/translations": "github:graasp/graasp-translations"
@@ -3559,7 +3559,7 @@ __metadata:
     fs-extra: 10.1.0
     http-status-codes: 2.2.0
     node-fetch: 2.6.7
-  checksum: 744693111868d240c5f3b3607908b6139a36a1bd371d44c344eccc7c4704d868e658bb97d0b589281af7e0016446370f4bc8fa789cbbc1fc34a8055c1f728eb2
+  checksum: 64922d616a9f8aa6d67727ef9c12bd6d804d5ac86972c575031535194068895a279b72e6db8b19c4e597a3207d602c8437cd81a2eed016ec812aff38f9c53778
   languageName: node
   linkType: hard
 

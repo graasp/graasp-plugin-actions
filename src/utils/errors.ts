@@ -1,9 +1,10 @@
 import { StatusCodes } from 'http-status-codes';
 
 import { ErrorFactory } from '@graasp/sdk';
+
 import { PLUGIN_NAME } from '../constants/constants';
 
-export const GraaspActionError = ErrorFactory(PLUGIN_NAME)
+export const GraaspActionError = ErrorFactory(PLUGIN_NAME);
 export class CannotWriteFileError extends GraaspActionError {
   constructor(data?: unknown) {
     super(

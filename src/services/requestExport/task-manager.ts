@@ -1,8 +1,12 @@
-import { Actor, Task } from 'graasp';
 import fs from 'fs';
+
+import { Actor, Hostname, Task } from '@graasp/sdk';
 import { FileTaskManager } from 'graasp-plugin-file';
+
 import { MAX_ACTIONS_SAMPLE_SIZE, ZIP_MIMETYPE } from '../../constants/constants';
 import { buildActionFilePath, buildArchiveDateAsName } from '../../utils/export';
+import { BaseAnalytics } from '../action/base-analytics';
+import { ActionTaskManager } from '../action/task-manager';
 import { CreateArchiveTask } from './create-archive-task';
 import {
   CreateRequestExportTask,
@@ -13,9 +17,6 @@ import {
   GetLastRequestExportTask,
   GetLastRequestExportTaskInputType,
 } from './get-request-export-task';
-import { ActionTaskManager } from '../action/task-manager';
-import { BaseAnalytics } from '../action/base-analytics';
-import { Hostname } from '../../plugin';
 
 export class RequestExportTaskManager {
   requestExportService: RequestExportService;

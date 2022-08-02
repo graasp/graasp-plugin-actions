@@ -1,8 +1,9 @@
-import { Actor, DatabaseTransactionHandler } from 'graasp';
-import { RequestExportService } from './db-service';
-import { BaseRequestExportTask } from './base-request-export-task';
+import { Actor, DatabaseTransactionHandler, TaskStatus } from '@graasp/sdk';
+
 import { Action } from '../../interfaces/action';
 import { RequestExport } from '../../interfaces/requestExport';
+import { BaseRequestExportTask } from './base-request-export-task';
+import { RequestExportService } from './db-service';
 
 export type CreateRequestExportTaskInputType = Partial<RequestExport>;
 
@@ -26,7 +27,7 @@ export class CreateRequestExportTask extends BaseRequestExportTask<RequestExport
   }
 
   async run(handler: DatabaseTransactionHandler): Promise<void> {
-    this.status = 'RUNNING';
+    this.status = TaskStatus.RUNNING;
 
     const { itemId, createdAt } = this.input;
 
@@ -36,6 +37,6 @@ export class CreateRequestExportTask extends BaseRequestExportTask<RequestExport
     );
 
     this._result = requestExport;
-    this.status = 'OK';
+    this.status = TaskStatus.OK;
   }
 }

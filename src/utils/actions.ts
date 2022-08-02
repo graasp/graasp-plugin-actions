@@ -1,9 +1,11 @@
-import { VIEW_UNKNOWN_NAME } from '../constants/constants';
 import geoip from 'geoip-lite';
+
 import { FastifyRequest } from 'fastify';
+
+import { Hostname, Serializable } from '@graasp/sdk';
+
+import { VIEW_UNKNOWN_NAME } from '../constants/constants';
 import { BaseAction } from '../services/action/base-action';
-import { Serializable } from 'graasp';
-import { Hostname } from '../plugin';
 
 const getGeolocationIp = (ip: string | number): geoip.Lookup => geoip.lookup(ip);
 const getView = (headers: { origin?: string | string[] }, hosts: Hostname[]): string =>

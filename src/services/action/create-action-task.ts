@@ -1,12 +1,11 @@
-// global
-import { FastifyRequest, FastifyReply, FastifyLoggerInstance } from 'fastify';
-import { Actor, DatabaseTransactionHandler } from 'graasp';
-// local
-import { ActionService } from './db-service';
-import { BaseActionTask } from './base-action-task';
+import { FastifyLoggerInstance, FastifyReply, FastifyRequest } from 'fastify';
+
+import { Actor, DatabaseTransactionHandler, Hostname, TaskStatus } from '@graasp/sdk';
+
 import { Action } from '../../interfaces/action';
-import { Hostname } from '../../plugin';
 import { ActionHandler, ActionHandlerInput } from '../../types';
+import { BaseActionTask } from './base-action-task';
+import { ActionService } from './db-service';
 
 interface InputType {
   request: FastifyRequest;
@@ -32,7 +31,7 @@ export class CreateActionTask extends BaseActionTask<Action> {
   }
 
   async run(handler: DatabaseTransactionHandler, log: FastifyLoggerInstance): Promise<void> {
-    this.status = 'RUNNING';
+    this.status = TaskStatus.RUNNING;
 
     log.debug('create action');
 
@@ -58,6 +57,6 @@ export class CreateActionTask extends BaseActionTask<Action> {
       this._result = null;
       log.debug('action not created for failed requests');
     }
-    this.status = 'OK';
+    this.status = TaskStatus.OK;
   }
 }

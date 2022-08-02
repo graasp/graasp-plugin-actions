@@ -1,4 +1,4 @@
-import { Serializable } from 'graasp';
+import { Serializable } from '@graasp/sdk';
 
 export interface Action {
   id: string;

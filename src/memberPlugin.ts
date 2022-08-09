@@ -1,29 +1,18 @@
 import { FastifyPluginAsync } from 'fastify';
+import fp from 'fastify-plugin';
 
-import {
-  Actor,
-  FileItemType,
-  Hostname,
-  IdParam,
-  LocalFileConfiguration,
-  S3FileConfiguration,
-} from '@graasp/sdk';
+import { IdParam } from '@graasp/sdk';
 
 import { deleteAllById } from './schemas/schemas';
 import MemberActionTaskManager from './services/action/member-task-manager';
 
-export interface GraaspActionsOptions {
-  graaspActor: Actor;
-  shouldSave?: boolean;
-  hosts: Hostname[];
-  fileItemType: FileItemType;
-  fileConfigurations: { s3: S3FileConfiguration; local: LocalFileConfiguration };
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface GraaspMemberActionsOptions {}
 
-const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify) => {
+const plugin: FastifyPluginAsync<GraaspMemberActionsOptions> = async (fastify) => {
   const {
     taskRunner: runner,
-    action: { dbService: actionService },
+    actions: { dbService: actionService },
   } = fastify;
 
   const memberActionTaskManager = new MemberActionTaskManager(actionService);
@@ -40,4 +29,7 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify) => {
   );
 };
 
-export default plugin;
+export default fp(plugin, {
+  fastify: '3.x',
+  name: 'graasp-plugin-actions-members',
+});

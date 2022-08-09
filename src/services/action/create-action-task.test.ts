@@ -2,13 +2,8 @@ import { v4 } from 'uuid';
 
 import fastify, { FastifyLoggerInstance } from 'fastify';
 
-import type {
-  ActionHandler,
-  DatabaseTransactionHandler,
-  ItemService,
-  MemberTaskManager,
-} from '@graasp/sdk';
-import { ItemMembershipTaskManager, ItemTaskManager, TaskRunner, buildItem } from 'graasp-test';
+import type { ActionHandler, DatabaseTransactionHandler, ItemService } from '@graasp/sdk';
+import { TaskRunner, buildItem } from 'graasp-test';
 
 import {
   CLIENT_HOSTS,
@@ -21,12 +16,9 @@ import { MemberType } from '../../constants/constants';
 import { ActionService } from './db-service';
 import { ActionTaskManager } from './task-manager';
 
-const itemTaskManager = new ItemTaskManager();
 const itemService = {
   get: jest.fn(),
 } as unknown as ItemService;
-const itemMembershipTaskManager = new ItemMembershipTaskManager();
-const memberTaskMananger = {} as unknown as MemberTaskManager;
 const runner = new TaskRunner();
 
 const actionService = new ActionService();
@@ -34,13 +26,7 @@ const log = {
   debug: jest.fn(),
 } as unknown as FastifyLoggerInstance;
 const handler = {} as DatabaseTransactionHandler;
-const actionTaskManager = new ActionTaskManager(
-  actionService,
-  itemTaskManager,
-  itemMembershipTaskManager,
-  memberTaskMananger,
-  CLIENT_HOSTS,
-);
+const actionTaskManager = new ActionTaskManager(actionService, CLIENT_HOSTS);
 const generateActionsHandler: ActionHandler = () =>
   Promise.all([
     {
@@ -63,12 +49,6 @@ const build = async (args: { method: string; url: string; shouldThrow?: boolean 
   app.decorateRequest('member', GRAASP_ACTOR);
 
   app.decorate('taskRunner', runner);
-  app.decorate('items', {
-    taskManager: itemTaskManager,
-  });
-  app.decorate('itemMemberships', {
-    taskManager: itemMembershipTaskManager,
-  });
 
   app.addHook('onResponse', async (request, reply) => {
     if (request.member) {

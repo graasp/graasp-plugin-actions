@@ -1,6 +1,7 @@
 export { default } from './plugin';
 export { default as itemPlugin } from './itemPlugin';
-// export { default } from './memplugin';
+export { default as memberPlugin } from './memberPlugin';
+
 export { ActionTaskManager } from './services/action/task-manager';
 export { ActionService } from './services/action/db-service';
 export { BaseAction } from './services/action/base-action';

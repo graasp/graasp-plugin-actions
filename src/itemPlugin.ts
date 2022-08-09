@@ -3,9 +3,9 @@ import { StatusCodes } from 'http-status-codes';
 import path from 'path';
 
 import { FastifyPluginAsync } from 'fastify';
+import fp from 'fastify-plugin';
 
 import {
-  Actor,
   FileItemType,
   Hostname,
   IdParam,
@@ -31,15 +31,13 @@ import { RequestExportService } from './services/requestExport/db-service';
 import { RequestExportTaskManager } from './services/requestExport/task-manager';
 import { buildActionFilePath, buildArchiveDateAsName, buildItemTmpFolder } from './utils/export';
 
-export interface GraaspActionsOptions {
-  graaspActor: Actor;
-  shouldSave?: boolean;
+export interface GraaspItemActionsOptions {
   hosts: Hostname[];
   fileItemType: FileItemType;
   fileConfigurations: { s3: S3FileConfiguration; local: LocalFileConfiguration };
 }
 
-const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options) => {
+const plugin: FastifyPluginAsync<GraaspItemActionsOptions> = async (fastify, options) => {
   const {
     items: { taskManager: itemTaskManager },
     itemMemberships: { taskManager: itemMembershipsTaskManager },
@@ -208,4 +206,7 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
   });
 };
 
-export default plugin;
+export default fp(plugin, {
+  fastify: '3.x',
+  name: 'graasp-plugin-actions-items',
+});

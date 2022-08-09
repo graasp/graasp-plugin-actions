@@ -689,9 +689,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graasp/sdk@portal:/Users/kim/git/graasp-utils::locator=graasp-plugin-actions%40workspace%3A.":
-  version: 0.0.0-use.local
-  resolution: "@graasp/sdk@portal:/Users/kim/git/graasp-utils::locator=graasp-plugin-actions%40workspace%3A."
+"@graasp/sdk@github:graasp/graasp-sdk.git#31/actions":
+  version: 0.1.0
+  resolution: "@graasp/sdk@https://github.com/graasp/graasp-sdk.git#commit=59de07a7c7167d41115092a7d503861b34394d7b"
   dependencies:
     "@fastify/secure-session": 5.2.0
     aws-sdk: 2.1111.0
@@ -701,8 +701,9 @@ __metadata:
     qs: 6.11.0
     slonik: 28.1.1
     uuid: 8.3.2
+  checksum: 0c7f66a9cee15d18087cece1534b0e44abe3a9f15623302065b0237854aa888ffdb2119683629b16520d40654dd42fc8fd894661f868cd003ea0e1263e7e24d9
   languageName: node
-  linkType: soft
+  linkType: hard
 
 "@graasp/translations@github:graasp/graasp-translations":
   version: 0.1.0
@@ -3529,6 +3530,7 @@ __metadata:
     archiver: 5.3.1
     eslint: 7.13.0
     fastify: ^3.29.1
+    fastify-plugin: ^3.0.1
     fluent-json-schema: 3.1.0
     geoip-lite: 1.4.2
     graasp-mailer: "github:graasp/graasp-mailer"

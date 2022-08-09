@@ -11,27 +11,22 @@ import {
   IdParam,
   Item,
   LocalFileConfiguration,
-  Member,
   S3FileConfiguration,
 } from '@graasp/sdk';
 import mailerPlugin from 'graasp-mailer';
 import { FileTaskManager } from 'graasp-plugin-file';
 
 import {
-  ACTION_TYPES,
   DEFAULT_REQUEST_EXPORT_INTERVAL,
   EXPORT_FILE_EXPIRATION,
   EXPORT_FILE_EXPIRATION_DAYS,
   PermissionLevel,
   TMP_FOLDER_PATH,
-  VIEW_BUILDER_NAME,
   ZIP_MIMETYPE,
 } from './constants/constants';
-import { Action } from './interfaces/action';
 import { AnalyticsQueryParams } from './interfaces/analytics';
 import { RequestExport } from './interfaces/requestExport';
 import { deleteAllById, exportAction, getItemActions } from './schemas/schemas';
-import { BaseAction } from './services/action/base-action';
 import { ActionService } from './services/action/db-service';
 import { ActionTaskManager } from './services/action/task-manager';
 import { RequestExportService } from './services/requestExport/db-service';
@@ -64,6 +59,11 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
     memberTaskManager,
     hosts,
   );
+
+  fastify.decorate('action', {
+    taskManager: actionTaskManager,
+    dbService: actionService,
+  });
 
   const fileTaskManager = new FileTaskManager(fileConfigurations, fileItemType);
   const requestExportDS = new RequestExportService();
@@ -108,64 +108,6 @@ const plugin: FastifyPluginAsync<GraaspActionsOptions> = async (fastify, options
       console.log(err);
     }
   };
-
-  // set hook handlers if can save actions
-  if (shouldSave) {
-    // save action when an item is created
-    // we cannot use the onResponse hook in this case because in the creation of an item
-    // the response object does not provide the item id (it is created later), therefore we do not have information about the item
-    // todo: with a refactor, this posthookhandler can be defined in the core in the item service
-    const createItemTaskName = itemTaskManager.getCreateTaskName();
-    runner.setTaskPostHookHandler(
-      createItemTaskName,
-      async (item: Partial<Item>, actor, { handler }) => {
-        const member = actor as Member;
-        const extra = { memberId: actor.id, itemId: item.id };
-        // create only happens in builder
-        const view = VIEW_BUILDER_NAME;
-        const geolocation = null;
-        const action: Action = new BaseAction({
-          memberId: actor.id,
-          itemPath: item.path,
-          memberType: member.type,
-          itemType: item.type,
-          actionType: ACTION_TYPES.CREATE,
-          view,
-          geolocation,
-          extra,
-        });
-        await actionService.create(action, handler);
-      },
-    );
-
-    // save action when an item is deleted
-    // we cannot use the onResponse hook in this case because when an item is deleted
-    // the onResponse hook is executed after the item is removed, therefore we do not have information about the item
-    // todo: with a refactor, this posthookhandler can be defined in the core in the item service
-    const deleteItemTaskName = itemTaskManager.getDeleteTaskName();
-    runner.setTaskPostHookHandler(
-      deleteItemTaskName,
-      async (item: Partial<Item>, actor, { handler }) => {
-        const member = actor as Member;
-        const extra = { memberId: actor.id, itemId: item.id };
-        // delete only happens in builder
-        const view = VIEW_BUILDER_NAME;
-        const geolocation = null;
-        // cannot add item path because it will be removed from the db
-        const action: Action = new BaseAction({
-          memberId: actor.id,
-          memberType: member.type,
-          itemPath: null,
-          itemType: item.type,
-          actionType: ACTION_TYPES.DELETE,
-          view,
-          geolocation,
-          extra,
-        });
-        actionService.create(action, handler);
-      },
-    );
-  }
 
   // get actions and more data matching the given `id`
   fastify.get<{ Params: IdParam; Querystring: AnalyticsQueryParams }>(

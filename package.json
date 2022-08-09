@@ -28,15 +28,16 @@
   "dependencies": {
     "@fastify/forwarded": "2.1.0",
     "archiver": "5.3.1",
-    "fluent-json-schema": "3.0.1",
+    "fluent-json-schema": "3.1.0",
     "geoip-lite": "1.4.2",
     "graasp-mailer": "github:graasp/graasp-mailer",
     "graasp-plugin-file": "github:graasp/graasp-plugin-file",
     "http-status-codes": "2.2.0",
+    "lodash.merge": "4.6.2",
     "uuid": "8.3.2"
   },
   "devDependencies": {
-    "@graasp/sdk": "github:graasp/graasp-sdk.git",
+    "@graasp/sdk": "github:graasp/graasp-sdk.git#31/actions",
     "@trivago/prettier-plugin-sort-imports": "3.2.0",
     "@types/eslint": "7.2.5",
     "@types/geoip-lite": "1.4.1",

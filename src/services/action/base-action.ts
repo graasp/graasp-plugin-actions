@@ -1,8 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 
-import { Serializable } from '@graasp/sdk';
-
-import { Action } from '../../interfaces/action';
+import { Action, Serializable } from '@graasp/sdk';
 
 export class BaseAction implements Action {
   readonly id: string;

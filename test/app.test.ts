@@ -4,6 +4,7 @@ import { v4 } from 'uuid';
 import { FastifyLoggerInstance } from 'fastify';
 
 import {
+  Action,
   FileItemType,
   ItemMembership,
   ItemType,
@@ -63,7 +64,7 @@ describe('Plugin Tests', () => {
           if (name === itemTaskManager.getCreateTaskName()) {
             const mockCreateAction = jest
               .spyOn(ActionService.prototype, 'create')
-              .mockImplementation(async (action) => action);
+              .mockImplementation(async (action) => action as Action);
             await fn(item, actor, { log: MOCK_LOGGER });
 
             const savedAction = mockCreateAction.mock.calls[0][0];
@@ -95,7 +96,7 @@ describe('Plugin Tests', () => {
           if (name === itemTaskManager.getDeleteTaskName()) {
             const mockCreateAction = jest
               .spyOn(ActionService.prototype, 'create')
-              .mockImplementation(async (action) => action);
+              .mockImplementation(async (action) => action as Action);
             await fn(item, actor, { log: MOCK_LOGGER });
 
             const savedAction = mockCreateAction.mock.calls[0][0];

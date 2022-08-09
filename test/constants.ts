@@ -1,8 +1,6 @@
 import { v4 } from 'uuid';
 
-import { Actor } from '@graasp/sdk';
-
-import { Action } from '../src/interfaces/action';
+import { Action, Actor } from '@graasp/sdk';
 
 export const GRAASP_ACTOR: Actor = {
   id: 'actorid',

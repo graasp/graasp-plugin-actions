@@ -1,6 +1,5 @@
-import { Actor, DatabaseTransactionHandler, TaskStatus } from '@graasp/sdk';
+import { Action, Actor, DatabaseTransactionHandler, TaskStatus } from '@graasp/sdk';
 
-import { Action } from '../../interfaces/action';
 import { RequestExport } from '../../interfaces/requestExport';
 import { BaseRequestExportTask } from './base-request-export-task';
 import { RequestExportService } from './db-service';

@@ -2,7 +2,12 @@ import { v4 } from 'uuid';
 
 import fastify, { FastifyLoggerInstance } from 'fastify';
 
-import type { DatabaseTransactionHandler, ItemService, MemberTaskManager } from '@graasp/sdk';
+import type {
+  ActionHandler,
+  DatabaseTransactionHandler,
+  ItemService,
+  MemberTaskManager,
+} from '@graasp/sdk';
 import { ItemMembershipTaskManager, ItemTaskManager, TaskRunner, buildItem } from 'graasp-test';
 
 import {
@@ -13,7 +18,6 @@ import {
 } from '../../../test/constants';
 import { ACTION_TYPES, VIEW_BUILDER_NAME } from '../../constants/constants';
 import { MemberType } from '../../constants/constants';
-import { BaseAction } from './base-action';
 import { ActionService } from './db-service';
 import { ActionTaskManager } from './task-manager';
 
@@ -37,9 +41,9 @@ const actionTaskManager = new ActionTaskManager(
   memberTaskMananger,
   CLIENT_HOSTS,
 );
-const generateActionsHandler = (): Promise<BaseAction[]> =>
+const generateActionsHandler: ActionHandler = () =>
   Promise.all([
-    new BaseAction({
+    {
       memberId: v4(),
       memberType: MemberType.Individual,
       itemType: ITEM_TYPE,
@@ -48,7 +52,7 @@ const generateActionsHandler = (): Promise<BaseAction[]> =>
       geolocation: undefined,
       extra: {},
       itemPath: v4().replace(/-/, '_'),
-    }),
+    },
   ]);
 
 // simplified core app using create action task on response

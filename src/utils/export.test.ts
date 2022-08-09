@@ -2,11 +2,11 @@ import fs from 'fs';
 import path from 'path';
 import { v4 } from 'uuid';
 
+import { Action } from '@graasp/sdk';
 import { buildItem } from 'graasp-test';
 
 import { CLIENT_HOSTS, createDummyAction } from '../../test/constants';
 import { VIEW_UNKNOWN_NAME } from '../constants/constants';
-import { Action } from '../interfaces/action';
 import { BaseAnalytics } from '../services/action/base-analytics';
 import { CannotWriteFileError } from './errors';
 import { exportActionsInArchive } from './export';

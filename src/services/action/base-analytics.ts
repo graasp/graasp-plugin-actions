@@ -1,6 +1,5 @@
-import { Item, ItemMembership, Member } from '@graasp/sdk';
+import { Action, Item, ItemMembership, Member } from '@graasp/sdk';
 
-import { Action } from '../../interfaces/action';
 import { Analytics } from '../../interfaces/analytics';
 
 export class BaseAnalytics implements Analytics {

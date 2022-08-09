@@ -1,12 +1,13 @@
 import { DatabaseTransactionConnection as TrxHandler, sql } from 'slonik';
 
+import { Action, CreateActionInput, ActionService as Service } from '@graasp/sdk';
+
 import { DEFAULT_ACTIONS_SAMPLE_SIZE } from '../../constants/constants';
-import { Action } from '../../interfaces/action';
 
 /**
  * Database's first layer of abstraction for Actions
  */
-export class ActionService {
+export class ActionService implements Service {
   // the 'safe' way to dynamically generate the columns names:
   private static allColumns = sql.join(
     [
@@ -36,7 +37,7 @@ export class ActionService {
    * @param action Action to create
    * @param transactionHandler Database transaction handler
    */
-  async create(action: Action, transactionHandler: TrxHandler): Promise<Action> {
+  async create(action: CreateActionInput, transactionHandler: TrxHandler): Promise<Action> {
     return transactionHandler
       .query<Action>(
         sql`

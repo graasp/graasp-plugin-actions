@@ -1,11 +1,10 @@
-import { Actor, DatabaseTransactionHandler, TaskStatus } from '@graasp/sdk';
+import { Action, Actor, DatabaseTransactionHandler, ItemService, TaskStatus } from '@graasp/sdk';
 
 import {
   DEFAULT_ACTIONS_SAMPLE_SIZE,
   MAX_ACTIONS_SAMPLE_SIZE,
   MIN_ACTIONS_SAMPLE_SIZE,
 } from '../../constants/constants';
-import { Action } from '../../interfaces/action';
 import { BaseActionTask } from './base-action-task';
 import { ActionService } from './db-service';
 
@@ -27,10 +26,11 @@ export class GetActionsTask extends BaseActionTask<Action[]> {
   constructor(
     actor: Actor,
     actionService: ActionService,
+    itemService: ItemService,
     itemId: string,
     input?: GetActionsTaskInputType,
   ) {
-    super(actor, actionService);
+    super(actor, actionService, itemService);
     this.itemId = itemId;
     this.input = input ?? {};
   }

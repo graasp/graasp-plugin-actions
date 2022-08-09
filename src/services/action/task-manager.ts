@@ -1,28 +1,31 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 
 import {
+  Action,
+  ActionHandler,
   Actor,
   Hostname,
   Item,
   ItemMembership,
   ItemMembershipTaskManager,
+  ItemService,
   ItemTaskManager,
   Member,
   MemberTaskManager,
   Task,
+  ActionTaskManager as TaskManager,
 } from '@graasp/sdk';
 
 import { PermissionLevel } from '../../constants/constants';
-import { Action } from '../../interfaces/action';
-import { ActionHandler } from '../../types';
 import { BaseAnalytics } from './base-analytics';
 import { CreateActionTask } from './create-action-task';
 import { ActionService } from './db-service';
 import { DeleteActionsTask } from './delete-actions-task';
 import { GetActionsTask, GetActionsTaskInputType } from './get-actions-task';
 
-export class ActionTaskManager {
+export class ActionTaskManager implements TaskManager {
   actionService: ActionService;
+  itemService: ItemService;
   itemTaskManager: ItemTaskManager;
   memberTaskManager: MemberTaskManager;
   itemMembershipsTaskManager: ItemMembershipTaskManager;
@@ -46,7 +49,7 @@ export class ActionTaskManager {
     member: Actor,
     payload: { request: FastifyRequest; reply: FastifyReply; handler: ActionHandler },
   ): CreateActionTask {
-    return new CreateActionTask(member, this.actionService, this.hosts, payload);
+    return new CreateActionTask(member, this.actionService, this.itemService, this.hosts, payload);
   }
 
   // TODO: should get latest and not random actions!!
@@ -67,7 +70,7 @@ export class ActionTaskManager {
     });
 
     // get actions
-    const getActionsTask = new GetActionsTask(member, this.actionService, itemId);
+    const getActionsTask = new GetActionsTask(member, this.actionService, this.itemService, itemId);
     getActionsTask.getInput = () => ({
       itemPath: getItemTask.result.path,
       ...payload,
@@ -136,6 +139,6 @@ export class ActionTaskManager {
   }
 
   createDeleteTask(member: Actor, memberId: string): DeleteActionsTask {
-    return new DeleteActionsTask(member, memberId, this.actionService);
+    return new DeleteActionsTask(member, memberId, this.actionService, this.itemService);
   }
 }

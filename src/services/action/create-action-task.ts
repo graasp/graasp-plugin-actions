@@ -4,7 +4,7 @@ import { FastifyLoggerInstance, FastifyReply, FastifyRequest } from 'fastify';
 
 import {
   Action,
-  ActionHandler,
+  ActionBuilder,
   Actor,
   DatabaseTransactionHandler,
   Hostname,
@@ -19,7 +19,7 @@ import { ActionService } from './db-service';
 interface InputType {
   request: FastifyRequest;
   reply: FastifyReply;
-  handler: ActionHandler;
+  actionBuilder: ActionBuilder;
 }
 
 export class CreateActionTask extends BaseActionTask<Action> {
@@ -44,7 +44,7 @@ export class CreateActionTask extends BaseActionTask<Action> {
 
     log.debug('create action');
 
-    const { request, reply, handler: generateActions } = this.input;
+    const { request, reply, actionBuilder: generateActions } = this.input;
 
     // create action only on successful requests
     if (reply.statusCode >= 200 && reply.statusCode < 300) {

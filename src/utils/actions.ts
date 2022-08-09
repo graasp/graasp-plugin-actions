@@ -12,7 +12,10 @@ const getView = (headers: { origin?: string | string[] }, hosts: Hostname[]): st
   hosts.find(({ hostname: thisHN }) => headers?.origin?.includes(thisHN))?.name ??
   VIEW_UNKNOWN_NAME;
 
-const getBaseAction = (request: FastifyRequest, hosts: Hostname[]): Partial<Action> => {
+const getBaseAction = (
+  request: FastifyRequest,
+  hosts: Hostname[],
+): Pick<Action, 'memberId' | 'memberType' | 'geolocation' | 'view' | 'extra'> => {
   const { member, headers } = request;
   const view = getView(headers, hosts);
   // warning: addresses might contained spoofed ips

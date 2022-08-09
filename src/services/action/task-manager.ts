@@ -1,6 +1,6 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-import { ActionHandler, Actor, Hostname, ActionTaskManager as TaskManager } from '@graasp/sdk';
+import { ActionBuilder, Actor, Hostname, ActionTaskManager as TaskManager } from '@graasp/sdk';
 
 import { CreateActionTask } from './create-action-task';
 import { ActionService } from './db-service';
@@ -19,7 +19,7 @@ export class ActionTaskManager implements TaskManager {
 
   createCreateTask(
     member: Actor,
-    payload: { request: FastifyRequest; reply: FastifyReply; handler: ActionHandler },
+    payload: { request: FastifyRequest; reply: FastifyReply; actionBuilder: ActionBuilder },
   ): CreateActionTask {
     return new CreateActionTask(member, this.actionService, this.hosts, payload);
   }

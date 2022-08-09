@@ -691,7 +691,7 @@ __metadata:
 
 "@graasp/sdk@github:graasp/graasp-sdk.git#31/actions":
   version: 0.1.0
-  resolution: "@graasp/sdk@https://github.com/graasp/graasp-sdk.git#commit=59de07a7c7167d41115092a7d503861b34394d7b"
+  resolution: "@graasp/sdk@https://github.com/graasp/graasp-sdk.git#commit=b780dbf829499670885c475d2d1ed46fad6a458f"
   dependencies:
     "@fastify/secure-session": 5.2.0
     aws-sdk: 2.1111.0
@@ -701,7 +701,7 @@ __metadata:
     qs: 6.11.0
     slonik: 28.1.1
     uuid: 8.3.2
-  checksum: 0c7f66a9cee15d18087cece1534b0e44abe3a9f15623302065b0237854aa888ffdb2119683629b16520d40654dd42fc8fd894661f868cd003ea0e1263e7e24d9
+  checksum: 35c0a8cf19d32eef15a6fe2e41af25faed0b94912252e8a1af766b13bb04b5d3293feba3fcbe433ac2ed07e3804b74b481a10ea7bcabe4b0a7d4a4bdcf545135
   languageName: node
   linkType: hard
 

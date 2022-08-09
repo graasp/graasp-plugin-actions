@@ -1,4 +1,4 @@
-import { Action, Actor, DatabaseTransactionHandler, ItemService, TaskStatus } from '@graasp/sdk';
+import { Action, Actor, DatabaseTransactionHandler, TaskStatus } from '@graasp/sdk';
 
 import { BaseActionTask } from './base-action-task';
 import { ActionService } from './db-service';
@@ -10,13 +10,8 @@ export class DeleteActionsTask extends BaseActionTask<Action[]> {
     return DeleteActionsTask.name;
   }
 
-  constructor(
-    actor: Actor,
-    memberId: string,
-    actionService: ActionService,
-    itemService: ItemService,
-  ) {
-    super(actor, actionService, itemService);
+  constructor(actor: Actor, memberId: string, actionService: ActionService) {
+    super(actor, actionService);
     this.memberId = memberId;
   }
 

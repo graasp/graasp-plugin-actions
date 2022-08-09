@@ -1,4 +1,4 @@
-import { Action, Actor, DatabaseTransactionHandler, ItemService, TaskStatus } from '@graasp/sdk';
+import { Action, Actor, DatabaseTransactionHandler, TaskStatus } from '@graasp/sdk';
 
 import {
   DEFAULT_ACTIONS_SAMPLE_SIZE,
@@ -26,11 +26,10 @@ export class GetActionsTask extends BaseActionTask<Action[]> {
   constructor(
     actor: Actor,
     actionService: ActionService,
-    itemService: ItemService,
     itemId: string,
     input?: GetActionsTaskInputType,
   ) {
-    super(actor, actionService, itemService);
+    super(actor, actionService);
     this.itemId = itemId;
     this.input = input ?? {};
   }

@@ -8,7 +8,6 @@ import {
   Actor,
   DatabaseTransactionHandler,
   Hostname,
-  ItemService,
   TaskStatus,
 } from '@graasp/sdk';
 
@@ -34,14 +33,8 @@ export class CreateActionTask extends BaseActionTask<Action> {
     return CreateActionTask.name;
   }
 
-  constructor(
-    actor: Actor,
-    actionService: ActionService,
-    itemService: ItemService,
-    hosts: Hostname[],
-    input: InputType,
-  ) {
-    super(actor, actionService, itemService);
+  constructor(actor: Actor, actionService: ActionService, hosts: Hostname[], input: InputType) {
+    super(actor, actionService);
     this.input = input;
     this.hosts = hosts;
   }
@@ -72,18 +65,7 @@ export class CreateActionTask extends BaseActionTask<Action> {
       // public action??
       const actions = await Promise.all(
         actionsToSave.map(async (action) => {
-          // warning: no check over membership !
-          const itemId = action.extra.itemId as string;
-          let item;
-          if (itemId) {
-            item = await this.itemService.get(itemId, handler);
-          }
-          return new BaseAction(
-            merge(baseAction, action, {
-              itemType: item?.type,
-              itemPath: item?.path,
-            }),
-          );
+          return new BaseAction(merge(baseAction, action));
         }),
       );
 

@@ -1,12 +1,11 @@
 import { FastifyLoggerInstance } from 'fastify';
 
-import { Actor, DatabaseTransactionHandler, ItemService, Task, TaskStatus } from '@graasp/sdk';
+import { Actor, DatabaseTransactionHandler, Task, TaskStatus } from '@graasp/sdk';
 
 import { ActionService } from './db-service';
 
 export abstract class BaseActionTask<R> implements Task<Actor, R> {
   protected actionService: ActionService;
-  protected itemService: ItemService;
   protected _result;
   protected _message: string;
 
@@ -21,10 +20,9 @@ export abstract class BaseActionTask<R> implements Task<Actor, R> {
 
   getResult: () => unknown;
 
-  constructor(actor: Actor, actionService: ActionService, itemService: ItemService) {
+  constructor(actor: Actor, actionService: ActionService) {
     this.actor = actor;
     this.actionService = actionService;
-    this.itemService = itemService;
     this.status = TaskStatus.NEW;
   }
 

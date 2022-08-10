@@ -11,6 +11,7 @@ import {
   IdParam,
   Item,
   LocalFileConfiguration,
+  PermissionLevel,
   S3FileConfiguration,
 } from '@graasp/sdk';
 import { FileTaskManager } from 'graasp-plugin-file';
@@ -19,14 +20,14 @@ import {
   DEFAULT_REQUEST_EXPORT_INTERVAL,
   EXPORT_FILE_EXPIRATION,
   EXPORT_FILE_EXPIRATION_DAYS,
-  PermissionLevel,
   TMP_FOLDER_PATH,
   ZIP_MIMETYPE,
 } from './constants/constants';
 import { AnalyticsQueryParams } from './interfaces/analytics';
 import { RequestExport } from './interfaces/requestExport';
 import { exportAction, getItemActions } from './schemas/schemas';
-import ItemActionTaskManager from './services/action/item-task-manager';
+import { ItemActionService } from './services/action/item/item-db-service';
+import ItemActionTaskManager from './services/action/item/item-task-manager';
 import { RequestExportService } from './services/requestExport/db-service';
 import { RequestExportTaskManager } from './services/requestExport/task-manager';
 import { buildActionFilePath, buildArchiveDateAsName, buildItemTmpFolder } from './utils/export';
@@ -42,7 +43,6 @@ const plugin: FastifyPluginAsync<GraaspItemActionsOptions> = async (fastify, opt
     items: { taskManager: itemTaskManager },
     itemMemberships: { taskManager: itemMembershipsTaskManager },
     members: { taskManager: memberTaskManager },
-    actions: { dbService: actionService },
     taskRunner: runner,
     mailer,
   } = fastify;
@@ -53,8 +53,9 @@ const plugin: FastifyPluginAsync<GraaspItemActionsOptions> = async (fastify, opt
 
   const { fileItemType, fileConfigurations, hosts } = options;
 
+  const itemActionService = new ItemActionService();
   const itemActionTaskManager = new ItemActionTaskManager(
-    actionService,
+    itemActionService,
     itemTaskManager,
     itemMembershipsTaskManager,
     memberTaskManager,
@@ -135,7 +136,7 @@ const plugin: FastifyPluginAsync<GraaspItemActionsOptions> = async (fastify, opt
       const checkAdminRightsTask =
         itemMembershipsTaskManager.createGetMemberItemMembershipTask(member);
       checkAdminRightsTask.getInput = () => ({
-        validatePermission: PermissionLevel.ADMIN,
+        validatePermission: PermissionLevel.Admin,
         item: getItemTask.result,
       });
       const requestExportTask = requestExportTaskManager.createGetLastTask(member, {

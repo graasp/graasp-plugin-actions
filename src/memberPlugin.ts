@@ -4,18 +4,17 @@ import fp from 'fastify-plugin';
 import { IdParam } from '@graasp/sdk';
 
 import { deleteAllById } from './schemas/schemas';
-import MemberActionTaskManager from './services/action/member-task-manager';
+import { MemberActionService } from './services/action/member/member-db-service';
+import MemberActionTaskManager from './services/action/member/member-task-manager';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface GraaspMemberActionsOptions {}
 
 const plugin: FastifyPluginAsync<GraaspMemberActionsOptions> = async (fastify) => {
-  const {
-    taskRunner: runner,
-    actions: { dbService: actionService },
-  } = fastify;
+  const { taskRunner: runner } = fastify;
 
-  const memberActionTaskManager = new MemberActionTaskManager(actionService);
+  const memberActionService = new MemberActionService();
+  const memberActionTaskManager = new MemberActionTaskManager(memberActionService);
 
   // todo: delete self data
   // delete all the actions matching the given `memberId`

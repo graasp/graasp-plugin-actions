@@ -2,7 +2,14 @@ import { v4 } from 'uuid';
 
 import fastify, { FastifyLoggerInstance } from 'fastify';
 
-import type { ActionHandler, DatabaseTransactionHandler, ItemService } from '@graasp/sdk';
+import {
+  ActionBuilder,
+  ActionType,
+  Context,
+  DatabaseTransactionHandler,
+  ItemService,
+  MemberType,
+} from '@graasp/sdk';
 import { TaskRunner, buildItem } from 'graasp-test';
 
 import {
@@ -11,8 +18,6 @@ import {
   GRAASP_ACTOR,
   ITEM_TYPE,
 } from '../../../test/constants';
-import { ACTION_TYPES, VIEW_BUILDER_NAME } from '../../constants/constants';
-import { MemberType } from '../../constants/constants';
 import { ActionService } from './db-service';
 import { ActionTaskManager } from './task-manager';
 
@@ -27,14 +32,14 @@ const log = {
 } as unknown as FastifyLoggerInstance;
 const handler = {} as DatabaseTransactionHandler;
 const actionTaskManager = new ActionTaskManager(actionService, CLIENT_HOSTS);
-const generateActionsHandler: ActionHandler = () =>
+const generateActionsHandler: ActionBuilder = () =>
   Promise.all([
     {
       memberId: v4(),
       memberType: MemberType.Individual,
       itemType: ITEM_TYPE,
-      actionType: ACTION_TYPES.CREATE,
-      view: VIEW_BUILDER_NAME,
+      actionType: ActionType.CREATE_ITEM,
+      view: Context.BUILDER,
       geolocation: undefined,
       extra: {},
       itemPath: v4().replace(/-/, '_'),
@@ -55,7 +60,7 @@ const build = async (args: { method: string; url: string; shouldThrow?: boolean 
       const createActionTask = actionTaskManager.createCreateTask(request.member, {
         request,
         reply,
-        handler: generateActionsHandler,
+        actionBuilder: generateActionsHandler,
       });
       await runner.runSingle(createActionTask, log);
     }

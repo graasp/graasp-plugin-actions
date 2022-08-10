@@ -1,6 +1,5 @@
-import { Actor, Hostname, TaskStatus } from '@graasp/sdk';
+import { Actor, Context, Hostname, TaskStatus } from '@graasp/sdk';
 
-import { VIEW_UNKNOWN_NAME } from '../../constants/constants';
 import { ExportActionsInArchiveOutput, exportActionsInArchive } from '../../utils/export';
 import { BaseAnalytics } from '../action/base-analytics';
 import { BaseRequestExportTask } from './base-request-export-task';
@@ -41,7 +40,7 @@ export class CreateArchiveTask extends BaseRequestExportTask<ExportActionsInArch
       storageFolder,
       baseAnalytics,
       // include all actions from any view
-      views: [...this.hosts.map(({ name }) => name), VIEW_UNKNOWN_NAME],
+      views: [...this.hosts.map(({ name }) => name), Context.UNKNOWN],
     });
 
     this._result = result;

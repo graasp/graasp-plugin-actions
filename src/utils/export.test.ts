@@ -2,17 +2,16 @@ import fs from 'fs';
 import path from 'path';
 import { v4 } from 'uuid';
 
-import { Action } from '@graasp/sdk';
+import { Action, Context } from '@graasp/sdk';
 import { buildItem } from 'graasp-test';
 
 import { CLIENT_HOSTS, createDummyAction } from '../../test/constants';
-import { VIEW_UNKNOWN_NAME } from '../constants/constants';
 import { BaseAnalytics } from '../services/action/base-analytics';
 import { CannotWriteFileError } from './errors';
 import { exportActionsInArchive } from './export';
 
 const itemId = v4();
-const views = [...CLIENT_HOSTS.map(({ name }) => name), VIEW_UNKNOWN_NAME];
+const views = [...CLIENT_HOSTS.map(({ name }) => name), Context.UNKNOWN];
 const actions: Action[] = [createDummyAction(), createDummyAction(), createDummyAction()];
 const baseAnalytics = new BaseAnalytics({
   actions,

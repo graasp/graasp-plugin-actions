@@ -2,8 +2,6 @@ import { DatabaseTransactionConnection as TrxHandler, sql } from 'slonik';
 
 import { Action, CreateActionInput, ActionService as Service } from '@graasp/sdk';
 
-import { DEFAULT_ACTIONS_SAMPLE_SIZE } from '../../constants/constants';
-
 /**
  * Database's first layer of abstraction for Actions
  */
@@ -54,8 +52,8 @@ export class ActionService implements Service {
         VALUES (
             ${action.memberId},
             ${action.memberType},
-            ${action.itemPath},
-            ${action.itemType},
+            ${action.itemPath ?? null},
+            ${action.itemType ?? null},
             ${action.actionType},
             ${action.view},
             ${sql.json(action.geolocation ?? null)},
@@ -65,53 +63,5 @@ export class ActionService implements Service {
       `,
       )
       .then(({ rows }) => rows[0]);
-  }
-
-  /**
-   * Delete actions matching the given `memberId`. Return actions, or `null`, if delete has no effect.
-   * @param memberId ID of the member whose actions are deleted
-   * @param transactionHandler Database transaction handler
-   */
-  async deleteActionsByUser(
-    memberId: string,
-    transactionHandler: TrxHandler,
-  ): Promise<readonly Action[]> {
-    return transactionHandler
-      .query<Action>(
-        sql`
-        DELETE FROM "action"
-        WHERE "member_id" = ${memberId}
-        RETURNING ${ActionService.allColumns}
-      `,
-      )
-      .then(({ rows }) => rows);
-  }
-
-  /**
-   * Get random actions matching the given itemPath and below
-   * @param itemPath path of the item whose actions are retrieved
-   * @param filters.sampleSize number of actions to retrieve
-   * @param filters.view get actions only for a given view
-   * @param transactionHandler database transaction handler
-   */
-  async getActionsByItem(
-    itemPath: string,
-    filters: { sampleSize?: number; view?: string },
-    transactionHandler: TrxHandler,
-  ): Promise<readonly Action[]> {
-    const size = filters.sampleSize ?? DEFAULT_ACTIONS_SAMPLE_SIZE;
-    const conditions = filters.view ? sql`AND view = ${filters.view}` : sql``;
-
-    return transactionHandler
-      .query<Action>(
-        sql`
-        SELECT ${ActionService.allColumns} 
-        FROM action
-        WHERE item_path <@ ${itemPath} ${conditions}
-        ORDER BY RANDOM()
-        LIMIT ${size}
-      `,
-      )
-      .then(({ rows }) => rows);
   }
 }

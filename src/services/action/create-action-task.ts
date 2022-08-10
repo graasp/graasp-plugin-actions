@@ -70,11 +70,14 @@ export class CreateActionTask extends BaseActionTask<Action> {
       );
 
       // save action
+      // todo: save in bunch
       this._result = await Promise.all(
-        actions.map(async (action) => {
-          const actionResult = await this.actionService.create(action, handler);
-          return actionResult;
-        }),
+        actions
+          .map(async (action) => {
+            const actionResult = await this.actionService.create(action, handler);
+            return actionResult;
+          })
+          .filter(Boolean),
       );
     } else {
       this._result = null;

@@ -9,20 +9,19 @@ import {
   ItemTaskManager,
   Member,
   MemberTaskManager,
+  PermissionLevel,
   Task,
 } from '@graasp/sdk';
 
-import { PermissionLevel } from '../../constants/constants';
-import { BaseAnalytics } from './base-analytics';
-import { ActionService } from './db-service';
-import { DeleteActionsTask } from './delete-actions-task';
+import { BaseAnalytics } from '../base-analytics';
 import { GetActionsTask, GetActionsTaskInputType } from './get-actions-task';
+import { ItemActionService } from './item-db-service';
 
 // action task manager shouldn't depend on the other task manager
 // we want to define a generic action task manager before defining the other ones
 export class ItemActionTaskManager {
   //implements TaskManager
-  actionService: ActionService;
+  actionService: ItemActionService;
   itemService: ItemService;
   itemTaskManager: ItemTaskManager;
   memberTaskManager: MemberTaskManager;
@@ -30,7 +29,7 @@ export class ItemActionTaskManager {
   hosts: Hostname[];
 
   constructor(
-    actionService: ActionService,
+    actionService: ItemActionService,
     itemTaskManager: ItemTaskManager,
     itemMembershipsTaskManager: ItemMembershipTaskManager,
     memberTaskManager: MemberTaskManager,
@@ -57,7 +56,7 @@ export class ItemActionTaskManager {
       this.itemMembershipsTaskManager.createGetMemberItemMembershipTask(member);
     checkMembershipTask.getInput = () => ({
       item: getItemTask.result,
-      validatePermission: PermissionLevel.ADMIN,
+      validatePermission: PermissionLevel.Admin,
     });
 
     // get actions
@@ -127,10 +126,6 @@ export class ItemActionTaskManager {
       getDescendantsTask,
       getActionsTask,
     ];
-  }
-
-  createDeleteTask(member: Actor, memberId: string): DeleteActionsTask {
-    return new DeleteActionsTask(member, memberId, this.actionService);
   }
 }
 

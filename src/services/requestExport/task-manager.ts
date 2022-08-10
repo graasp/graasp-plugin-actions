@@ -6,7 +6,7 @@ import { FileTaskManager } from 'graasp-plugin-file';
 import { MAX_ACTIONS_SAMPLE_SIZE, ZIP_MIMETYPE } from '../../constants/constants';
 import { buildActionFilePath, buildArchiveDateAsName } from '../../utils/export';
 import { BaseAnalytics } from '../action/base-analytics';
-import ItemActionTaskManager from '../action/item-task-manager';
+import ItemActionTaskManager from '../action/item/item-task-manager';
 import { CreateArchiveTask } from './create-archive-task';
 import {
   CreateRequestExportTask,

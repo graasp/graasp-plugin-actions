@@ -8,7 +8,6 @@ import { ActionService } from './db-service';
 // action task manager shouldn't depend on the other task manager
 // we want to define a generic action task manager before defining the other ones
 export class ActionTaskManager implements TaskManager {
-  // implements TaskManager
   actionService: ActionService;
   hosts: Hostname[];
 

@@ -4,9 +4,9 @@ import {
   DEFAULT_ACTIONS_SAMPLE_SIZE,
   MAX_ACTIONS_SAMPLE_SIZE,
   MIN_ACTIONS_SAMPLE_SIZE,
-} from '../../constants/constants';
-import { BaseActionTask } from './base-action-task';
-import { ActionService } from './db-service';
+} from '../../../constants/constants';
+import { BaseItemActionTask } from './base-action-task';
+import { ItemActionService } from './item-db-service';
 
 export interface GetActionsTaskInputType {
   itemPath?: string;
@@ -14,7 +14,7 @@ export interface GetActionsTaskInputType {
   view?: string;
 }
 
-export class GetActionsTask extends BaseActionTask<Action[]> {
+export class GetActionsTask extends BaseItemActionTask<Action[]> {
   readonly itemId: string;
 
   input: GetActionsTaskInputType;
@@ -25,7 +25,7 @@ export class GetActionsTask extends BaseActionTask<Action[]> {
 
   constructor(
     actor: Actor,
-    actionService: ActionService,
+    actionService: ItemActionService,
     itemId: string,
     input?: GetActionsTaskInputType,
   ) {

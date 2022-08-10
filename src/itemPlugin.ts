@@ -25,7 +25,7 @@ import {
 } from './constants/constants';
 import { AnalyticsQueryParams } from './interfaces/analytics';
 import { RequestExport } from './interfaces/requestExport';
-import { exportAction, getItemActions } from './schemas/schemas';
+import { enableActions, exportAction, getItemActions } from './schemas/schemas';
 import { ItemActionService } from './services/action/item/item-db-service';
 import ItemActionTaskManager from './services/action/item/item-task-manager';
 import { RequestExportService } from './services/requestExport/db-service';
@@ -125,10 +125,20 @@ const plugin: FastifyPluginAsync<GraaspItemActionsOptions> = async (fastify, opt
     },
   );
 
+  // toggle enable actions setting
+  fastify.get<{ Params: IdParam; Body: boolean }>(
+    '/:id/analytics/enable',
+    { schema: enableActions },
+    async ({ member, params: { id }, body: enableActions }) => {
+      const tasks = itemActionTaskManager.createSetEnableActionsTaskSequence(member, id, enableActions);
+      return runner.runSingleSequence(tasks);
+    },
+  );
+
   // export actions matching the given `id`
   fastify.route<{ Params: IdParam }>({
     method: 'POST',
-    url: '/:id/export-analytics',
+    url: '/:id/analytics/export',
     schema: exportAction,
     handler: async ({ member, params: { id: itemId }, log }, reply) => {
       // check member has admin access to the item
@@ -205,6 +215,8 @@ const plugin: FastifyPluginAsync<GraaspItemActionsOptions> = async (fastify, opt
       reply.status(StatusCodes.NO_CONTENT);
     },
   });
+
+
 };
 
 export default fp(plugin, {

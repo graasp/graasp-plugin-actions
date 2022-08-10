@@ -66,3 +66,10 @@ export const exportAction = {
     [StatusCodes.NO_CONTENT]: {},
   },
 };
+
+export const enableActions = {
+  params: id,
+  body: {
+    type: 'boolean',
+  }
+};

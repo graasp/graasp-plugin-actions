@@ -127,6 +127,12 @@ export class ItemActionTaskManager {
       getActionsTask,
     ];
   }
+
+  createSetEnableActionsTaskSequence(member: Actor, itemId: string, enableActions: boolean): Task<Actor, unknown>[] {
+    const checkAdminMembershipTaskSequence = this.itemMembershipsTaskManager.createGetAdminMembershipTaskSequence(member, itemId);
+    const updateItemTaskSequence = this.itemTaskManager.createUpdateTaskSequence(member, itemId, { settings: { enableActions } });
+    return [...checkAdminMembershipTaskSequence, ...updateItemTaskSequence]
+  }
 }
 
 export default ItemActionTaskManager;

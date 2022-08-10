@@ -30,26 +30,21 @@ export const getBaseAction = (
 };
 
 // TODO: allow undefined values?
+// true by default?
 // decorate?
-export const shouldSaveAForItemAndMember = (
-  action: Action,
-  {
-    item,
-    member,
-  }: {
-    item?: Item;
-    handler: DatabaseTransactionConnection;
-    member?: Member;
-  },
-): boolean => {
-  let itemCondition = true;
-  if (item) {
-    itemCondition = Boolean(item?.settings?.enableActions);
-  }
-  let memberCondition = true;
-  if (member) {
-    memberCondition = Boolean(member?.extra?.enableActions);
-  }
+export const shouldSaveAForMember = ({ member }: { item?: Item; member?: Member }): boolean => {
+  return Boolean(member?.extra?.enableActions) ?? true;
+};
+
+export const shouldSaveAForItemAndMember = ({
+  item,
+  member,
+}: {
+  item?: Item;
+  member?: Member;
+}): boolean => {
+  const itemCondition = Boolean(item?.settings?.enableActions) ?? true;
+  const memberCondition = shouldSaveAForMember({ member });
 
   return itemCondition && memberCondition;
 };

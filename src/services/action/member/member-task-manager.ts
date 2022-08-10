@@ -19,8 +19,13 @@ export class MemberActionTaskManager {
     return new DeleteActionsTask(member, memberId, this.actionService);
   }
 
-  createSetEnableActionsTaskSequence(member: Actor, enableActions: boolean): Task<Actor, unknown>[] {
-    return this.memberTaskManager.createUpdateTaskSequence(member, member.id, { extra: { enableActions } });
+  createSetEnableActionsTaskSequence(
+    member: Actor,
+    enableActions: boolean,
+  ): Task<Actor, unknown>[] {
+    return this.memberTaskManager.createUpdateTaskSequence(member, member.id, {
+      extra: { enableActions },
+    });
   }
 }
 

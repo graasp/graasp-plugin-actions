@@ -1,5 +1,4 @@
 import geoip from 'geoip-lite';
-import { DatabaseTransactionConnection } from 'slonik';
 
 import forwarded from '@fastify/forwarded';
 import { FastifyRequest } from 'fastify';

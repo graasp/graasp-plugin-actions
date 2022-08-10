@@ -71,5 +71,5 @@ export const enableActions = {
   params: id,
   body: {
     type: 'boolean',
-  }
+  },
 };

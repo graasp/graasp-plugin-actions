@@ -103,6 +103,7 @@ const plugin: FastifyPluginAsync<GraaspItemActionsOptions> = async (fastify, opt
     }
   };
 
+  // TODO: check if it is still needed, but I don't think so
   // add CORS support
   // if (fastify.corsPluginOptions) {
   //   fastify.register(fastifyCors, fastify.corsPluginOptions);
@@ -130,7 +131,11 @@ const plugin: FastifyPluginAsync<GraaspItemActionsOptions> = async (fastify, opt
     '/:id/analytics/enable',
     { schema: enableActions },
     async ({ member, params: { id }, body: enableActions }) => {
-      const tasks = itemActionTaskManager.createSetEnableActionsTaskSequence(member, id, enableActions);
+      const tasks = itemActionTaskManager.createSetEnableActionsTaskSequence(
+        member,
+        id,
+        enableActions,
+      );
       return runner.runSingleSequence(tasks);
     },
   );
@@ -215,8 +220,6 @@ const plugin: FastifyPluginAsync<GraaspItemActionsOptions> = async (fastify, opt
       reply.status(StatusCodes.NO_CONTENT);
     },
   });
-
-
 };
 
 export default fp(plugin, {

@@ -8,13 +8,19 @@ import { MemberActionService } from './services/action/member/member-db-service'
 import MemberActionTaskManager from './services/action/member/member-task-manager';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface GraaspMemberActionsOptions { }
+export interface GraaspMemberActionsOptions {}
 
 const plugin: FastifyPluginAsync<GraaspMemberActionsOptions> = async (fastify) => {
-  const { taskRunner: runner, members: { taskManager: memberTaskManager } } = fastify;
+  const {
+    taskRunner: runner,
+    members: { taskManager: memberTaskManager },
+  } = fastify;
 
   const memberActionService = new MemberActionService();
-  const memberActionTaskManager = new MemberActionTaskManager(memberActionService, memberTaskManager);
+  const memberActionTaskManager = new MemberActionTaskManager(
+    memberActionService,
+    memberTaskManager,
+  );
 
   // delete all own actions
   fastify.delete<{ Params: IdParam }>(
@@ -27,11 +33,14 @@ const plugin: FastifyPluginAsync<GraaspMemberActionsOptions> = async (fastify) =
   );
 
   // toggle enable actions setting
-  fastify.patch<{ Params: IdParam, Body: boolean }>(
+  fastify.patch<{ Params: IdParam; Body: boolean }>(
     '/analytics/enable',
     { schema: enableActions },
     async ({ member, body: enableActions }) => {
-      const tasks = memberActionTaskManager.createSetEnableActionsTaskSequence(member, enableActions);
+      const tasks = memberActionTaskManager.createSetEnableActionsTaskSequence(
+        member,
+        enableActions,
+      );
       return runner.runSingleSequence(tasks);
     },
   );

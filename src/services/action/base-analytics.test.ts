@@ -58,10 +58,10 @@ describe('Base Analytics', () => {
       expect(m.extra.lang).toBeTruthy();
 
       // no password
-      expect(m.password).toBeFalsy();
+      expect(m.password).toBeUndefined();
 
       // no favorites
-      expect(m.extra.favoriteItems).toBeFalsy();
+      expect(m.extra.favoriteItems).toBeUndefined();
     }
   });
 });

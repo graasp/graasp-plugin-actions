@@ -629,13 +629,12 @@ __metadata:
   linkType: hard
 
 "@fastify/cookie@npm:^7.0.0":
-  version: 7.2.0
-  resolution: "@fastify/cookie@npm:7.2.0"
+  version: 7.4.0
+  resolution: "@fastify/cookie@npm:7.4.0"
   dependencies:
     cookie: ^0.5.0
-    cookie-signature: ^1.1.0
-    fastify-plugin: ^3.0.1
-  checksum: ac618c8246bd791b90fac0272dcd94ce7ce09b2289038ce5202b0e97d727783ceb353753100b097b018063238542acee7281a171e2af0371cfa0d65f82ffd8ee
+    fastify-plugin: ^4.0.0
+  checksum: cf710f8fcf07d1655bdd76b86076e32d343fdea9291534e0b87b909d978520333663c2aed63609f84c2eec46ac0e9068f462a4b63b5d124e3d31c873adaa66d7
   languageName: node
   linkType: hard
 
@@ -691,17 +690,18 @@ __metadata:
 
 "@graasp/sdk@github:graasp/graasp-sdk.git":
   version: 0.1.0
-  resolution: "@graasp/sdk@https://github.com/graasp/graasp-sdk.git#commit=7e3491095507f6dfd129d318a87e6c63f0eb486e"
+  resolution: "@graasp/sdk@https://github.com/graasp/graasp-sdk.git#commit=3c6bf828279719895489d8237c4a53dfc430b2a8"
   dependencies:
     "@fastify/secure-session": 5.2.0
     aws-sdk: 2.1111.0
-    fastify: ^3.29.1
+    fastify: 3.29.1
     fluent-json-schema: 3.1.0
+    immutable: 4.1.0
     js-cookie: 3.0.1
     qs: 6.11.0
     slonik: 28.1.1
     uuid: 8.3.2
-  checksum: 1fdf3b5c52945769005bb6a83620a09f8995f5d16b2115675a7cf745b2a02e07758b3ed1a77b9357b0a9d6ab984e5427a18e4a5353e04f4d02ce16c2010e9785
+  checksum: 71c6aff2c43403915751aa111a83d71d6d8c8737f3441c0843556cee61c8bf0729c199a27c8ca8d137f25cfbfbc53b566b456fec0206c583917fee4d04a79d88
   languageName: node
   linkType: hard
 
@@ -1550,6 +1550,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ajv@npm:8.12.0":
+  version: 8.12.0
+  resolution: "ajv@npm:8.12.0"
+  dependencies:
+    fast-deep-equal: ^3.1.1
+    json-schema-traverse: ^1.0.0
+    require-from-string: ^2.0.2
+    uri-js: ^4.2.2
+  checksum: 4dc13714e316e67537c8b31bc063f99a1d9d9a497eb4bbd55191ac0dcd5e4985bbb71570352ad6f1e76684fb6d790928f96ba3b2d4fd6e10024be9612fe3f001
+  languageName: node
+  linkType: hard
+
 "ajv@npm:^6.10.0, ajv@npm:^6.10.2, ajv@npm:^6.11.0, ajv@npm:^6.12.4, ajv@npm:^6.12.6":
   version: 6.12.6
   resolution: "ajv@npm:6.12.6"
@@ -2324,13 +2336,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cookie-signature@npm:^1.1.0":
-  version: 1.2.0
-  resolution: "cookie-signature@npm:1.2.0"
-  checksum: d11f56f909733695d989511bf0e1dd874220d818b9d118945dce3c275fa50adfb3f6984354de0f5eefdc9347951a22ba3545230a762576019d23c16055b12d4c
-  languageName: node
-  linkType: hard
-
 "cookie@npm:^0.5.0":
   version: 0.5.0
   resolution: "cookie@npm:0.5.0"
@@ -3072,6 +3077,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fastify-plugin@npm:^4.0.0":
+  version: 4.3.0
+  resolution: "fastify-plugin@npm:4.3.0"
+  checksum: f4831ca6de3db276f6e5c9ae172c175631be07b24b91e1de17d0cd11c1bd29fe7f671deec591a4dfd26169d3de4f9d9ca385d0e7bddccf38c6d21b5764f8b77d
+  languageName: node
+  linkType: hard
+
 "fastify-polyglot@npm:1.0.0":
   version: 1.0.0
   resolution: "fastify-polyglot@npm:1.0.0"
@@ -3082,7 +3094,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fastify@npm:^3.29.1":
+"fastify@npm:3.29.1, fastify@npm:^3.29.1":
   version: 3.29.1
   resolution: "fastify@npm:3.29.1"
   dependencies:
@@ -3536,6 +3548,7 @@ __metadata:
     "@types/uuid": 8.3.4
     "@typescript-eslint/eslint-plugin": 4.7.0
     "@typescript-eslint/parser": 4.7.0
+    ajv: 8.12.0
     archiver: 5.3.1
     eslint: 7.13.0
     fastify: ^3.29.1
@@ -3833,6 +3846,13 @@ __metadata:
   version: 5.2.0
   resolution: "ignore@npm:5.2.0"
   checksum: 6b1f926792d614f64c6c83da3a1f9c83f6196c2839aa41e1e32dd7b8d174cef2e329d75caabb62cb61ce9dc432f75e67d07d122a037312db7caa73166a1bdb77
+  languageName: node
+  linkType: hard
+
+"immutable@npm:4.1.0":
+  version: 4.1.0
+  resolution: "immutable@npm:4.1.0"
+  checksum: b9bc1f14fb18eb382d48339c064b24a1f97ae4cf43102e0906c0a6e186a27afcd18b55ca4a0b63c98eefb58143e2b5ebc7755a5fb4da4a7ad84b7a6096ac5b13
   languageName: node
   linkType: hard
 
@@ -6639,12 +6659,12 @@ __metadata:
   linkType: hard
 
 "sodium-native@npm:^3.0.0":
-  version: 3.3.0
-  resolution: "sodium-native@npm:3.3.0"
+  version: 3.4.1
+  resolution: "sodium-native@npm:3.4.1"
   dependencies:
     node-gyp: latest
     node-gyp-build: ^4.3.0
-  checksum: 4412bc90155261e2006c979788d3b33e3bdba1c41669c7054a876b8731a68886e1450b356791abd2c4e7b217d21f50adfdc1e194d8909dd003223195bd8ddc0a
+  checksum: 88f2f8c9ecb3c7952098b667ee3803f24253d72a3b3874b126e0e36b2ac20432e12ad44bde3664024e6d0ae1bc6d24fdebc81273af161e735f2eec22f10d26dd
   languageName: node
   linkType: hard
 

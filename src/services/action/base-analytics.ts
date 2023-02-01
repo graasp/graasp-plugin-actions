@@ -1,3 +1,5 @@
+import Ajv from 'ajv';
+
 import { Item, ItemMembership, Member } from '@graasp/sdk';
 
 import { Action } from '../../interfaces/action';
@@ -25,6 +27,31 @@ export class BaseAnalytics implements Analytics {
       requestedSampleSize: number;
     };
   }) {
+    // TODO: all other schemas
+
+    // members: validate and remove additional properties
+    const ajv = new Ajv({ removeAdditional: 'all' });
+    const memberSchema = {
+      type: 'array',
+      items: {
+        // copy of member's schema
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          id: { type: 'string' },
+          name: { type: 'string' },
+          email: { type: 'string' },
+          extra: {
+            type: 'object',
+            additionalProperties: false,
+            properties: { lang: { type: 'string' } },
+          },
+        },
+      },
+    };
+    const validateMembers = ajv.compile(memberSchema);
+    validateMembers(args.members);
+
     this.actions = args.actions;
     this.members = args.members;
     this.item = args.item;

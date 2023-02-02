@@ -66,3 +66,22 @@ export const exportAction = {
     [StatusCodes.NO_CONTENT]: {},
   },
 };
+
+export const memberSchemaForAnalytics = {
+  type: 'array',
+  items: {
+    // copy of member's schema
+    type: 'object',
+    additionalProperties: false,
+    properties: {
+      id: { type: 'string' },
+      name: { type: 'string' },
+      email: { type: 'string' },
+      extra: {
+        type: 'object',
+        additionalProperties: false,
+        properties: { lang: { type: 'string' } },
+      },
+    },
+  },
+};
